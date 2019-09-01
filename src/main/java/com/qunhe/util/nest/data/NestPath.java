@@ -26,7 +26,6 @@ public class NestPath  implements Comparable<NestPath>{
 
     public int bid;
 
-
     public void add(double x , double y ){
         this.add(new Segment(x,y));
     }
@@ -189,20 +188,21 @@ public class NestPath  implements Comparable<NestPath>{
          * Convert NestPath 2 Clipper
          */
         Path path = CommonUtil.NestPath2Path(srcPath);
-
+        // Convert self interacting polygons to simple ones
         Paths simple = DefaultClipper.simplifyPolygon(path, Clipper.PolyFillType.NON_ZERO);
         if(simple.size() == 0 ){
             return null;
         }
         Path biggest = simple.get(0);
         double biggestArea = Math.abs(biggest.area());
-        for(int i = 0; i <simple.size();i++){
+        for(int i = 1; i <simple.size();i++){
             double area = Math.abs(simple.get(i).area());
             if(area > biggestArea ){
                 biggest = simple.get(i);
                 biggestArea = area;
             }
         }
+        // Remove vertices under tolerance specification
         Path clean = biggest.cleanPolygon(srcPath.config.CURVE_TOLERANCE * Config.CLIIPER_SCALE);
         if(clean.size() == 0 ){
             return null ;

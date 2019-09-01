@@ -2,7 +2,6 @@ package com.qunhe.util.nest.util;
 
 import com.qunhe.util.nest.data.NestPath;
 import com.qunhe.util.nest.data.Segment;
-import com.qunhe.util.nest.data.Vector;
 import com.qunhe.util.nest.util.coor.ClipperCoor;
 import com.qunhe.util.nest.util.coor.NestCoor;
 import de.lighti.clipper.*;
@@ -94,12 +93,12 @@ public class CommonUtil {
         for(int i = 0 ; i<list.size() ; i ++){
             NestPath p = list.get(i);
             boolean isChild = false;
-            for(int  j = 0 ; j<list.size();j++){
+            for(int j = 0; !Config.ASSUME_NO_INNER_PARTS && j<list.size(); j++){
                 if(j == i ){
                     continue;
                 }
-
-                if(GeometryUtil.pointInPolygon(p.getSegments().get(0) , list.get(j)) == true ){
+                Boolean b = GeometryUtil.pointInPolygon(p.getSegments().get(0) , list.get(j));
+                if(b!=null && b==true ){
                     list.get(j).getChildren().add(p);
                     p.setParent(list.get(j));
                     isChild = true;
@@ -113,7 +112,7 @@ public class CommonUtil {
         /**
          *  将内环从list列表中去除
          */
-        for(int i = 0; i <list.size() ; i ++){
+        for(int i = 0; !Config.ASSUME_NO_INNER_PARTS && i <list.size() ; i ++){
             if(parents.indexOf(list.get(i)) < 0 ){
                 list.remove(i);
                 i--;
@@ -125,7 +124,7 @@ public class CommonUtil {
             id ++;
         }
 
-        for(int i = 0 ; i<parents.size() ; i ++){
+        for(int i = 0 ;!Config.ASSUME_NO_INNER_PARTS &&  i<parents.size() ; i ++){
             if(parents.get(i).getChildren().size() > 0 ){
                 id = toTree(parents.get(i).getChildren(),id);
             }
@@ -208,8 +207,10 @@ public class CommonUtil {
     public static List<NestPath> BuildTree(List<NestPath> parts ,double curve_tolerance){
         List<NestPath> polygons = new ArrayList<NestPath>();
         for(int i =0 ; i<parts.size();i++){
+            // Do cleaning with Clipper: self intersecting, redundant vertices...
             NestPath cleanPoly = NestPath.cleanNestPath(parts.get(i));
             cleanPoly.bid = parts.get(i).bid;
+            // Some parts are too small to keep. TODO remove this for the match
             if(cleanPoly.size() > 2 &&  Math.abs(GeometryUtil.polygonArea(cleanPoly)) > curve_tolerance * curve_tolerance){
                 cleanPoly.setSource(i);
 

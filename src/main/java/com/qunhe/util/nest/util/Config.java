@@ -6,11 +6,21 @@ package com.qunhe.util.nest.util;
 public class Config {
     public  static int CLIIPER_SCALE = 10000;
     public  static double CURVE_TOLERANCE  = 0.02;
+    public static double BIN_WIDTH;
+    public static double BIN_HEIGHT;
+    public static int NB_ITERATIONS;
     public  double SPACING ;
     public  int POPULATION_SIZE;
     public  int MUTATION_RATE ;
     private  boolean CONCAVE ;
     public   boolean USE_HOLE ;
+    // Contest purpose
+    public static boolean IS_DEBUG;
+    public static double BOUND_SPACING;
+    public static boolean ASSUME_NO_INNER_PARTS;
+    public static boolean ASSUME_ALL_PARTS_PLACABLE;
+
+
 
 
     public Config() {

@@ -1,12 +1,12 @@
-package com.qunhe.util.nest;
+package com.qunhe.util.nest.contest;
 
 
-import com.qunhe.util.nest.data.*;
+import com.qunhe.util.nest.Nest;
+import com.qunhe.util.nest.data.NestPath;
+import com.qunhe.util.nest.data.Placement;
 import com.qunhe.util.nest.util.Config;
-import com.qunhe.util.nest.util.GeometryUtil;
-import com.qunhe.util.nest.util.PostionUtil;
+import com.qunhe.util.nest.util.IOUtils;
 import com.qunhe.util.nest.util.SvgUtil;
-import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class NestTest {
+public class Play {
    
 
     @Test
@@ -65,12 +65,46 @@ public class NestTest {
         }
     }
 
+    @Test
+    public void play() throws Exception {
+        List<NestPath> polygons = IOUtils.readFromContestFile("./data/L0002_lingjian.csv");
+        polygons = polygons.subList(0,15);
+        NestPath bin = new NestPath();
+        double binWidth = 1000;
+        double binHeight = 600;
+        bin.add(0, 0);
+        bin.add(binWidth, 0);
+        bin.add(binWidth, binHeight);
+        bin.add(0, binHeight);
+        bin.bid = -1;
+
+        Config config = new Config();
+        config.SPACING = 0;
+        config.POPULATION_SIZE = 5;
+        config.MUTATION_RATE = 10;
+        config.USE_HOLE = false;
+
+        Config.CLIIPER_SCALE = 10000;
+        Config.CURVE_TOLERANCE = 0.3; // Used to simplify polygons
+        Config.IS_DEBUG = true;
+        Config.BIN_WIDTH = binWidth;
+        Config.BIN_HEIGHT = binHeight;
+        Config.NB_ITERATIONS = 2;
+        Config.BOUND_SPACING = 0;
+        Config.ASSUME_NO_INNER_PARTS = true;
+        Config.ASSUME_ALL_PARTS_PLACABLE = true;
+        //TODO deal with rotations
+        Nest nest = new Nest(bin, polygons, config, Config.NB_ITERATIONS);
+        List<List<Placement>> appliedPlacement = nest.startNest();
+        List<String> strings = SvgUtil.svgGenerator(polygons, appliedPlacement, binWidth, binHeight);
+        saveSvgFile(strings);
+    }
 
     @Test
     public void testSample() throws Exception {
         List<NestPath> polygons = transferSvgIntoPolygons();
         NestPath bin = new NestPath();
-        double binWidth = 1511.822;
+        double binWidth = 511.822;
         double binHeight = 339.235;
         bin.add(0, 0);
         bin.add(binWidth, 0);
@@ -79,7 +113,7 @@ public class NestTest {
         bin.bid = -1;
         Config config = new Config();
         config.SPACING = 0;
-        config.POPULATION_SIZE = 2;
+        config.POPULATION_SIZE = 5;
         Nest nest = new Nest(bin, polygons, config, 2);
         List<List<Placement>> appliedPlacement = nest.startNest();
         List<String> strings = SvgUtil.svgGenerator(polygons, appliedPlacement, binWidth, binHeight);
@@ -129,7 +163,7 @@ public class NestTest {
     }
 
     private void saveSvgFile(List<String> strings) throws Exception {
-        File f = new File("test.html");
+        File f = new File("contest.html");
         if (!f.exists()) {
             f.createNewFile();
         }
@@ -139,7 +173,7 @@ public class NestTest {
                 "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n" +
                 "\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n" +
                 " \n" +
-                "<svg width=\"100%\" height=\"100%\" version=\"1.1\"\n" +
+                "<svg width=\""+Config.BIN_WIDTH+"\" height=\""+Config.BIN_HEIGHT+"\" version=\"1.1\" viewBox=\"0 0 "+Config.BIN_WIDTH+" "+Config.BIN_HEIGHT*2+"\" \n" +
                 "xmlns=\"http://www.w3.org/2000/svg\">\n");
         for(String s : strings){
             writer.write(s);

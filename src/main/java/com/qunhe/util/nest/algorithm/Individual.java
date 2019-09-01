@@ -62,6 +62,7 @@ public class Individual  implements Comparable<Individual>{
     }
 
 
+    @Override
     public int compareTo(Individual o) {
         if(fitness > o.fitness){
             return 1;

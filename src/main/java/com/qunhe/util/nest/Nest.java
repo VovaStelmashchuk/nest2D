@@ -7,6 +7,7 @@ import com.qunhe.util.nest.algorithm.Individual;
 import com.qunhe.util.nest.data.*;
 import com.qunhe.util.nest.data.Vector;
 import com.qunhe.util.nest.util.*;
+import sun.nio.ch.IOUtil;
 
 import java.util.*;
 
@@ -45,7 +46,7 @@ public class Nest {
      */
     public  List<List<Placement>> startNest(){
 
-        List<NestPath> tree = CommonUtil.BuildTree(parts , config.CURVE_TOLERANCE);
+        List<NestPath> tree = CommonUtil.BuildTree(parts , Config.CURVE_TOLERANCE);
 
         CommonUtil.offsetTree(tree , 0.5 * config.SPACING);
         binPath.config = config;
@@ -53,27 +54,28 @@ public class Nest {
             nestPath.config = config;
         }
         NestPath binPolygon = NestPath.cleanNestPath(binPath);
-        Bound binBound = GeometryUtil.getPolygonBounds(binPolygon);
-        if(config.SPACING > 0 ){
-            List<NestPath> offsetBin = CommonUtil.polygonOffset(binPolygon , -0.5 * config.SPACING);
+        // Bound binBound = GeometryUtil.getPolygonBounds(binPolygon);
+        if(Config.BOUND_SPACING > 0 ){
+            List<NestPath> offsetBin = CommonUtil.polygonOffset(binPolygon , - Config.BOUND_SPACING);
             if(offsetBin.size() == 1 ){
                 binPolygon = offsetBin.get(0);
             }
         }
         binPolygon.setId(-1);
-
-        List<Integer> integers = checkIfCanBePlaced(binPolygon,tree);
-        List<NestPath> safeTree = new ArrayList<NestPath>();
-        for(Integer i : integers){
-            safeTree.add(tree.get(i));
+        // A part may become unplacable after a rotation. TODO this can also be removed if we know that all parts are legal
+        if(!Config.ASSUME_ALL_PARTS_PLACABLE) {
+            List<Integer> integers = checkIfCanBePlaced(binPolygon, tree);
+            List<NestPath> safeTree = new ArrayList<NestPath>();
+            for (Integer i : integers) {
+                safeTree.add(tree.get(i));
+            }
+            tree = safeTree;
         }
-        tree = safeTree;
-
         double xbinmax = binPolygon.get(0).x;
         double xbinmin = binPolygon.get(0).x;
         double ybinmax = binPolygon.get(0).y;
         double ybinmin = binPolygon.get(0).y;
-
+        // Find min max
         for(int i = 1 ; i<binPolygon.size(); i ++){
             if(binPolygon.get(i).x > xbinmax ){
                 xbinmax = binPolygon.get(i).x;
@@ -102,7 +104,7 @@ public class Nest {
             binPolygon.reverse();
         }
         /**
-         * 确保为逆时针
+         * 确保为逆时针 TODO why?
          */
         for(int i = 0 ; i< tree.size(); i ++){
             Segment start = tree.get(i).get(0);
@@ -118,9 +120,7 @@ public class Nest {
         launchcount = 0;
         Result best = null;
         for(int i = 0; i<loopCount;i++ ){
-
             Result result = launchWorkers(tree , binPolygon , config);
-
             if(i == 0 ){
                 best = result;
             }
@@ -131,14 +131,15 @@ public class Nest {
             }
         }
         double sumarea = 0;
-        double totalarea = 0;
+        double totalarea = Config.BIN_HEIGHT*best.fitness;
         for(int i = 0; i < best.placements.size();i++){
-            totalarea += Math.abs(GeometryUtil.polygonArea(binPolygon));
+            //totalarea += Math.abs(GeometryUtil.polygonArea(binPolygon));
             for(int j = 0 ; j< best.placements.get(i).size() ; j ++){
                 sumarea += Math.abs(GeometryUtil.polygonArea(tree.get(best.placements.get(i).get(j).id)));
             }
         }
         double rate = (sumarea/totalarea)*100;
+        IOUtils.log("Final width = "+best.fitness+"; use rate = " + rate);
         List<List<Placement>> appliedPlacement = applyPlacement(best,tree);
         return appliedPlacement;
     }
@@ -152,8 +153,10 @@ public class Nest {
      */
     public Result launchWorkers(List<NestPath> tree ,NestPath binPolygon ,Config config ){
         launchcount++;
+        if(Config.IS_DEBUG){
+            IOUtils.log("launchWorkers(): launching worker "+launchcount);
+        }
         if(GA == null ){
-
             List<NestPath> adam = new ArrayList<NestPath>();
             for(NestPath nestPath : tree ){
                 NestPath clone  = new NestPath(nestPath);
@@ -181,8 +184,11 @@ public class Nest {
             GA.generation();
             individual = GA.population.get(1);
         }
-        
-        // 以上为GA
+        if(Config.IS_DEBUG) {
+            IOUtils.log("launchWorkers(): GA: individual ready.");
+        }
+
+        // 以上为GA. Now we got a set of candidates
 
         List<NestPath> placelist = individual.getPlacement();
         List<Integer> rotations = individual.getRotation();
@@ -208,6 +214,9 @@ public class Nest {
             }
         }
 
+        if(Config.IS_DEBUG) {
+            IOUtils.log("launchWorkers(): Generating nfp...");
+        }
 
         /**
          * 第一次nfpCache为空 ，nfpCache存的是nfpKey所对应的两个polygon所形成的Nfp( List<NestPath> )
@@ -224,31 +233,36 @@ public class Nest {
             nfpCache.put(tkey , Nfp.value);
         }
 
-
+        // Here place parts according to the sequence specified by the individual
         Placementworker worker = new Placementworker(binPolygon,config,nfpCache);
         List<NestPath> placeListSlice = new ArrayList<NestPath>();
-
-
 
         for(int i = 0; i< placelist.size() ; i++){
             placeListSlice.add( new NestPath(placelist.get(i)));
         }
-        List<List<NestPath>> data = new ArrayList<List<NestPath>>();
-        data.add(placeListSlice);
-        List<Result> placements = new ArrayList<Result>();
-        for(int i = 0 ;i <data.size() ; i++){
-            Result result = worker.placePaths(data.get(i));
-            placements.add(result);
+        // Some simplification:
+        //List<List<NestPath>> data = new ArrayList<List<NestPath>>();
+        //data.add(placeListSlice);
+        List<Result> results = new ArrayList<Result>();
+        //for(int i = 0 ;i <data.size() ; i++){
+        if(Config.IS_DEBUG) {
+            IOUtils.log("launchWorkers(): Placing parts ...");
         }
-        if(placements.size() == 0){
+        Result result = worker.placePaths(placeListSlice);//data.get(i)
+        results.add(result);
+        //}
+        if(results.size() == 0){
             return null;
         }
-        individual.fitness = placements.get(0).fitness;
-        Result bestResult = placements.get(0);
-        for(int i = 1; i <placements.size() ; i++){
-            if(placements.get(i).fitness < bestResult.fitness){
-                bestResult = placements.get(i);
+        individual.fitness = results.get(0).fitness;
+        Result bestResult = results.get(0);
+        for(int i = 1; i <results.size() ; i++) {
+            if (results.get(i).fitness < bestResult.fitness) {
+                bestResult = results.get(i);
             }
+        }
+        if(Config.IS_DEBUG) {
+            IOUtils.log("launchWorkers(): current best fitness = "+bestResult.fitness);
         }
         return bestResult;
     }
