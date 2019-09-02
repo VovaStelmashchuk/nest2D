@@ -25,6 +25,8 @@
             <groupId>de.lighti</groupId>
             <artifactId>Clipper</artifactId>
             <version>6.4.2</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/clipper.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

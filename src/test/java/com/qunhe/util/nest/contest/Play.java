@@ -70,8 +70,8 @@ public class Play {
         List<NestPath> polygons = IOUtils.readFromContestFile("./data/L0002_lingjian.csv");
         polygons = polygons.subList(0,15);
         NestPath bin = new NestPath();
-        double binWidth = 1000;
-        double binHeight = 600;
+        double binWidth = 20000;
+        double binHeight = 1000;
         bin.add(0, 0);
         bin.add(binWidth, 0);
         bin.add(binWidth, binHeight);

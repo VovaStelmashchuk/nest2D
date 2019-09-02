@@ -21,6 +21,7 @@ public class NestPath  implements Comparable<NestPath>{
     private int id;
     private int source ;
     private int rotation;
+    public int[] rotations;
     public Config config ;
     public double area ;
 
@@ -289,6 +290,7 @@ public class NestPath  implements Comparable<NestPath>{
         this.offsetY = offsetY;
     }
 
+    @Override
     public int compareTo(NestPath o) {
         double area0  = this.area;
         double area1 = o.area;
@@ -316,5 +318,9 @@ public class NestPath  implements Comparable<NestPath>{
             s.setX(s.getX() + x );
             s.setY(s.getY() + y);
         }
+    }
+
+    public void setPossibleRotations(int[] rotations) {
+        this.rotations = rotations;
     }
 }
