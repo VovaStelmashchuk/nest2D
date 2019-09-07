@@ -104,7 +104,7 @@ public class ContestData {
                 ContestData data = getContestDataByBid(bid, list);
                 sb.append(data.lotId).append(", ").append(data.partId).append(", ").append(data.binId).append(", [");
 
-                NestPath nestPath = data.getPolygon();
+                NestPath nestPath = new NestPath(data.getPolygon());
                 double ox = placement.translate.x;
                 double oy = placement.translate.y;
                 double rotate = placement.rotate;

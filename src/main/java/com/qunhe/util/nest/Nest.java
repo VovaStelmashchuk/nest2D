@@ -139,13 +139,14 @@ public class Nest {
                 appliedPlacement = applyPlacement(best,tree);
                 try {
                     debug("Save to file.");
-                    ContestData.writeToFile(Config.OUTPUT_DIR + Config.INPUT.get(0).lotId + "_" +loopCount +"_" +
+                    ContestData.writeToFile(Config.OUTPUT_DIR + Config.INPUT.get(0).lotId + "_" +i +"_" +
                         Long.toString(System.currentTimeMillis()) + ".csv", appliedPlacement, Config.INPUT);
                 }catch (Exception e){
                     log(e);
                 }
             }
         }
+        //appliedPlacement = applyPlacement(best,tree);
         return appliedPlacement;
     }
 

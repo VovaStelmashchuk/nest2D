@@ -70,7 +70,7 @@ public class Play {
     public void play() throws Exception {
         // Config
         Config config = new Config();
-        config.SPACING = 0;
+        config.SPACING = 0; //TODO change to 5
         config.POPULATION_SIZE = 5;
         config.MUTATION_RATE = 10;
         config.USE_HOLE = false;
@@ -90,8 +90,8 @@ public class Play {
         //inputFile = "./data/debug";
         Config.OUTPUT_FILE = "./submit/DatasetA/L0002.csv";
         //Config.OUTPUT_FILE = "./submit/DatasetA/L0003.csv";
-        Config.OUTPUT_DIR = "./out/";
-        Config.LIMIT = 10;
+        Config.OUTPUT_DIR = "./data/";
+        Config.LIMIT = 0;
         // We can choose to load nfp from file
         Config.NFP_CACHE_PATH=null;
 
@@ -103,7 +103,7 @@ public class Play {
         IOUtils.log(polygons.size()+" parts loaded.");
         Config.INPUT = datas;
         if(Config.LIMIT>0){
-            polygons = polygons.subList(0,3);
+            polygons = polygons.subList(0,Config.LIMIT);
         }
 
         NestPath bin = new NestPath();
