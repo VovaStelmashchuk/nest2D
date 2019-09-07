@@ -180,7 +180,6 @@ public class CommonUtil {
         Paths newpaths = new Paths();
         co.execute(newpaths , offset * Config.CLIIPER_SCALE);
 
-
         /**
          * 这里的length是1的话就是我们想要的
          */

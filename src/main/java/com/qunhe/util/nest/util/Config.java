@@ -1,6 +1,7 @@
 package com.qunhe.util.nest.util;
 
 import com.qunhe.util.nest.contest.ContestData;
+import com.qunhe.util.nest.data.NestPath;
 
 import java.util.List;
 
@@ -24,6 +25,7 @@ public class Config {
     public static boolean ASSUME_NO_INNER_PARTS;
     public static boolean ASSUME_ALL_PARTS_PLACABLE;
     public static List<ContestData> INPUT;
+    public static List<NestPath> INPUT_POLY;
     public static int LIMIT=0;
     public static String INPUT_FILE;
     public static String OUTPUT_FILE;
@@ -36,7 +38,7 @@ public class Config {
     public Config() {
         CLIIPER_SCALE = 10000;
         CURVE_TOLERANCE = 0.3;
-        SPACING = 10;
+        SPACING = 5;
         POPULATION_SIZE = 10;
         MUTATION_RATE = 10;
         CONCAVE = false;

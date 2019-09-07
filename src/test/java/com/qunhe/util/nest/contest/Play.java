@@ -68,9 +68,11 @@ public class Play {
 
     @Test
     public void play() throws Exception {
+        //TODO change here to switch input file
+        String lotId = "L0003";
         // Config
         Config config = new Config();
-        config.SPACING = 0; //TODO change to 5
+        config.SPACING = 5; //TODO change to 5
         config.POPULATION_SIZE = 5;
         config.MUTATION_RATE = 10;
         config.USE_HOLE = false;
@@ -85,15 +87,13 @@ public class Play {
         Config.BOUND_SPACING = 0;
         Config.ASSUME_NO_INNER_PARTS = true;
         Config.ASSUME_ALL_PARTS_PLACABLE = true;
-        Config.INPUT_FILE = "./data/L0002_lingjian.csv";
-        //Config.INPUT_FILE = "./data/L0003_lingjian.csv";
+        Config.INPUT_FILE = "./data/"+lotId+"_lingjian.csv";
         //inputFile = "./data/debug";
-        Config.OUTPUT_FILE = "./submit/DatasetA/L0002.csv";
-        //Config.OUTPUT_FILE = "./submit/DatasetA/L0003.csv";
         Config.OUTPUT_DIR = "./data/";
-        Config.LIMIT = 0;
-        // We can choose to load nfp from file
-        Config.NFP_CACHE_PATH=null;
+        Config.OUTPUT_FILE = Config.OUTPUT_DIR+lotId+".csv";
+        Config.LIMIT = 10;
+        // TODO enable this line to load nfp from file
+        //Config.NFP_CACHE_PATH=Config.OUTPUT_DIR+"nfp"+lotId+".txt";
 
         // Start ------------
         //List<NestPath> polygons = IOUtils.readFromContestFile(inputFile);
@@ -102,6 +102,7 @@ public class Play {
         List<NestPath> polygons = datas.stream().map(ContestData::getPolygon).collect(Collectors.toList());
         IOUtils.log(polygons.size()+" parts loaded.");
         Config.INPUT = datas;
+        Config.INPUT_POLY = polygons;
         if(Config.LIMIT>0){
             polygons = polygons.subList(0,Config.LIMIT);
         }
@@ -196,24 +197,6 @@ public class Play {
         return nestPaths;
     }
 
-    private void saveSvgFile(List<String> strings, String file) throws Exception {
-        File f = new File(file);
-        if (!f.exists()) {
-            f.createNewFile();
-        }
-        Writer writer = new FileWriter(f, false);
-        writer.write("<?xml version=\"1.0\" standalone=\"no\"?>\n" +
-                "\n" +
-                "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n" +
-                "\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n" +
-                " \n" +
-                "<svg  version=\"1.1\" viewBox=\"0 0 "+Config.BIN_WIDTH+" "+Config.BIN_HEIGHT+"\" \n" + //width=\""+Config.BIN_WIDTH+"\" height=\""+Config.BIN_HEIGHT+"\"
-                "xmlns=\"http://www.w3.org/2000/svg\">\n");
-        for(String s : strings){
-            writer.write(s);
-        }
-        writer.write("</svg>");
-        writer.close();
-    }
+
 
 }

@@ -125,22 +125,15 @@ public class Nest {
             Result result = launchWorkers(tree , binPolygon , config);
             if(i == 0 ||  best.fitness > result.fitness){
                 best = result;
-                //Log new result
-                double sumarea = 0;
-                double totalarea = Config.BIN_HEIGHT*best.fitness;
-                for(int j = 0; j < best.placements.size();j++){
-                    //totalarea += Math.abs(GeometryUtil.polygonArea(binPolygon));
-                    for(int k = 0 ; k< best.placements.get(j).size() ; k ++){
-                        sumarea += Math.abs(GeometryUtil.polygonArea(tree.get(best.placements.get(j).get(k).id)));
-                    }
-                }
-                double rate = (sumarea/totalarea)*100;
-                log("Final width = "+best.fitness+"; use rate = " + rate);
+
+                double rate = computeUseRate(best, tree);
+                log("Loop "+i+" width = "+best.fitness+"; use rate = " + rate);
                 appliedPlacement = applyPlacement(best,tree);
                 try {
-                    debug("Save to file.");
-                    ContestData.writeToFile(Config.OUTPUT_DIR + Config.INPUT.get(0).lotId + "_" +i +"_" +
-                        Long.toString(System.currentTimeMillis()) + ".csv", appliedPlacement, Config.INPUT);
+                    String file = Config.OUTPUT_DIR + Config.INPUT.get(0).lotId + "_" +i +"_" +
+                        (int)(rate*10) + ".csv";
+                    debug("Save to file "+file);
+                    IOUtils.saveToMultiFile(file, appliedPlacement);
                 }catch (Exception e){
                     log(e);
                 }
@@ -150,6 +143,18 @@ public class Nest {
         return appliedPlacement;
     }
 
+    public double computeUseRate(Result best, List<NestPath> tree){
+        //Log new result
+        double sumarea = 0;
+        double totalarea = Config.BIN_HEIGHT*best.fitness;
+        for(int j = 0; j < best.placements.size();j++){
+            //totalarea += Math.abs(GeometryUtil.polygonArea(binPolygon));
+            for(int k = 0 ; k< best.placements.get(j).size() ; k ++){
+                sumarea += Math.abs(GeometryUtil.polygonArea(tree.get(best.placements.get(j).get(k).id)));
+            }
+        }
+        return (sumarea/totalarea)*100;
+    }
     /**
      *  一次迭代计算
      * @param tree  底板

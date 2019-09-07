@@ -2,12 +2,11 @@ package com.qunhe.util.nest.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.qunhe.util.nest.contest.ContestData;
 import com.qunhe.util.nest.data.NestPath;
+import com.qunhe.util.nest.data.Placement;
 
-import java.io.BufferedReader;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -97,5 +96,39 @@ public class IOUtils {
             log(e);
         }
         return null;
+    }
+
+    public static void saveToMultiFile(String filename, List<List<Placement>> applied) {
+        try {
+            //Save to contest file
+            ContestData.writeToFile(filename, applied, Config.INPUT);
+            //Save to svg
+            List<String> strings = SvgUtil.svgGenerator(Config.INPUT_POLY, applied, Config.BIN_WIDTH,
+                Config.BIN_HEIGHT);
+            saveSvgFile(strings, filename + ".html");
+        } catch (Exception e) {
+            debug(e);
+        }
+    }
+
+    public static void saveSvgFile(List<String> strings, String file) throws Exception {
+        debug(file);
+        File f = new File(file);
+        if (!f.exists()) {
+            f.createNewFile();
+        }
+        Writer writer = new FileWriter(f, false);
+        writer.write("<?xml version=\"1.0\" standalone=\"no\"?>\n" +
+            "\n" +
+            "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n" +
+            "\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n" +
+            " \n" +
+            "<svg  version=\"1.1\" viewBox=\"0 0 "+Config.BIN_WIDTH+" "+Config.BIN_HEIGHT+"\" \n" + //width=\""+Config.BIN_WIDTH+"\" height=\""+Config.BIN_HEIGHT+"\"
+            "xmlns=\"http://www.w3.org/2000/svg\">\n");
+        for(String s : strings){
+            writer.write(s);
+        }
+        writer.write("</svg>");
+        writer.close();
     }
 }
