@@ -47,7 +47,7 @@ public class ContestData {
             String lotId = fields3[0];
             String partId = fields3[1];
             int nbPart = Integer.parseInt(fields3[2]);
-            String []rotDegrees = fields[3].split(",");
+            String []rotDegrees = fields[3].split(", ");
             String matId = fields[4].replace(",","");
 
             // Coord
@@ -61,9 +61,12 @@ public class ContestData {
                 polygon.add(x, y);
             }
             polygon.bid = count++;
-            //TODO temply set to 0
+            //Init as 0
             polygon.setRotation(0);
-            polygon.setPossibleRotations(Arrays.stream(rotDegrees).mapToInt(Integer::parseInt).toArray());
+            int[] rots = Arrays.stream(rotDegrees).mapToInt(Integer::parseInt).toArray();
+
+            //TODO temply disabled.
+            // polygon.setPossibleRotations(rots);
             nestPaths.add(polygon);
 
             // Create data
@@ -99,7 +102,7 @@ public class ContestData {
             for (Placement placement : binlist) {
                 int bid = placement.bid;
                 ContestData data = getContestDataByBid(bid, list);
-                sb.append(data.lotId).append(",").append(data.partId).append(",").append(data.binId).append(",[");
+                sb.append(data.lotId).append(", ").append(data.partId).append(", ").append(data.binId).append(", [");
 
                 NestPath nestPath = data.getPolygon();
                 double ox = placement.translate.x;
@@ -109,14 +112,18 @@ public class ContestData {
                 nestPath = GeometryUtil.rotatePolygon2Polygon(nestPath, (int)rotate);
                 for (int i = 0; i < nestPath.getSegments().size(); i++) {
                     Segment segment = nestPath.get(i);
-                    sb.append("["+segment.x + "," + segment.y + "],");
+                    if(i < nestPath.getSegments().size()-1) {
+                        sb.append("[" + segment.x + "," + segment.y + "], ");
+                    }else{
+                        sb.append("[" + segment.x + "," + segment.y + "]]"+System.lineSeparator());
+                    }
                 }
-                sb.append("\b]"+System.lineSeparator());
             }
         }
         FileWriter fw = new FileWriter(csvFile);
+        fw.write("下料批次号,零件号,面料号,零件外轮廓线坐标"+System.lineSeparator());
         fw.write(sb.toString());
-
+        fw.close();
     }
 
     public static ContestData getContestDataByBid(int id, List<ContestData> list){

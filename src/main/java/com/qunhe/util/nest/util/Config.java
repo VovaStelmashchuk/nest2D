@@ -1,5 +1,9 @@
 package com.qunhe.util.nest.util;
 
+import com.qunhe.util.nest.contest.ContestData;
+
+import java.util.List;
+
 /**
  * @author yisa
  */
@@ -12,13 +16,19 @@ public class Config {
     public  double SPACING ;
     public  int POPULATION_SIZE;
     public  int MUTATION_RATE ;
-    private  boolean CONCAVE ;
+    public  boolean CONCAVE ;
     public   boolean USE_HOLE ;
     // Contest purpose
     public static boolean IS_DEBUG;
     public static double BOUND_SPACING;
     public static boolean ASSUME_NO_INNER_PARTS;
     public static boolean ASSUME_ALL_PARTS_PLACABLE;
+    public static List<ContestData> INPUT;
+    public static int LIMIT=0;
+    public static String INPUT_FILE;
+    public static String OUTPUT_FILE;
+    public static String OUTPUT_DIR;
+    public static String NFP_CACHE_PATH;
 
 
 

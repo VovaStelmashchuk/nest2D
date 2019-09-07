@@ -42,6 +42,7 @@ public class Placementworker {
         for (int i = 0; i < paths.size(); i++) {
             NestPath r = GeometryUtil.rotatePolygon2Polygon(paths.get(i), paths.get(i).getRotation());
             r.setRotation(paths.get(i).getRotation());
+            r.setPossibleRotations(paths.get(i).getPossibleRotations());
             r.setSource(paths.get(i).getSource());
             r.setId(paths.get(i).getId());
             rotated.add(r);

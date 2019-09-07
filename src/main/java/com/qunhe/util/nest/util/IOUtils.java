@@ -1,14 +1,20 @@
 package com.qunhe.util.nest.util;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.qunhe.util.nest.data.NestPath;
 
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,6 +26,15 @@ public class IOUtils {
             }
         }
     }
+
+    public static void debug(Object... o){
+        if(o != null && Config.IS_DEBUG) {
+            for(int i=0; i<o.length;++i) {
+                System.out.println(o[i]);
+            }
+        }
+    }
+
     public static List<NestPath> readFromContestFile(String filepath) throws Exception{
         List<NestPath> nestPaths = new ArrayList<>();
         BufferedReader reader = Files.newBufferedReader(Paths.get(filepath));
@@ -60,6 +75,27 @@ public class IOUtils {
         return nestPaths;
     }
 
+    public static void saveNfpCache(Map<String,List<NestPath>> nfpCache, String filename){
+        try {
+            Gson g = new Gson();
+            String res = g.toJson(nfpCache);
+            FileWriter fw = new FileWriter(filename);
+            fw.write(res);
+            fw.close();
+        }catch (Exception e){
+            log(e);
+        }
+    }
 
-
+    public static Map<String,List<NestPath>> loadNfpCache(String filename) {
+        try {
+            String json = new String(Files.readAllBytes(Paths.get(filename)));
+            Gson g = new Gson();
+            Map<String, List<NestPath>> nfpCache = g.fromJson(json, new HashMap<String, List<NestPath>>().getClass());
+            return nfpCache;
+        } catch (Exception e) {
+            log(e);
+        }
+        return null;
+    }
 }

@@ -4,13 +4,14 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.qunhe.util.nest.algorithm.GeneticAlgorithm;
 import com.qunhe.util.nest.algorithm.Individual;
+import com.qunhe.util.nest.contest.ContestData;
 import com.qunhe.util.nest.data.*;
 import com.qunhe.util.nest.data.Vector;
 import com.qunhe.util.nest.util.*;
 import sun.nio.ch.IOUtil;
 
 import java.util.*;
-
+import static com.qunhe.util.nest.util.IOUtils.*;
 
 /**
  * @author yisa
@@ -119,28 +120,32 @@ public class Nest {
 
         launchcount = 0;
         Result best = null;
+        List<List<Placement>> appliedPlacement = null;
         for(int i = 0; i<loopCount;i++ ){
             Result result = launchWorkers(tree , binPolygon , config);
-            if(i == 0 ){
+            if(i == 0 ||  best.fitness > result.fitness){
                 best = result;
-            }
-            else{
-                if(best.fitness > result.fitness){
-                    best = result;
+                //Log new result
+                double sumarea = 0;
+                double totalarea = Config.BIN_HEIGHT*best.fitness;
+                for(int j = 0; j < best.placements.size();j++){
+                    //totalarea += Math.abs(GeometryUtil.polygonArea(binPolygon));
+                    for(int k = 0 ; k< best.placements.get(j).size() ; k ++){
+                        sumarea += Math.abs(GeometryUtil.polygonArea(tree.get(best.placements.get(j).get(k).id)));
+                    }
+                }
+                double rate = (sumarea/totalarea)*100;
+                log("Final width = "+best.fitness+"; use rate = " + rate);
+                appliedPlacement = applyPlacement(best,tree);
+                try {
+                    debug("Save to file.");
+                    ContestData.writeToFile(Config.OUTPUT_DIR + Config.INPUT.get(0).lotId + "_" +loopCount +"_" +
+                        Long.toString(System.currentTimeMillis()) + ".csv", appliedPlacement, Config.INPUT);
+                }catch (Exception e){
+                    log(e);
                 }
             }
         }
-        double sumarea = 0;
-        double totalarea = Config.BIN_HEIGHT*best.fitness;
-        for(int i = 0; i < best.placements.size();i++){
-            //totalarea += Math.abs(GeometryUtil.polygonArea(binPolygon));
-            for(int j = 0 ; j< best.placements.get(i).size() ; j ++){
-                sumarea += Math.abs(GeometryUtil.polygonArea(tree.get(best.placements.get(i).get(j).id)));
-            }
-        }
-        double rate = (sumarea/totalarea)*100;
-        IOUtils.log("Final width = "+best.fitness+"; use rate = " + rate);
-        List<List<Placement>> appliedPlacement = applyPlacement(best,tree);
         return appliedPlacement;
     }
 
@@ -154,7 +159,7 @@ public class Nest {
     public Result launchWorkers(List<NestPath> tree ,NestPath binPolygon ,Config config ){
         launchcount++;
         if(Config.IS_DEBUG){
-            IOUtils.log("launchWorkers(): launching worker "+launchcount);
+            log("launchWorkers(): launching worker "+launchcount);
         }
         if(GA == null ){
             List<NestPath> adam = new ArrayList<NestPath>();
@@ -185,7 +190,7 @@ public class Nest {
             individual = GA.population.get(1);
         }
         if(Config.IS_DEBUG) {
-            IOUtils.log("launchWorkers(): GA: individual ready.");
+            log("launchWorkers(): GA: individual ready.");
         }
 
         // 以上为GA. Now we got a set of candidates
@@ -198,6 +203,10 @@ public class Nest {
             ids.add(placelist.get(i).getId());
             placelist.get(i).setRotation(rotations.get(i));
         }
+        if(Config.NFP_CACHE_PATH != null){
+            debug("Loading nfp from file "+Config.NFP_CACHE_PATH);
+            nfpCache = IOUtils.loadNfpCache(Config.NFP_CACHE_PATH);
+        }
         List<NfpPair> nfpPairs = new ArrayList<NfpPair>();
         NfpKey key = null;
         /**
@@ -206,33 +215,48 @@ public class Nest {
         for(int i = 0 ; i< placelist.size();i++){
             NestPath part = placelist.get(i);
             key = new NfpKey(binPolygon .getId() , part.getId() , true , 0 , part.getRotation());
-            nfpPairs.add(new NfpPair(binPolygon,part,key));
+            if(!nfpCache.containsKey(key)) {
+                nfpPairs.add(new NfpPair(binPolygon, part, key));
+            }
             for(int j = 0 ; j< i ; j ++){
                 NestPath placed = placelist.get(j);
                 NfpKey keyed = new NfpKey(placed.getId() , part.getId() , false , rotations.get(j), rotations.get(i));
-                nfpPairs.add( new NfpPair(placed , part , keyed));
+                if(!nfpCache.containsKey(keyed)) {
+                    nfpPairs.add(new NfpPair(placed, part, keyed));
+                }
             }
         }
 
         if(Config.IS_DEBUG) {
-            IOUtils.log("launchWorkers(): Generating nfp...");
+            log("launchWorkers(): Generating nfp...nb of nfp pairs = "+nfpPairs.size());
         }
 
         /**
          * 第一次nfpCache为空 ，nfpCache存的是nfpKey所对应的两个polygon所形成的Nfp( List<NestPath> )
          */
         List<ParallelData> generatedNfp = new ArrayList<ParallelData>();
+        int cnt = 0;
         for(NfpPair nfpPair :nfpPairs){
+            if(++cnt % 1000 == 0 ){
+                //debug(" nfp generated.");
+                debug("Generating nfp "+cnt+": "+nfpPair.getA().bid+","+nfpPair.getB().bid);
+            }
             ParallelData data = NfpUtil.nfpGenerator(nfpPair,config);
+            if(data == null){
+                debug("Null nfp "+cnt+": "+nfpPair.getA().bid+","+nfpPair.getB().bid);
+            }
             generatedNfp.add(data);
         }
         for(int i = 0 ; i<generatedNfp.size() ; i++){
             ParallelData Nfp = generatedNfp.get(i);
             //TODO remove gson & generate a new key algorithm
             String tkey = gson.toJson(Nfp.getKey());
-            nfpCache.put(tkey , Nfp.value);
+            nfpCache.put(tkey, Nfp.value);
         }
+        log("Saving nfpCache.");
+        IOUtils.saveNfpCache(nfpCache, Config.OUTPUT_DIR+"nfp"+Config.INPUT.get(0).lotId+".txt");
 
+        debug("Launching placement worker...");
         // Here place parts according to the sequence specified by the individual
         Placementworker worker = new Placementworker(binPolygon,config,nfpCache);
         List<NestPath> placeListSlice = new ArrayList<NestPath>();
@@ -245,9 +269,6 @@ public class Nest {
         //data.add(placeListSlice);
         List<Result> results = new ArrayList<Result>();
         //for(int i = 0 ;i <data.size() ; i++){
-        if(Config.IS_DEBUG) {
-            IOUtils.log("launchWorkers(): Placing parts ...");
-        }
         Result result = worker.placePaths(placeListSlice);//data.get(i)
         results.add(result);
         //}
@@ -261,9 +282,7 @@ public class Nest {
                 bestResult = results.get(i);
             }
         }
-        if(Config.IS_DEBUG) {
-            IOUtils.log("launchWorkers(): current best fitness = "+bestResult.fitness);
-        }
+        debug("launchWorkers(): current best fitness = "+bestResult.fitness);
         return bestResult;
     }
 

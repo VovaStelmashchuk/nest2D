@@ -62,8 +62,10 @@ public class NfpUtil {
 
                 return null;
             }
+            //TODO This test is causing null result
             for(int i = 0; i<nfp.size() ; i++){
                 if(!searchEdges || i == 0){
+                    // TODO why here: normally the area of nfp should be greater than A
                     if(Math.abs(GeometryUtil.polygonArea(nfp.get(i))) < Math.abs(GeometryUtil.polygonArea(A))){
                         nfp.remove(i);
 

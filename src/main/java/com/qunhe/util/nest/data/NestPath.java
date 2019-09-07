@@ -170,6 +170,7 @@ public class NestPath  implements Comparable<NestPath>{
 
         this.id  = srcNestPath.id;
         this.rotation = srcNestPath.rotation;
+        this.rotations =  srcNestPath.rotations;//TODO not clone.
         this.source = srcNestPath.source;
         this.offsetX = srcNestPath.offsetX;
         this.offsetY = srcNestPath.offsetY;
@@ -215,6 +216,7 @@ public class NestPath  implements Comparable<NestPath>{
         NestPath cleanPath = CommonUtil.Path2NestPath(clean);
         cleanPath.bid = srcPath.bid;
         cleanPath.setRotation(srcPath.rotation);
+        cleanPath.setPossibleRotations(srcPath.getPossibleRotations());
         return cleanPath;
     }
 
@@ -322,5 +324,9 @@ public class NestPath  implements Comparable<NestPath>{
 
     public void setPossibleRotations(int[] rotations) {
         this.rotations = rotations;
+    }
+
+    public int[] getPossibleRotations() {
+        return this.rotations;
     }
 }
