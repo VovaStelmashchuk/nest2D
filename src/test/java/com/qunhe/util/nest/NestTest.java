@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -80,10 +81,15 @@ public class NestTest {
         Config config = new Config();
         config.SPACING = 0;
         config.POPULATION_SIZE = 2;
-        Nest nest = new Nest(bin, polygons, config, 2);
+        Nest nest = new Nest(bin, polygons, config, 1);
         List<List<Placement>> appliedPlacement = nest.startNest();
         List<String> strings = SvgUtil.svgGenerator(polygons, appliedPlacement, binWidth, binHeight);
-        saveSvgFile(strings);
+        saveSvgFile(strings,"problem.html");
+        // find solution
+        nest = new Nest(bin, polygons, config, 10);
+        appliedPlacement = nest.startNest();
+        strings = SvgUtil.svgGenerator(polygons, appliedPlacement, binWidth, binHeight);
+        saveSvgFile(strings,"solution.html");
     }
 
     private List<NestPath> transferSvgIntoPolygons() throws DocumentException {
@@ -128,8 +134,8 @@ public class NestTest {
         return nestPaths;
     }
 
-    private void saveSvgFile(List<String> strings) throws Exception {
-        File f = new File("test.html");
+    private void saveSvgFile(List<String> strings, String htmlfile) throws Exception {
+        File f = new File(htmlfile);
         if (!f.exists()) {
             f.createNewFile();
         }

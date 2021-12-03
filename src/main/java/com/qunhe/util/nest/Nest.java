@@ -27,11 +27,11 @@ public class Nest {
     private int launchcount =0;
 
     /**
-     *  创建一个新的Nest对象
-     * @param binPath   底板多边形
-     * @param parts     板件多边形列表
-     * @param config    参数设置
-     * @param count     迭代计算次数
+     *  åˆ›å»ºä¸€ä¸ªæ–°çš„Nestå¯¹è±¡
+     * @param binPath   åº•æ�¿å¤šè¾¹å½¢
+     * @param parts     æ�¿ä»¶å¤šè¾¹å½¢åˆ—è¡¨
+     * @param config    å�‚æ•°è®¾ç½®
+     * @param count     è¿­ä»£è®¡ç®—æ¬¡æ•°
      */
     public Nest(NestPath binPath, List<NestPath> parts, Config config, int count) {
         this.binPath = binPath;
@@ -42,7 +42,7 @@ public class Nest {
     }
 
     /**
-     *  开始进行Nest计算
+     *  å¼€å§‹è¿›è¡ŒNestè®¡ç®—
      * @return
      */
     public  List<List<Placement>> startNest(){
@@ -105,7 +105,7 @@ public class Nest {
             binPolygon.reverse();
         }
         /**
-         * 确保为逆时针 TODO why?
+         * ç¡®ä¿�ä¸ºé€†æ—¶é’ˆ TODO why?
          */
         for(int i = 0 ; i< tree.size(); i ++){
             Segment start = tree.get(i).get(0);
@@ -130,7 +130,8 @@ public class Nest {
                 log("Loop "+i+" width = "+best.fitness+"; use rate = " + rate);
                 appliedPlacement = applyPlacement(best,tree);
                 try {
-                    String file = Config.OUTPUT_DIR + Config.INPUT.get(0).lotId + "_" +i +"_" +
+                	String lotId = Config.INPUT == null ? "" : Config.INPUT.get(0).lotId;
+                    String file = Config.OUTPUT_DIR + lotId + "_" +i +"_" +
                         (int)(rate*10) + ".csv";
                     debug("Save to file "+file);
                     IOUtils.saveToMultiFile(file, appliedPlacement);
@@ -156,10 +157,10 @@ public class Nest {
         return (sumarea/totalarea)*100;
     }
     /**
-     *  一次迭代计算
-     * @param tree  底板
-     * @param binPolygon    板件列表
-     * @param config    设置
+     *  ä¸€æ¬¡è¿­ä»£è®¡ç®—
+     * @param tree  åº•æ�¿
+     * @param binPolygon    æ�¿ä»¶åˆ—è¡¨
+     * @param config    è®¾ç½®
      * @return
      */
     public Result launchWorkers(List<NestPath> tree ,NestPath binPolygon ,Config config ){
@@ -199,7 +200,7 @@ public class Nest {
             log("launchWorkers(): GA: individual ready.");
         }
 
-        // 以上为GA. Now we got a set of candidates
+        // ä»¥ä¸Šä¸ºGA. Now we got a set of candidates
 
         List<NestPath> placelist = individual.getPlacement();
         List<Integer> rotations = individual.getRotation();
@@ -216,7 +217,7 @@ public class Nest {
         List<NfpPair> nfpPairs = new ArrayList<NfpPair>();
         NfpKey key = null;
         /**
-         * 如果在nfpCache里没找到nfpKey 则添加进nfpPairs
+         * å¦‚æžœåœ¨nfpCacheé‡Œæ²¡æ‰¾åˆ°nfpKey åˆ™æ·»åŠ è¿›nfpPairs
          */
         for(int i = 0 ; i< placelist.size();i++){
             NestPath part = placelist.get(i);
@@ -238,7 +239,7 @@ public class Nest {
         }
 
         /**
-         * 第一次nfpCache为空 ，nfpCache存的是nfpKey所对应的两个polygon所形成的Nfp( List<NestPath> )
+         * ç¬¬ä¸€æ¬¡nfpCacheä¸ºç©º ï¼ŒnfpCacheå­˜çš„æ˜¯nfpKeyæ‰€å¯¹åº”çš„ä¸¤ä¸ªpolygonæ‰€å½¢æˆ�çš„Nfp( List<NestPath> )
          */
         List<ParallelData> generatedNfp = new ArrayList<ParallelData>();
         int cnt = 0;
@@ -260,7 +261,8 @@ public class Nest {
             nfpCache.put(tkey, Nfp.value);
         }
         log("Saving nfpCache.");
-        IOUtils.saveNfpCache(nfpCache, Config.OUTPUT_DIR+"nfp"+Config.INPUT.get(0).lotId+".txt");
+        String lotId = Config.INPUT == null ? "" : Config.INPUT.get(0).lotId;
+        IOUtils.saveNfpCache(nfpCache, Config.OUTPUT_DIR+"nfp"+ lotId+".txt");
 
         debug("Launching placement worker...");
         // Here place parts according to the sequence specified by the individual
@@ -293,7 +295,7 @@ public class Nest {
     }
 
     /**
-     *  通过id与bid将translate和rotate绑定到对应板件上
+     *  é€šè¿‡idä¸Žbidå°†translateå’Œrotateç»‘å®šåˆ°å¯¹åº”æ�¿ä»¶ä¸Š
      * @param best
      * @param tree
      * @return
@@ -319,7 +321,7 @@ public class Nest {
 
 
     /**
-     * 在遗传算法中每次突变或者是交配产生出新的种群时，可能会出现板件与旋转角度不适配的结果，需要重新检查并适配。
+     * åœ¨é�—ä¼ ç®—æ³•ä¸­æ¯�æ¬¡çª�å�˜æˆ–è€…æ˜¯äº¤é…�äº§ç”Ÿå‡ºæ–°çš„ç§�ç¾¤æ—¶ï¼Œå�¯èƒ½ä¼šå‡ºçŽ°æ�¿ä»¶ä¸Žæ—‹è½¬è§’åº¦ä¸�é€‚é…�çš„ç»“æžœï¼Œéœ€è¦�é‡�æ–°æ£€æŸ¥å¹¶é€‚é…�ã€‚
      * @param binPolygon
      * @param tree
      * @return
