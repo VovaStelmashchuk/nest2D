@@ -1,13 +1,13 @@
 package com.qunhe.util.nest.algorithm;
 
-import com.qunhe.util.nest.data.Bound;
-import com.qunhe.util.nest.data.NestPath;
-import com.qunhe.util.nest.util.Config;
-import com.qunhe.util.nest.util.GeometryUtil;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import com.qunhe.util.nest.config.Config;
+import com.qunhe.util.nest.data.Bound;
+import com.qunhe.util.nest.data.NestPath;
+import com.qunhe.util.nest.util.GeometryUtil;
 
 
 /**
@@ -27,14 +27,14 @@ public class GeneticAlgorithm {
         this.bin = bin;
         this.config = config;
         this.binBounds = GeometryUtil.getPolygonBounds(bin);
-        population = new ArrayList<Individual>();
+        population = new ArrayList<>();
         init();
     }
 
 
 
     public void generation(){
-        List<Individual> newpopulation = new ArrayList<Individual>();
+        List<Individual> newpopulation = new ArrayList<>();
         Collections.sort(population);
 
         newpopulation.add(population.get(0));
@@ -50,15 +50,15 @@ public class GeneticAlgorithm {
         population = newpopulation;
     }
 
-    public List<Individual> mate(Individual male , Individual female){
-        List<Individual> children = new ArrayList<Individual>();
+    private List<Individual> mate(Individual male , Individual female){
+        List<Individual> children = new ArrayList<>();
 
         long cutpoint = Math.round(Math.min(Math.max(Math.random(), 0.1), 0.9)*(male.placement.size()-1));
 
-        List<NestPath> gene1 = new ArrayList<NestPath>();
-        List<Integer> rot1 = new ArrayList<Integer>();
-        List<NestPath> gene2 = new ArrayList<NestPath>();
-        List<Integer> rot2 = new ArrayList<Integer>();
+        List<NestPath> gene1 = new ArrayList<>();
+        List<Integer> rot1 = new ArrayList<>();
+        List<NestPath> gene2 = new ArrayList<>();
+        List<Integer> rot2 = new ArrayList<>();
 
         for(int i = 0; i <cutpoint;i ++){
             gene1.add(new NestPath(male.placement.get(i)));
@@ -92,8 +92,8 @@ public class GeneticAlgorithm {
 
 
     private boolean contains(List<NestPath> gene , int id ){
-        for(int i = 0 ; i<gene.size() ; i ++){
-            if(gene.get(i).getId() == id ){
+        for (NestPath element : gene) {
+            if(element.getId() == id ){
                 return true;
             }
         }
@@ -101,7 +101,7 @@ public class GeneticAlgorithm {
     }
 
     private Individual randomWeightedIndividual(Individual exclude){
-        List<Individual> pop = new ArrayList<Individual>();
+        List<Individual> pop = new ArrayList<>();
         for(int i = 0 ; i < population.size(); i ++){
             Individual individual = population.get(i);
             Individual clone = new Individual(individual);
@@ -129,7 +129,7 @@ public class GeneticAlgorithm {
     }
 
     private void init(){
-        angles = new ArrayList<Integer>();
+        angles = new ArrayList<>();
         for(int i = 0 ; i< adam.size(); i ++){
             int angle = randomAngle(adam.get(i));
             angles.add(angle);
@@ -162,12 +162,12 @@ public class GeneticAlgorithm {
     }
 
     /**
-     * 为一个polygon 返回一个角度
+     * Return an angle for a polygon 
      * @param part
      * @return
      */
     private  int randomAngleOld(NestPath part){
-        List<Integer> angleList = new ArrayList<Integer>();
+        List<Integer> angleList = new ArrayList<>();
         int rotate = Math.max(1,part.getRotation());
         if(rotate == 0 ){
             angleList.add(0);
@@ -178,10 +178,10 @@ public class GeneticAlgorithm {
             }
         }
         Collections.shuffle(angleList);
-        for(int i = 0 ; i <angleList.size() ; i ++){
-            Bound rotatedPart = GeometryUtil.rotatePolygon(part , angleList.get(i));
+        for (Integer element : angleList) {
+            Bound rotatedPart = GeometryUtil.rotatePolygon(part , element);
             if(rotatedPart.getWidth() < binBounds.getWidth() && rotatedPart.getHeight() < binBounds.getHeight() ){
-                return angleList.get(i);
+                return element;
             }
         }
         /**

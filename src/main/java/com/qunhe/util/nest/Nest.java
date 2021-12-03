@@ -1,17 +1,34 @@
 package com.qunhe.util.nest;
 
+import static com.qunhe.util.nest.util.IOUtils.debug;
+import static com.qunhe.util.nest.util.IOUtils.log;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.qunhe.util.nest.algorithm.GeneticAlgorithm;
 import com.qunhe.util.nest.algorithm.Individual;
-import com.qunhe.util.nest.contest.ContestData;
-import com.qunhe.util.nest.data.*;
+import com.qunhe.util.nest.config.Config;
+import com.qunhe.util.nest.contest.InputConfig;
+import com.qunhe.util.nest.data.Bound;
+import com.qunhe.util.nest.data.NestPath;
+import com.qunhe.util.nest.data.NfpKey;
+import com.qunhe.util.nest.data.NfpPair;
+import com.qunhe.util.nest.data.ParallelData;
+import com.qunhe.util.nest.data.Placement;
+import com.qunhe.util.nest.data.Result;
+import com.qunhe.util.nest.data.Segment;
 import com.qunhe.util.nest.data.Vector;
-import com.qunhe.util.nest.util.*;
-import sun.nio.ch.IOUtil;
-
-import java.util.*;
-import static com.qunhe.util.nest.util.IOUtils.*;
+import com.qunhe.util.nest.util.CommonUtil;
+import com.qunhe.util.nest.util.GeometryUtil;
+import com.qunhe.util.nest.util.IOUtils;
+import com.qunhe.util.nest.util.NfpUtil;
+import com.qunhe.util.nest.util.Placementworker;
 
 /**
  * @author yisa
@@ -38,7 +55,7 @@ public class Nest {
         this.parts = parts;
         this.config = config;
         this.loopCount = count;
-        nfpCache = new HashMap<String, List<NestPath>>();
+        nfpCache = new HashMap<>();
     }
 
     /**
@@ -54,7 +71,7 @@ public class Nest {
         for(NestPath nestPath: parts){
             nestPath.config = config;
         }
-        NestPath binPolygon = NestPath.cleanNestPath(binPath);
+        NestPath binPolygon = CommonUtil.cleanNestPath(binPath);
         // Bound binBound = GeometryUtil.getPolygonBounds(binPolygon);
         if(Config.BOUND_SPACING > 0 ){
             List<NestPath> offsetBin = CommonUtil.polygonOffset(binPolygon , - Config.BOUND_SPACING);
@@ -66,7 +83,7 @@ public class Nest {
         // A part may become unplacable after a rotation. TODO this can also be removed if we know that all parts are legal
         if(!Config.ASSUME_ALL_PARTS_PLACABLE) {
             List<Integer> integers = checkIfCanBePlaced(binPolygon, tree);
-            List<NestPath> safeTree = new ArrayList<NestPath>();
+            List<NestPath> safeTree = new ArrayList<>();
             for (Integer i : integers) {
                 safeTree.add(tree.get(i));
             }
@@ -107,14 +124,14 @@ public class Nest {
         /**
          * ç¡®ä¿�ä¸ºé€†æ—¶é’ˆ TODO why?
          */
-        for(int i = 0 ; i< tree.size(); i ++){
-            Segment start = tree.get(i).get(0);
-            Segment end = tree.get(i).get(tree.get(i).size()-1);
+        for (NestPath element : tree) {
+            Segment start = element.get(0);
+            Segment end = element.get(element.size()-1);
             if(start == end || GeometryUtil.almostEqual(start.x , end.x) && GeometryUtil.almostEqual(start.y , end.y)){
-                tree.get(i).pop();
+                element.pop();
             }
-            if(GeometryUtil.polygonArea(tree.get(i)) > 0 ){
-                tree.get(i).reverse();
+            if(GeometryUtil.polygonArea(element) > 0 ){
+                element.reverse();
             }
         }
 
@@ -130,11 +147,11 @@ public class Nest {
                 log("Loop "+i+" width = "+best.fitness+"; use rate = " + rate);
                 appliedPlacement = applyPlacement(best,tree);
                 try {
-                	String lotId = Config.INPUT == null ? "" : Config.INPUT.get(0).lotId;
+                	String lotId = InputConfig.INPUT == null ? "" : InputConfig.INPUT.get(0).lotId;
                     String file = Config.OUTPUT_DIR + lotId + "_" +i +"_" +
                         (int)(rate*10) + ".csv";
                     debug("Save to file "+file);
-                    IOUtils.saveToMultiFile(file, appliedPlacement);
+                    IOUtils.saveToMultiFile(file, appliedPlacement, InputConfig.INPUT_POLY);
                 }catch (Exception e){
                     log(e);
                 }
@@ -148,10 +165,10 @@ public class Nest {
         //Log new result
         double sumarea = 0;
         double totalarea = Config.BIN_HEIGHT*best.fitness;
-        for(int j = 0; j < best.placements.size();j++){
+        for (List<Vector> element : best.placements) {
             //totalarea += Math.abs(GeometryUtil.polygonArea(binPolygon));
-            for(int k = 0 ; k< best.placements.get(j).size() ; k ++){
-                sumarea += Math.abs(GeometryUtil.polygonArea(tree.get(best.placements.get(j).get(k).id)));
+            for (Vector element2 : element) {
+                sumarea += Math.abs(GeometryUtil.polygonArea(tree.get(element2.id)));
             }
         }
         return (sumarea/totalarea)*100;
@@ -169,7 +186,7 @@ public class Nest {
             log("launchWorkers(): launching worker "+launchcount);
         }
         if(GA == null ){
-            List<NestPath> adam = new ArrayList<NestPath>();
+            List<NestPath> adam = new ArrayList<>();
             for(NestPath nestPath : tree ){
                 NestPath clone  = new NestPath(nestPath);
                 adam.add(clone);
@@ -182,9 +199,9 @@ public class Nest {
         }
 
         Individual individual = null;
-        for(int i = 0 ; i <GA.population.size(); i ++){
-            if( GA.population.get(i).getFitness() <  0 ){
-                individual = GA.population.get(i);
+        for (Individual element : GA.population) {
+            if( element.getFitness() <  0 ){
+                individual = element;
                 break;
             }
         }
@@ -205,7 +222,7 @@ public class Nest {
         List<NestPath> placelist = individual.getPlacement();
         List<Integer> rotations = individual.getRotation();
 
-        List<Integer> ids = new ArrayList<Integer>();
+        List<Integer> ids = new ArrayList<>();
         for(int i = 0 ; i < placelist.size(); i ++){
             ids.add(placelist.get(i).getId());
             placelist.get(i).setRotation(rotations.get(i));
@@ -214,7 +231,7 @@ public class Nest {
             debug("Loading nfp from file "+Config.NFP_CACHE_PATH);
             nfpCache = IOUtils.loadNfpCache(Config.NFP_CACHE_PATH);
         }
-        List<NfpPair> nfpPairs = new ArrayList<NfpPair>();
+        List<NfpPair> nfpPairs = new ArrayList<>();
         NfpKey key = null;
         /**
          * å¦‚æžœåœ¨nfpCacheé‡Œæ²¡æ‰¾åˆ°nfpKey åˆ™æ·»åŠ è¿›nfpPairs
@@ -241,7 +258,7 @@ public class Nest {
         /**
          * ç¬¬ä¸€æ¬¡nfpCacheä¸ºç©º ï¼ŒnfpCacheå­˜çš„æ˜¯nfpKeyæ‰€å¯¹åº”çš„ä¸¤ä¸ªpolygonæ‰€å½¢æˆ�çš„Nfp( List<NestPath> )
          */
-        List<ParallelData> generatedNfp = new ArrayList<ParallelData>();
+        List<ParallelData> generatedNfp = new ArrayList<>();
         int cnt = 0;
         for(NfpPair nfpPair :nfpPairs){
             if(++cnt % 1000 == 0 ){
@@ -254,20 +271,19 @@ public class Nest {
             }
             generatedNfp.add(data);
         }
-        for(int i = 0 ; i<generatedNfp.size() ; i++){
-            ParallelData Nfp = generatedNfp.get(i);
+        for (ParallelData Nfp : generatedNfp) {
             //TODO remove gson & generate a new key algorithm
             String tkey = gson.toJson(Nfp.getKey());
             nfpCache.put(tkey, Nfp.value);
         }
         log("Saving nfpCache.");
-        String lotId = Config.INPUT == null ? "" : Config.INPUT.get(0).lotId;
+        String lotId = InputConfig.INPUT == null ? "" : InputConfig.INPUT.get(0).lotId;
         IOUtils.saveNfpCache(nfpCache, Config.OUTPUT_DIR+"nfp"+ lotId+".txt");
 
         debug("Launching placement worker...");
         // Here place parts according to the sequence specified by the individual
         Placementworker worker = new Placementworker(binPolygon,config,nfpCache);
-        List<NestPath> placeListSlice = new ArrayList<NestPath>();
+        List<NestPath> placeListSlice = new ArrayList<>();
 
         for(int i = 0; i< placelist.size() ; i++){
             placeListSlice.add( new NestPath(placelist.get(i)));
@@ -275,7 +291,7 @@ public class Nest {
         // Some simplification:
         //List<List<NestPath>> data = new ArrayList<List<NestPath>>();
         //data.add(placeListSlice);
-        List<Result> results = new ArrayList<Result>();
+        List<Result> results = new ArrayList<>();
         //for(int i = 0 ;i <data.size() ; i++){
         Result result = worker.placePaths(placeListSlice);//data.get(i)
         results.add(result);
@@ -283,7 +299,7 @@ public class Nest {
         if(results.size() == 0){
             return null;
         }
-        individual.fitness = results.get(0).fitness;
+        individual.setFitness(results.get(0).fitness);
         Result bestResult = results.get(0);
         for(int i = 1; i <results.size() ; i++) {
             if (results.get(i).fitness < bestResult.fitness) {
@@ -301,9 +317,9 @@ public class Nest {
      * @return
      */
     public static List<List<Placement>> applyPlacement(Result best , List<NestPath> tree){
-        List<List<Placement>> applyPlacement = new ArrayList<List<Placement>>();
+        List<List<Placement>> applyPlacement = new ArrayList<>();
         for(int i = 0; i<best.placements.size();i++){
-            List<Placement> binTranslate = new ArrayList<Placement>();
+            List<Placement> binTranslate = new ArrayList<>();
             for(int j = 0 ; j <best.placements.get(i).size(); j ++){
                 Vector v = best.placements.get(i).get(j);
                 NestPath nestPath = tree.get(v.id);
@@ -327,7 +343,7 @@ public class Nest {
      * @return
      */
     private static List<Integer>  checkIfCanBePlaced(NestPath binPolygon , List<NestPath> tree ){
-        List<Integer> CanBePlacdPolygonIndex = new ArrayList<Integer>();
+        List<Integer> CanBePlacdPolygonIndex = new ArrayList<>();
         Bound binBound = GeometryUtil.getPolygonBounds(binPolygon);
         for(int i = 0; i <tree.size() ; i++ ){
             NestPath nestPath = tree.get(i);

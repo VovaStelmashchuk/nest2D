@@ -1,17 +1,16 @@
 package com.qunhe.util.nest.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.qunhe.util.nest.data.NestPath;
 import com.qunhe.util.nest.data.Placement;
 import com.qunhe.util.nest.data.Segment;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 public class SvgUtil {
 
     public static List<String> svgGenerator(List<NestPath> list, List<List<Placement>> applied, double binwidth, double binHeight) throws Exception {
-        List<String> strings = new ArrayList<String>();
+        List<String> strings = new ArrayList<>();
         int x = 10;
         int y = 0;
         for (List<Placement> binlist : applied) {

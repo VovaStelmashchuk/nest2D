@@ -1,9 +1,9 @@
 package com.qunhe.util.nest.algorithm;
 
-import com.qunhe.util.nest.data.NestPath;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.qunhe.util.nest.data.NestPath;
 
 /**
  * @author yisa
@@ -11,13 +11,13 @@ import java.util.List;
 public class Individual  implements Comparable<Individual>{
     public List<NestPath> placement;
     public List<Integer> rotation;
-    public double fitness ;
+    private double fitness;
 
 
     public Individual(Individual individual){
-        fitness = individual.fitness;
-        placement = new ArrayList<NestPath>();
-        rotation = new ArrayList<Integer>();
+    	fitness = individual.fitness;
+        placement = new ArrayList<>();
+        rotation = new ArrayList<>();
         for(int i = 0 ; i<individual.placement.size();i ++){
             NestPath cloneNestPath = new NestPath(individual.placement.get(i));
             placement.add(cloneNestPath);
@@ -30,13 +30,13 @@ public class Individual  implements Comparable<Individual>{
 
 
     public Individual() {
-        fitness = -1;
-        placement = new ArrayList<NestPath>();
-        rotation = new ArrayList<Integer>();
+    	fitness = -1;
+        placement = new ArrayList<>();
+        rotation = new ArrayList<>();
     }
 
     public Individual(List<NestPath> placement, List<Integer> rotation) {
-        fitness = -1 ;
+        setFitness(-1) ;
         this.placement = placement;
         this.rotation = rotation;
     }
@@ -101,10 +101,10 @@ public class Individual  implements Comparable<Individual>{
     public String toString() {
         String res = "";
         int count = 0 ;
-        for(int i = 0 ;i <placement.size(); i ++){
+        for (NestPath element : placement) {
             res += "NestPath "+ count +"\n";
             count++;
-            res += placement.get(i).toString() +"\n";
+            res += element.toString() +"\n";
         }
         res+= "rotation \n";
         for(int r : rotation){

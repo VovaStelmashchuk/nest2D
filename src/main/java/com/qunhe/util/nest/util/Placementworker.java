@@ -1,14 +1,26 @@
 package com.qunhe.util.nest.util;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.qunhe.util.nest.data.*;
-import com.qunhe.util.nest.util.coor.ClipperCoor;
-import de.lighti.clipper.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.qunhe.util.nest.config.Config;
+import com.qunhe.util.nest.data.Bound;
+import com.qunhe.util.nest.data.NestPath;
+import com.qunhe.util.nest.data.NfpKey;
+import com.qunhe.util.nest.data.Result;
+import com.qunhe.util.nest.data.Segment;
+import com.qunhe.util.nest.data.Vector;
+import com.qunhe.util.nest.util.coor.ClipperCoor;
+
+import de.lighti.clipper.Clipper;
+import de.lighti.clipper.DefaultClipper;
+import de.lighti.clipper.Path;
+import de.lighti.clipper.Paths;
+import de.lighti.clipper.Point;
+import de.lighti.clipper.Point.LongPoint;
 
 
 /**
@@ -32,13 +44,14 @@ public class Placementworker {
     }
 
     /**
-     * 根据板件列表与旋转角列表，通过nfp,计算板件在底板上的位置，并返回这个种群的fitness
+     * According to the plate list and the rotation angle list, calculate the position of the plate on the 
+     * bottom plate through nfp, and return the fitness of this population 
      *
      * @param paths
      * @return
      */
     public Result placePaths(List<NestPath> paths) {
-        List<NestPath> rotated = new ArrayList<NestPath>();
+        List<NestPath> rotated = new ArrayList<>();
         for (int i = 0; i < paths.size(); i++) {
             NestPath r = GeometryUtil.rotatePolygon2Polygon(paths.get(i), paths.get(i).getRotation());
             r.setRotation(paths.get(i).getRotation());
@@ -49,7 +62,7 @@ public class Placementworker {
         }
         paths = rotated;
 
-        List<List<Vector>> allplacements = new ArrayList<List<Vector>>();
+        List<List<Vector>> allplacements = new ArrayList<>();
         // Now the fitness is defined as the width of material used.
         double fitness = 0;
         double binarea = Math.abs(GeometryUtil.polygonArea(this.binPolygon));
@@ -58,8 +71,8 @@ public class Placementworker {
 
         while (paths.size() > 0) {
 
-            List<NestPath> placed = new ArrayList<NestPath>();
-            List<Vector> placements = new ArrayList<Vector>();
+            List<NestPath> placed = new ArrayList<>();
+            List<Vector> placements = new ArrayList<>();
 
             //fitness += 1;
             double minwidth = Double.MAX_VALUE;
@@ -78,8 +91,8 @@ public class Placementworker {
 
                 // ensure exists
                 boolean error = false;
-                for (int j = 0; j < placed.size(); j++) {
-                    key = gson.toJson(new NfpKey(placed.get(j).getId(), path.getId(), false, placed.get(j).getRotation(), path.getRotation()));
+                for (NestPath element : placed) {
+                    key = gson.toJson(new NfpKey(element.getId(), path.getId(), false, element.getRotation(), path.getRotation()));
                     if (nfpCache.containsKey(key)) nfp = nfpCache.get(key);
                     else {
                         error = true;
@@ -93,12 +106,12 @@ public class Placementworker {
                 Vector position = null;
                 if (placed.size() == 0) {
                     // first placement , put it on the left
-                    for (int j = 0; j < binNfp.size(); j++) {
-                        for (int k = 0; k < binNfp.get(j).size(); k++) {
-                            if (position == null || binNfp.get(j).get(k).x - path.get(0).x < position.x) {
+                    for (NestPath element : binNfp) {
+                        for (int k = 0; k < element.size(); k++) {
+                            if (position == null || element.get(k).x - path.get(0).x < position.x) {
                                 position = new Vector(
-                                        binNfp.get(j).get(k).x - path.get(0).x,
-                                        binNfp.get(j).get(k).y - path.get(0).y,
+                                        element.get(k).x - path.get(0).x,
+                                        element.get(k).y - path.get(0).y,
                                         path.getId(),
                                         path.getRotation()
                                 );
@@ -112,8 +125,7 @@ public class Placementworker {
 
                 Paths clipperBinNfp = new Paths();
 
-                for (int j = 0; j < binNfp.size(); j++) {
-                    NestPath binNfpj = binNfp.get(j);
+                for (NestPath binNfpj : binNfp) {
                     clipperBinNfp.add(scaleUp2ClipperCoordinates(binNfpj));
                 }
                 DefaultClipper clipper = new DefaultClipper();
@@ -126,13 +138,13 @@ public class Placementworker {
                         continue;
                     }
 
-                    for (int k = 0; k < nfp.size(); k++) {
-                        Path clone = scaleUp2ClipperCoordinates(nfp.get(k));
-                        for (int m = 0; m < clone.size(); m++) {
-                            long clx = clone.get(m).getX();
-                            long cly = clone.get(m).getY();
-                            clone.get(m).setX(clx + (long) (placements.get(j).x * Config.CLIIPER_SCALE));
-                            clone.get(m).setY(cly + (long) (placements.get(j).y * Config.CLIIPER_SCALE));
+                    for (NestPath element : nfp) {
+                        Path clone = scaleUp2ClipperCoordinates(element);
+                        for (LongPoint element2 : clone) {
+                            long clx = element2.getX();
+                            long cly = element2.getY();
+                            element2.setX(clx + (long) (placements.get(j).x * Config.CLIIPER_SCALE));
+                            element2.setY(cly + (long) (placements.get(j).y * Config.CLIIPER_SCALE));
                         }
                         // TODO why clean again here
                         clone = clone.cleanPolygon(0.0001 * Config.CLIIPER_SCALE);
@@ -169,9 +181,9 @@ public class Placementworker {
                     continue;
                 }
 
-                List<NestPath> f = new ArrayList<NestPath>();
-                for (int j = 0; j < finalNfp.size(); j++) {
-                    f.add(toNestCoordinates(finalNfp.get(j)));
+                List<NestPath> f = new ArrayList<>();
+                for (Path element : finalNfp) {
+                    f.add(toNestCoordinates(element));
                 }
 
                 List<NestPath> finalNfpf = f;
@@ -180,8 +192,8 @@ public class Placementworker {
                 NestPath nf = null;
                 double area = Double.MIN_VALUE;
                 Vector shifvector = null;
-                for (int j = 0; j < finalNfpf.size(); j++) {
-                    nf = finalNfpf.get(j);
+                for (NestPath element : finalNfpf) {
+                    nf = element;
                     if (Math.abs(GeometryUtil.polygonArea(nf)) < 2) {
                         continue;
                     }
@@ -266,8 +278,8 @@ public class Placementworker {
 
     public static NestPath toNestCoordinates(Path polygon) {
         NestPath clone = new NestPath();
-        for (int i = 0; i < polygon.size(); i++) {
-            Segment s = new Segment((double) polygon.get(i).getX() / Config.CLIIPER_SCALE, (double) polygon.get(i).getY() / Config.CLIIPER_SCALE);
+        for (LongPoint element : polygon) {
+            Segment s = new Segment((double) element.getX() / Config.CLIIPER_SCALE, (double) element.getY() / Config.CLIIPER_SCALE);
             clone.add(s);
         }
         return clone;

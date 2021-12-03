@@ -1,6 +1,6 @@
 package com.qunhe.util.nest.data;
 
-import com.qunhe.util.nest.util.Config;
+import com.qunhe.util.nest.config.Config;
 
 /**
  * @author yisa
@@ -33,16 +33,16 @@ public class Segment {
     }
 
     public Segment(int x , int y ){
-        this.x = (double) x ;
-        this.y = (double) y;
+        this.x = x ;
+        this.y = y;
     }
 
     public Segment(double x, double y) {
         int Ix =(int) (x * Config.CLIIPER_SCALE);
         int Iy =(int) (y * Config.CLIIPER_SCALE);
 
-        this.x = (double)Ix*1.0/Config.CLIIPER_SCALE;
-        this.y = (double)Iy *1.0/ Config.CLIIPER_SCALE;
+        this.x = Ix*1.0/Config.CLIIPER_SCALE;
+        this.y = Iy *1.0/ Config.CLIIPER_SCALE;
     }
 
     @Override

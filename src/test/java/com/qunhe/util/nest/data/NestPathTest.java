@@ -1,11 +1,12 @@
 package com.qunhe.util.nest.data;
 
-import com.qunhe.util.nest.util.GeometryUtil;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.junit.Test;
+
+import com.qunhe.util.nest.util.GeometryUtil;
 
 public class NestPathTest {
 
@@ -51,7 +52,7 @@ public class NestPathTest {
 
     @Test
     public void reMoveTest() throws Exception{
-        List<NestPath> list = new ArrayList<NestPath>();
+        List<NestPath> list = new ArrayList<>();
         NestPath nestPath = new NestPath();
         nestPath.add(new Segment(0,0));
         nestPath.add(new Segment(10,10));
@@ -78,8 +79,8 @@ public class NestPathTest {
                 i--;
             }
         }
-        for(int i = 0 ; i<list.size(); i ++){
-            list.get(i).toString();
+        for (NestPath element : list) {
+            element.toString();
         }
     }
 
@@ -113,7 +114,7 @@ public class NestPathTest {
         Segment t4 = new Segment(80 ,0);
         NestPath rect = new NestPath();
         rect.add(t1);rect.add(t2);rect.add(t3);rect.add(t4);
-        List<NestPath> list = new ArrayList<NestPath>();
+        List<NestPath> list = new ArrayList<>();
         list.add(nestPath);list.add(rect);
 
         Collections.sort(list);

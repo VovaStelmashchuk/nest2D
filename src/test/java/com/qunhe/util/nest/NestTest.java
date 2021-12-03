@@ -1,28 +1,26 @@
 package com.qunhe.util.nest;
 
 
-import com.qunhe.util.nest.data.*;
-import com.qunhe.util.nest.util.Config;
-import com.qunhe.util.nest.util.GeometryUtil;
-import com.qunhe.util.nest.util.PostionUtil;
-import com.qunhe.util.nest.util.SvgUtil;
-import org.dom4j.Attribute;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import com.qunhe.util.nest.config.Config;
+import com.qunhe.util.nest.data.NestPath;
+import com.qunhe.util.nest.data.Placement;
+import com.qunhe.util.nest.util.SvgUtil;
 
 
 public class NestTest {
-   
+
 
     @Test
     public void HoleTest() throws Exception {
@@ -52,7 +50,7 @@ public class NestTest {
         little.add(930, 20);
         little.bid = 3;
         little.setRotation(4);
-        List<NestPath> list = new ArrayList<NestPath>();
+        List<NestPath> list = new ArrayList<>();
         list.add(inner);
         list.add(outer);
         list.add(little);
@@ -80,22 +78,22 @@ public class NestTest {
         bin.bid = -1;
         Config config = new Config();
         config.SPACING = 0;
-        config.POPULATION_SIZE = 2;
+        config.POPULATION_SIZE = 6;
         Nest nest = new Nest(bin, polygons, config, 1);
         List<List<Placement>> appliedPlacement = nest.startNest();
         List<String> strings = SvgUtil.svgGenerator(polygons, appliedPlacement, binWidth, binHeight);
-        saveSvgFile(strings,"problem.html");
+        saveSvgFile(strings,Config.OUTPUT_DIR+"problem.html");
         // find solution
         nest = new Nest(bin, polygons, config, 10);
         appliedPlacement = nest.startNest();
         strings = SvgUtil.svgGenerator(polygons, appliedPlacement, binWidth, binHeight);
-        saveSvgFile(strings,"solution.html");
+        saveSvgFile(strings,Config.OUTPUT_DIR+"solution.html");
     }
 
-    private List<NestPath> transferSvgIntoPolygons() throws DocumentException {
+    private static List<NestPath> transferSvgIntoPolygons() throws DocumentException {
         List<NestPath> nestPaths = new ArrayList<>();
         SAXReader reader = new SAXReader();
-        Document document = reader.read("test.xml");
+        Document document = reader.read("input/test.xml");
         List<Element> elementList = document.getRootElement().elements();
         int count = 0;
         for (Element element : elementList) {

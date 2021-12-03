@@ -1,11 +1,13 @@
 package com.qunhe.util.nest.util;
 
-import com.qunhe.util.nest.data.NestPath;
-import com.qunhe.util.nest.data.Segment;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.Test;
+
+import com.qunhe.util.nest.config.Config;
+import com.qunhe.util.nest.data.NestPath;
+import com.qunhe.util.nest.data.Segment;
 
 
 public class CommonUtilTest {
@@ -29,7 +31,7 @@ public class CommonUtilTest {
         nestPath2.add(new Segment(10,5));
         nestPath2.add(new Segment(15, 0));
 
-        List<NestPath> list = new ArrayList<NestPath>();
+        List<NestPath> list = new ArrayList<>();
         list.add(nestPath);list.add(nestPath1);list.add(nestPath2);
         int id = CommonUtil.toTree(list,0);
         System.out.println("id = "+id);
@@ -43,7 +45,7 @@ public class CommonUtilTest {
         nestPath.add(new Segment(100,50));
         nestPath.add(new Segment(100,100));
         nestPath.add(new Segment(50,100));
-        List<NestPath> nestPaths = new ArrayList<NestPath>();
+        List<NestPath> nestPaths = new ArrayList<>();
         nestPaths.add(nestPath);
         CommonUtil.offsetTree(nestPaths,0.5 * nestPath.config.SPACING);
         nestPaths.get(0).toString();
@@ -82,7 +84,7 @@ public class CommonUtilTest {
         NestPath in = new NestPath();
         in.add(t1);in.add(t2);in.add(t3);in.add(t4);
 
-        List<NestPath> list = new ArrayList<NestPath>();
+        List<NestPath> list = new ArrayList<>();
         list.add(out);
         list.add(in);
         int id = CommonUtil.toTree(list,0);

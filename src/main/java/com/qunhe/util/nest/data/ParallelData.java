@@ -11,7 +11,7 @@ public class ParallelData {
     public List<NestPath> value ;
 
     public ParallelData() {
-        value = new ArrayList<NestPath>();
+        value = new ArrayList<>();
     }
 
     public ParallelData(NfpKey key, List<NestPath> value) {

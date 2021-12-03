@@ -1,12 +1,9 @@
 package com.qunhe.util.nest.data;
 
-import com.qunhe.util.nest.util.CommonUtil;
-import com.qunhe.util.nest.util.Config;
-import com.qunhe.util.nest.util.GeometryUtil;
-import de.lighti.clipper.*;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.qunhe.util.nest.config.Config;
 
 /**
  * @author yisa
@@ -62,14 +59,14 @@ public class NestPath  implements Comparable<NestPath>{
     }
 
     /**
-     * 丢弃最后一个segment
+     * Discard the last segment
      */
     public void pop(){
         segments.remove(segments.size()-1);
     }
 
     public void reverse(){
-        List<Segment> rever = new ArrayList<Segment>();
+        List<Segment> rever = new ArrayList<>();
         for(int i = segments.size()-1; i >=0; i -- ){
             rever.add(segments.get(i));
         }
@@ -146,8 +143,8 @@ public class NestPath  implements Comparable<NestPath>{
     public NestPath(){
         offsetX = 0;
         offsetY = 0;
-        children = new ArrayList<NestPath>();
-        segments = new ArrayList<Segment>();
+        children = new ArrayList<>();
+        segments = new ArrayList<>();
         config = new Config();
         area = 0;
     }
@@ -156,14 +153,14 @@ public class NestPath  implements Comparable<NestPath>{
     public NestPath(Config config) {
         offsetX = 0;
         offsetY = 0;
-        children = new ArrayList<NestPath>();
-        segments = new ArrayList<Segment>();
+        children = new ArrayList<>();
+        segments = new ArrayList<>();
         area = 0;
         this.config = config;
     }
 
     public NestPath(NestPath srcNestPath){
-        segments = new ArrayList<Segment>();
+        segments = new ArrayList<>();
         for(Segment segment : srcNestPath.getSegments() ){
             segments.add(new Segment(segment));
         }
@@ -176,7 +173,7 @@ public class NestPath  implements Comparable<NestPath>{
         this.offsetY = srcNestPath.offsetY;
         this.bid = srcNestPath.bid;
         this.area = srcNestPath.area;
-        children = new ArrayList<NestPath>();
+        children = new ArrayList<>();
 
         for(NestPath nestPath: srcNestPath.getChildren()){
             NestPath child = new NestPath(nestPath);
@@ -185,43 +182,8 @@ public class NestPath  implements Comparable<NestPath>{
         }
     }
 
-    public static NestPath cleanNestPath(NestPath srcPath){
-        /**
-         * Convert NestPath 2 Clipper
-         */
-        Path path = CommonUtil.NestPath2Path(srcPath);
-        // Convert self interacting polygons to simple ones
-        Paths simple = DefaultClipper.simplifyPolygon(path, Clipper.PolyFillType.NON_ZERO);
-        if(simple.size() == 0 ){
-            return null;
-        }
-        Path biggest = simple.get(0);
-        double biggestArea = Math.abs(biggest.area());
-        for(int i = 1; i <simple.size();i++){
-            double area = Math.abs(simple.get(i).area());
-            if(area > biggestArea ){
-                biggest = simple.get(i);
-                biggestArea = area;
-            }
-        }
-        // Remove vertices under tolerance specification
-        Path clean = biggest.cleanPolygon(srcPath.config.CURVE_TOLERANCE * Config.CLIIPER_SCALE);
-        if(clean.size() == 0 ){
-            return null ;
-        }
-
-        /**
-         *  Convert Clipper 2 NestPath
-         */
-        NestPath cleanPath = CommonUtil.Path2NestPath(clean);
-        cleanPath.bid = srcPath.bid;
-        cleanPath.setRotation(srcPath.rotation);
-        cleanPath.setPossibleRotations(srcPath.getPossibleRotations());
-        return cleanPath;
-    }
-
     /**
-     * 通过平移将NestPath的最低x坐标，y坐标的值必定都是0，
+     * The lowest x coordinate and y coordinate value of NestPath must be 0 by translation,
      */
     public void Zerolize(){
         ZeroX();ZeroY();

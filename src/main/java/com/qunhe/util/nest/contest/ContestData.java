@@ -1,12 +1,6 @@
 package com.qunhe.util.nest.contest;
 
-import com.qunhe.util.nest.data.NestPath;
-import com.qunhe.util.nest.data.Placement;
-import com.qunhe.util.nest.data.Segment;
-import com.qunhe.util.nest.util.GeometryUtil;
-
 import java.io.BufferedReader;
-import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -14,10 +8,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+
+import com.qunhe.util.nest.data.NestPath;
 
 /**
- * Represent the input date
+ * Represent the context
  */
 public class ContestData {
     public String lotId;
@@ -87,43 +82,6 @@ public class ContestData {
         }
 
         return res;
-    }
-
-    /**
-     * Write result to csv file
-     * @param csvFile
-     * @param applied
-     * @param list
-     * @throws Exception
-     */
-    public static void writeToFile(String csvFile, List<List<Placement>> applied, List<ContestData> list) throws Exception{
-        StringBuilder sb = new StringBuilder();
-        for (List<Placement> binlist : applied) {
-            for (Placement placement : binlist) {
-                int bid = placement.bid;
-                ContestData data = getContestDataByBid(bid, list);
-                sb.append(data.lotId).append(", ").append(data.partId).append(", ").append(data.binId).append(", [");
-
-                NestPath nestPath = new NestPath(data.getPolygon());
-                double ox = placement.translate.x;
-                double oy = placement.translate.y;
-                double rotate = placement.rotate;
-                nestPath.translate(ox,oy);
-                nestPath = GeometryUtil.rotatePolygon2Polygon(nestPath, (int)rotate);
-                for (int i = 0; i < nestPath.getSegments().size(); i++) {
-                    Segment segment = nestPath.get(i);
-                    if(i < nestPath.getSegments().size()-1) {
-                        sb.append("[" + segment.x + "," + segment.y + "], ");
-                    }else{
-                        sb.append("[" + segment.x + "," + segment.y + "]]"+System.lineSeparator());
-                    }
-                }
-            }
-        }
-        FileWriter fw = new FileWriter(csvFile);
-        fw.write("下料批次号,零件号,面料号,零件外轮廓线坐标"+System.lineSeparator());
-        fw.write(sb.toString());
-        fw.close();
     }
 
     public static ContestData getContestDataByBid(int id, List<ContestData> list){

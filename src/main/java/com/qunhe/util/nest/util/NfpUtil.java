@@ -1,7 +1,12 @@
 package com.qunhe.util.nest.util;
 
-import com.qunhe.util.nest.data.*;
 import java.util.List;
+
+import com.qunhe.util.nest.config.Config;
+import com.qunhe.util.nest.data.Bound;
+import com.qunhe.util.nest.data.NestPath;
+import com.qunhe.util.nest.data.NfpPair;
+import com.qunhe.util.nest.data.ParallelData;
 
 /**
  * @author yisa
@@ -33,9 +38,9 @@ public class NfpUtil {
                 nfp = GeometryUtil.noFitPolygon(A,B,true,searchEdges);
             }
             if(nfp != null && nfp.size() > 0){
-                for(int i = 0 ; i<nfp.size() ; i ++){
-                    if(GeometryUtil.polygonArea(nfp.get(i)) > 0 ){
-                        nfp.get(i).reverse();
+                for (NestPath element : nfp) {
+                    if(GeometryUtil.polygonArea(element) > 0 ){
+                        element.reverse();
                     }
                 }
             }

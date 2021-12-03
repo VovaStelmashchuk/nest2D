@@ -1,14 +1,12 @@
 package com.qunhe.util.nest.util;
 
-import com.qunhe.util.nest.Nest;
-import com.qunhe.util.nest.data.Bound;
-import com.qunhe.util.nest.data.NestPath;
-import com.qunhe.util.nest.data.Result;
-import com.qunhe.util.nest.data.Segment;
+import java.util.List;
+
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.qunhe.util.nest.data.Bound;
+import com.qunhe.util.nest.data.NestPath;
+import com.qunhe.util.nest.data.Segment;
 
 
 public class GeometryUtilTest {
@@ -20,7 +18,7 @@ public class GeometryUtilTest {
         nestPath.add(new Segment(20, 0 ));
 
         boolean result = GeometryUtil.pointInPolygon(new Segment(100,5) , nestPath);
-        if(result == true ){
+        if(result ){
             System.out.println("SUCCESS");
         }
         else{

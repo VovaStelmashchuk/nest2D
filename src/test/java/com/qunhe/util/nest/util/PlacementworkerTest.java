@@ -1,23 +1,24 @@
 package com.qunhe.util.nest.util;
 
-import com.qunhe.util.nest.Nest;
-import com.qunhe.util.nest.data.NestPath;
-import com.qunhe.util.nest.data.NfpKey;
-import com.qunhe.util.nest.data.Result;
-import com.qunhe.util.nest.data.Segment;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.junit.Test;
+
+import com.qunhe.util.nest.config.Config;
+import com.qunhe.util.nest.data.NestPath;
+import com.qunhe.util.nest.data.NfpKey;
+import com.qunhe.util.nest.data.Result;
+import com.qunhe.util.nest.data.Segment;
 
 public class PlacementworkerTest {
 
 
     @Test
     public void MapTest() throws Exception{
-        Map<String, NfpKey> nfpCache = new HashMap<String, NfpKey>();
+        Map<String, NfpKey> nfpCache = new HashMap<>();
         String key = "123";
         if(nfpCache.containsKey(key)){
             System.out.println("Here");
@@ -37,9 +38,9 @@ public class PlacementworkerTest {
         binPolygon.add(new Segment( 0 , 0));
         binPolygon.add(new Segment( 290 , 0 ));
 
-        List<NestPath> placelist = new ArrayList<NestPath>();
+        List<NestPath> placelist = new ArrayList<>();
         NestPath nestPath1 = new NestPath();
-        nestPath1.add(new Segment((double)273.2070398,(double)346.164));
+        nestPath1.add(new Segment(273.2070398,346.164));
         nestPath1.add(new Segment(275,350));
         nestPath1.add(new Segment(275,420));
         nestPath1.add(new Segment(273.836,423.2070));
@@ -73,13 +74,13 @@ public class PlacementworkerTest {
         nestPath2.setRotation(270);
         placelist.add(nestPath1);
         placelist.add(nestPath2);
-        List<Integer> integers = new ArrayList<Integer>();
+        List<Integer> integers = new ArrayList<>();
         integers.add(1);
         integers.add(0);
-        List<Integer> rotations = new ArrayList<Integer>();
+        List<Integer> rotations = new ArrayList<>();
         rotations.add(270);rotations.add(270);
         Config config = new Config();
-        Map<String, List<NestPath>> nfpCache = new HashMap<String, List<NestPath>>();
+        Map<String, List<NestPath>> nfpCache = new HashMap<>();
         Placementworker placementworker = new Placementworker(binPolygon,config,nfpCache);
         Result result = placementworker.placePaths(placelist);
         System.out.println("area = "+ result.area +" , fitness = "+result.fitness);

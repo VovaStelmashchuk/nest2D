@@ -1,14 +1,10 @@
 package com.qunhe.util.nest.util;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.qunhe.util.nest.contest.ContestData;
-import com.qunhe.util.nest.data.NestPath;
-import com.qunhe.util.nest.data.Placement;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.Writer;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,19 +13,27 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.gson.Gson;
+import com.qunhe.util.nest.config.Config;
+import com.qunhe.util.nest.contest.ContestData;
+import com.qunhe.util.nest.contest.InputConfig;
+import com.qunhe.util.nest.data.NestPath;
+import com.qunhe.util.nest.data.Placement;
+import com.qunhe.util.nest.data.Segment;
+
 public class IOUtils {
     public static void log(Object... o){
         if(o != null) {
-            for(int i=0; i<o.length;++i) {
-                System.out.println(o[i]);
+            for (Object element : o) {
+                System.out.println(element);
             }
         }
     }
 
     public static void debug(Object... o){
         if(o != null && Config.IS_DEBUG) {
-            for(int i=0; i<o.length;++i) {
-                System.out.println(o[i]);
+            for (Object element : o) {
+                System.out.println(element);
             }
         }
     }
@@ -98,12 +102,18 @@ public class IOUtils {
         return null;
     }
 
-    public static void saveToMultiFile(String filename, List<List<Placement>> applied) {
+    /**
+     *
+     * @param filename
+     * @param applied
+     * @param list CONFIG.INPUT_POLY
+     */
+    public static void saveToMultiFile(String filename, List<List<Placement>> applied, List<NestPath> list) {
         try {
             //Save to contest file
-            ContestData.writeToFile(filename, applied, Config.INPUT);
+            IOUtils.writeToFile(filename, applied, InputConfig.INPUT);
             //Save to svg
-            List<String> strings = SvgUtil.svgGenerator(Config.INPUT_POLY, applied, Config.BIN_WIDTH,
+            List<String> strings = SvgUtil.svgGenerator(list, applied, Config.BIN_WIDTH,
                 Config.BIN_HEIGHT);
             saveSvgFile(strings, filename + ".html");
         } catch (Exception e) {
@@ -131,4 +141,41 @@ public class IOUtils {
         writer.write("</svg>");
         writer.close();
     }
+
+	/**
+	 * Write result to csv file
+	 * @param csvFile
+	 * @param applied
+	 * @param list
+	 * @throws Exception
+	 */
+	public static void writeToFile(String csvFile, List<List<Placement>> applied, List<ContestData> list) throws Exception{
+	    StringBuilder sb = new StringBuilder();
+	    for (List<Placement> binlist : applied) {
+	        for (Placement placement : binlist) {
+	            int bid = placement.bid;
+	            ContestData data = ContestData.getContestDataByBid(bid, list);
+	            sb.append(data.lotId).append(", ").append(data.partId).append(", ").append(data.binId).append(", [");
+
+	            NestPath nestPath = new NestPath(data.getPolygon());
+	            double ox = placement.translate.x;
+	            double oy = placement.translate.y;
+	            double rotate = placement.rotate;
+	            nestPath.translate(ox,oy);
+	            nestPath = GeometryUtil.rotatePolygon2Polygon(nestPath, (int)rotate);
+	            for (int i = 0; i < nestPath.getSegments().size(); i++) {
+	                Segment segment = nestPath.get(i);
+	                if(i < nestPath.getSegments().size()-1) {
+	                    sb.append("[" + segment.x + "," + segment.y + "], ");
+	                }else{
+	                    sb.append("[" + segment.x + "," + segment.y + "]]"+System.lineSeparator());
+	                }
+	            }
+	        }
+	    }
+	    FileWriter fw = new FileWriter(csvFile);
+	    fw.write("Blanking batch number, part number, fabric number, coordinate of part outline"+System.lineSeparator());
+	    fw.write(sb.toString());
+	    fw.close();
+	}
 }

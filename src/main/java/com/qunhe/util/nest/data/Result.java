@@ -7,7 +7,7 @@ import java.util.List;
  */
 public class Result {
     public List<List<Vector>> placements;
-    public double fitness ;
+    public double fitness;
     public List<NestPath> paths;
     public double area;
 
@@ -16,8 +16,5 @@ public class Result {
         this.fitness = fitness;
         this.paths = paths;
         this.area = area;
-    }
-
-    public Result() {
     }
 }

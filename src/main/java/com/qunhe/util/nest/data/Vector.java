@@ -2,8 +2,6 @@ package com.qunhe.util.nest.data;
 
 import de.lighti.clipper.Paths;
 
-import java.util.List;
-
 /**
  * @author yisa
  */

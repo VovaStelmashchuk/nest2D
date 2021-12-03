@@ -1,13 +1,15 @@
 package com.qunhe.util.nest.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.Test;
+
+import com.qunhe.util.nest.config.Config;
 import com.qunhe.util.nest.data.NestPath;
 import com.qunhe.util.nest.data.NfpKey;
 import com.qunhe.util.nest.data.NfpPair;
 import com.qunhe.util.nest.data.ParallelData;
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class NfpUtilTest {
 
@@ -31,10 +33,10 @@ public class NfpUtilTest {
         little.add(930,20);
         little.bid = 3;
 
-        List<NestPath> list = new ArrayList<NestPath>();
+        List<NestPath> list = new ArrayList<>();
         list.add(inner);list.add(outer);list.add(little);
         Config config = new Config();
-        List<NestPath> tree = CommonUtil.BuildTree(list , config.CURVE_TOLERANCE);
+        List<NestPath> tree = CommonUtil.BuildTree(list , Config.CURVE_TOLERANCE);
         CommonUtil.offsetTree(tree , 0.5 * config.SPACING);
         NestPath A = tree.get(0);
         NestPath B = tree.get(1);

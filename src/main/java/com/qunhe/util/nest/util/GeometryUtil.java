@@ -1,20 +1,19 @@
 package com.qunhe.util.nest.util;
 
-import com.qunhe.util.nest.Nest;
-import com.qunhe.util.nest.data.Bound;
-import com.qunhe.util.nest.data.NestPath;
-import com.qunhe.util.nest.data.Segment;
-import com.qunhe.util.nest.data.SegmentRelation;
-import com.qunhe.util.nest.util.coor.ClipperCoor;
-import de.lighti.clipper.DefaultClipper;
-import de.lighti.clipper.Path;
-import de.lighti.clipper.Paths;
-
-import javax.xml.crypto.Data;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+
+import com.qunhe.util.nest.data.Bound;
+import com.qunhe.util.nest.data.NestPath;
+import com.qunhe.util.nest.data.Segment;
+import com.qunhe.util.nest.data.SegmentRelation;
+
+import de.lighti.clipper.DefaultClipper;
+import de.lighti.clipper.Path;
+import de.lighti.clipper.Paths;
+import de.lighti.clipper.Point.LongPoint;
 
 
 /**
@@ -137,11 +136,7 @@ public class GeometryUtil {
             double xj = polygon.get(j).x + offsetx;
             double yj = polygon.get(j).y + offsety;
 
-            if(almostEqual(xi, point.x) && almostEqual(yi, point.y)){
-                return null; // no result
-            }
-
-            if(onSegment( new Segment(xi,yi),new Segment(xj,yj) , point)){
+            if((almostEqual(xi, point.x) && almostEqual(yi, point.y)) || onSegment( new Segment(xi,yi),new Segment(xj,yj) , point)){
                 return null ; // exactly on the segment
             }
 
@@ -248,10 +243,7 @@ public class GeometryUtil {
         Bound bb = getPolygonBounds(poly);
 
         for(int i = 0 ; i< poly.size();i++){
-            if( !almostEqual(poly.get(i).x , bb.getXmin(),tolerance) && ! almostEqual(poly.get(i).x , bb.getXmin() + bb.getWidth(), tolerance)){
-                return false;
-            }
-            if( ! almostEqual(poly.get(i).y , bb.getYmin() ,tolerance) && ! almostEqual(poly.get(i).y , bb.getYmin() + bb.getHeight() ,tolerance)){
+            if( (!almostEqual(poly.get(i).x , bb.getXmin(),tolerance) && ! almostEqual(poly.get(i).x , bb.getXmin() + bb.getWidth(), tolerance)) || (! almostEqual(poly.get(i).y , bb.getYmin() ,tolerance) && ! almostEqual(poly.get(i).y , bb.getYmin() + bb.getHeight() ,tolerance))){
                 return false;
             }
         }
@@ -308,7 +300,7 @@ public class GeometryUtil {
 
         }
 
-        List<NestPath> NFPlist = new ArrayList<NestPath>();
+        List<NestPath> NFPlist = new ArrayList<>();
 
         while(startPoint != null ){
             Segment prevvector = null;
@@ -329,7 +321,7 @@ public class GeometryUtil {
 
             // sanity check  , prevent infinite loop
             while( counter < 10 *( A.size() + B.size())){
-                touching = new ArrayList<SegmentRelation>();
+                touching = new ArrayList<>();
 
 
                 for(int i = 0 ; i <A.size();i++){
@@ -352,12 +344,12 @@ public class GeometryUtil {
 
 
                 NestPath vectors = new NestPath();
-                for(int i = 0; i < touching.size() ; i++){
-                    Segment vertexA = A.get(touching.get(i).A);
+                for (SegmentRelation element : touching) {
+                    Segment vertexA = A.get(element.A);
                     vertexA.marked = true;
 
-                    int prevAIndex = touching.get(i).A -1;
-                    int nextAIndex = touching.get(i).A +1;
+                    int prevAIndex = element.A -1;
+                    int nextAIndex = element.A +1;
 
                     prevAIndex = (prevAIndex < 0) ? A.size()-1 : prevAIndex; // loop
                     nextAIndex = (nextAIndex >= A.size()) ? 0 : nextAIndex; // loop
@@ -365,10 +357,10 @@ public class GeometryUtil {
                     Segment prevA = A.get(prevAIndex);
                     Segment nextA = A.get(nextAIndex);
 
-                    Segment vertexB = B.get(touching.get(i).B);
+                    Segment vertexB = B.get(element.B);
 
-                    int prevBIndex = touching.get(i).B -1;
-                    int nextBIndex = touching.get(i).B +1;
+                    int prevBIndex = element.B -1;
+                    int nextBIndex = element.B +1;
 
                     prevBIndex = (prevBIndex < 0) ? B.size()-1 : prevBIndex; // loop
                     nextBIndex = (nextBIndex >= B.size()) ? 0 : nextBIndex; // loop
@@ -376,7 +368,7 @@ public class GeometryUtil {
                     Segment prevB = B.get(prevBIndex);
                     Segment nextB = B.get(nextBIndex);
 
-                    if(touching.get(i).type == 0 ){
+                    if(element.type == 0 ){
                         Segment vA1 = new Segment(prevA.x - vertexA.x , prevA.y - vertexA.y);
                         vA1.start = vertexA ; vA1.end = prevA;
 
@@ -394,7 +386,7 @@ public class GeometryUtil {
                         vectors.add(vB1);
                         vectors.add(vB2);
                     }
-                    else if (touching.get(i).type ==1 ){
+                    else if (element.type ==1 ){
 
                         Segment tmp = new Segment( vertexA.x - (vertexB.x +B.offsetX) ,
                                                     vertexA.y - (vertexB.y +B.offsetY));
@@ -408,7 +400,7 @@ public class GeometryUtil {
                         vectors.add(tmp2);
 
                     }
-                    else if (touching.get(i).type == 2 ){
+                    else if (element.type == 2 ){
                         Segment tmp1 = new Segment( vertexA.x - (vertexB.x + B.offsetX) ,
                                                     vertexA.y - (vertexB.y + B.offsetY));
                         tmp1.start = prevB;
@@ -641,9 +633,9 @@ public class GeometryUtil {
         if(nfp == null ){
             return false;
         }
-        for(int i = 0 ;i <nfp.size();i++){
-            for(int j = 0 ; j <nfp.get(i).size();j++){
-                if(almostEqual(p.x , nfp.get(i).get(j).x ) && almostEqual(p.y , nfp.get(i).get(j).y )){
+        for (NestPath element : nfp) {
+            for(int j = 0 ; j <element.size();j++){
+                if(almostEqual(p.x , element.get(j).x ) && almostEqual(p.y , element.get(j).y )){
                     return true;
                 }
             }
@@ -756,7 +748,7 @@ public class GeometryUtil {
                     if(b0in == null || b2in == null  ){
                         continue;
                     }
-                    if((b0in == true && b2in == false) || (b0in == false && b2in == true)){
+                    if((b0in == true && !b2in) || (!b0in && b2in == true)){
 
                         return true;
                     }
@@ -772,7 +764,7 @@ public class GeometryUtil {
                     if(b1in == null || b3in == null){
                         continue;
                     }
-                    if((b1in == true && b3in == false) || (b1in == false && b3in == true)){
+                    if((b1in == true && !b3in) || (!b1in && b3in == true)){
 
                         return true;
                     }
@@ -788,7 +780,7 @@ public class GeometryUtil {
                     if(a0in == null || a2in == null ){
                         continue;
                     }
-                    if((a0in == true && a2in == false) || (a0in == false && a2in == true)){
+                    if((a0in == true && !a2in) || (!a0in && a2in == true)){
 
                         return true;
                     }
@@ -805,7 +797,7 @@ public class GeometryUtil {
                         continue;
                     }
 
-                    if((a1in == true && a3in == false) || (a1in == false && a3in == true)){
+                    if((a1in == true && !a3in) || (!a1in && a3in == true)){
 
                         return true;
                     }
@@ -848,8 +840,7 @@ public class GeometryUtil {
 
         if(infinite== null || !infinite){
             // coincident points do not count as intersecting
-            if (Math.abs(A.x-B.x) > TOL && (( A.x < B.x ) ? x < A.x || x > B.x : x > A.x || x < B.x )) return null;
-            if (Math.abs(A.y-B.y) > TOL && (( A.y < B.y ) ? y < A.y || y > B.y : y > A.y || y < B.y )) return null;
+            if ((Math.abs(A.x-B.x) > TOL && (( A.x < B.x ) ? x < A.x || x > B.x : x > A.x || x < B.x )) || (Math.abs(A.y-B.y) > TOL && (( A.y < B.y ) ? y < A.y || y > B.y : y > A.y || y < B.y ))) return null;
 
             if (Math.abs(E.x-F.x) > TOL && (( E.x < F.x ) ? x < E.x || x > F.x : x > E.x || x < F.x )) return null;
             if (Math.abs(E.y-F.y) > TOL && (( E.y < F.y ) ? y < E.y || y > F.y : y > E.y || y < F.y )) return null;
@@ -946,11 +937,8 @@ public class GeometryUtil {
         double EFmax = Math.max(dotE,dotF);
         double EFmin = Math.min(dotE,dotF);
 
-        if(almostEqual(ABmax, EFmin,SEGTOL) || almostEqual(ABmin, EFmax,SEGTOL)){
-            return null;
-        }
         // segments miss eachother completely
-        if(ABmax < EFmin || ABmin > EFmax){
+        if(almostEqual(ABmax, EFmin,SEGTOL) || almostEqual(ABmin, EFmax,SEGTOL) || ABmax < EFmin || ABmin > EFmax){
             return null;
         }
         double overlap ;
@@ -996,7 +984,7 @@ public class GeometryUtil {
             }
             return null;
         }
-        List<Double> distances = new ArrayList<Double>();
+        List<Double> distances = new ArrayList<>();
 
         // coincident points
         if(almostEqual(dotA, dotE)){
@@ -1165,7 +1153,7 @@ public class GeometryUtil {
         }
 
 
-        List<NestPath> nfpRect = new ArrayList<NestPath>();
+        List<NestPath> nfpRect = new ArrayList<>();
         NestPath res = new NestPath();
         res.add(minAx-minBx+B.get(0).x , minAy-minBy+B.get(0).y);
         res.add(maxAx - maxBx+B.get(0).x , minAy -minBy+B.get(0).y );
@@ -1184,18 +1172,18 @@ public class GeometryUtil {
     public static List<NestPath> minkowskiDifference(NestPath A, NestPath B){
         Path Ac = Placementworker.scaleUp2ClipperCoordinates(A);
         Path Bc = Placementworker.scaleUp2ClipperCoordinates(B);
-        for(int i = 0 ; i< Bc.size();i++){
-            long X = Bc.get(i).getX();
-            long Y = Bc.get(i).getY();
-            Bc.get(i).setX(-1 * X);
-            Bc.get(i).setY(-1 * Y);
+        for (LongPoint element : Bc) {
+            long X = element.getX();
+            long Y = element.getY();
+            element.setX(-1 * X);
+            element.setY(-1 * Y);
         }
         Paths solution =  DefaultClipper.minkowskiSum(Ac , Bc , true);
         double largestArea = Double.MAX_VALUE;
         NestPath clipperNfp = null;
-        for(int  i = 0; i< solution.size() ; i ++){
+        for (Path element : solution) {
 
-            NestPath  n = Placementworker.toNestCoordinates(solution.get(i));
+            NestPath  n = Placementworker.toNestCoordinates(element);
             double sarea =GeometryUtil.polygonArea(n);
             if(largestArea > sarea){
                 clipperNfp = n;
@@ -1207,7 +1195,7 @@ public class GeometryUtil {
             clipperNfp.get(i).x += B.get(0).x ;
             clipperNfp.get(i).y += B.get(0).y ;
         }
-        List<NestPath> nfp = new ArrayList<NestPath>();
+        List<NestPath> nfp = new ArrayList<>();
         nfp.add(clipperNfp);
         return nfp;
     }

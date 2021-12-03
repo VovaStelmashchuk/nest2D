@@ -1,13 +1,21 @@
 package com.qunhe.util.nest.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.qunhe.util.nest.config.Config;
 import com.qunhe.util.nest.data.NestPath;
 import com.qunhe.util.nest.data.Segment;
 import com.qunhe.util.nest.util.coor.ClipperCoor;
 import com.qunhe.util.nest.util.coor.NestCoor;
-import de.lighti.clipper.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import de.lighti.clipper.Clipper;
+import de.lighti.clipper.ClipperOffset;
+import de.lighti.clipper.DefaultClipper;
+import de.lighti.clipper.Path;
+import de.lighti.clipper.Paths;
+import de.lighti.clipper.Point;
+import de.lighti.clipper.Point.LongPoint;
 
 /**
  * @author  yisa
@@ -17,8 +25,7 @@ public class CommonUtil {
 
     public static NestPath Path2NestPath (Path path){
         NestPath nestPath = new NestPath();
-        for(int  i = 0; i<path.size() ; i ++){
-            Point.LongPoint lp = path.get(i);
+        for (LongPoint lp : path) {
             NestCoor coor = CommonUtil.toNestCoor(lp.getX(),lp.getY());
             nestPath.add(new Segment(coor.getX() , coor.getY()));
         }
@@ -85,7 +92,7 @@ public class CommonUtil {
      * @return
      */
     public static int toTree(List<NestPath> list , int idstart){
-        List<NestPath> parents = new ArrayList<NestPath>();
+        List<NestPath> parents = new ArrayList<>();
         int id = idstart;
         /**
          * 找出所有的内回环
@@ -119,8 +126,8 @@ public class CommonUtil {
             }
         }
 
-        for(int i = 0; i <parents.size() ; i ++){
-            parents.get(i).setId(id);
+        for (NestPath parent : parents) {
+            parent.setId(id);
             id ++;
         }
 
@@ -134,33 +141,33 @@ public class CommonUtil {
 
     public static NestPath clipperToNestPath(Path polygon){
         NestPath normal = new NestPath();
-        for(int i = 0; i <polygon.size() ; i++){
-            NestCoor nestCoor = toNestCoor(polygon.get(i).getX() , polygon.get(i).getY());
+        for (LongPoint element : polygon) {
+            NestCoor nestCoor = toNestCoor(element.getX() , element.getY());
             normal.add(new Segment(nestCoor.getX() , nestCoor.getY()));
         }
         return normal;
     }
 
     public static void offsetTree(List<NestPath> t , double offset ){
-        for(int i =0 ; i <t.size() ; i ++){
-            List<NestPath> offsetPaths = polygonOffset(t.get(i) , offset);
+        for (NestPath element : t) {
+            List<NestPath> offsetPaths = polygonOffset(element , offset);
             if(offsetPaths.size() == 1 ){
-                t.get(i).clear();
+                element.clear();
                 NestPath from = offsetPaths.get(0);
 
                 for(Segment s : from.getSegments()){
-                    t.get(i).add(s);
+                    element.add(s);
                 }
             }
-            if(t.get(i).getChildren().size() > 0 ){
+            if(element.getChildren().size() > 0 ){
 
-                offsetTree(t.get(i).getChildren() , -offset);
+                offsetTree(element.getChildren() , -offset);
             }
         }
     }
 
     public static List<NestPath> polygonOffset(NestPath polygon , double offset){
-        List<NestPath> result = new ArrayList<NestPath>();
+        List<NestPath> result = new ArrayList<>();
         if(offset == 0 || GeometryUtil.almostEqual(offset,0)){
             /**
              * return EmptyResult
@@ -174,7 +181,7 @@ public class CommonUtil {
         }
 
         int miterLimit = 2;
-        ClipperOffset co = new ClipperOffset(miterLimit , polygon.config.CURVE_TOLERANCE * Config.CLIIPER_SCALE);
+        ClipperOffset co = new ClipperOffset(miterLimit , Config.CURVE_TOLERANCE * Config.CLIIPER_SCALE);
         co.addPath(p, Clipper.JoinType.ROUND , Clipper.EndType.CLOSED_POLYGON);
 
         Paths newpaths = new Paths();
@@ -183,8 +190,8 @@ public class CommonUtil {
         /**
          * 这里的length是1的话就是我们想要的
          */
-        for(int i = 0 ; i <newpaths.size() ; i ++){
-            result.add(CommonUtil.clipperToNestPath(newpaths.get(i)));
+        for (Path newpath : newpaths) {
+            result.add(CommonUtil.clipperToNestPath(newpath));
         }
 
         if(offset > 0 ){
@@ -204,10 +211,10 @@ public class CommonUtil {
      * 对应于JS项目中的getParts
      */
     public static List<NestPath> BuildTree(List<NestPath> parts ,double curve_tolerance){
-        List<NestPath> polygons = new ArrayList<NestPath>();
+        List<NestPath> polygons = new ArrayList<>();
         for(int i =0 ; i<parts.size();i++){
             // Do cleaning with Clipper: self intersecting, redundant vertices...
-            NestPath cleanPoly = NestPath.cleanNestPath(parts.get(i));
+            NestPath cleanPoly = CommonUtil.cleanNestPath(parts.get(i));
             cleanPoly.bid = parts.get(i).bid;
             // Some parts are too small to keep. TODO remove this for the match
             if(cleanPoly.size() > 2 &&  Math.abs(GeometryUtil.polygonArea(cleanPoly)) > curve_tolerance * curve_tolerance){
@@ -220,4 +227,39 @@ public class CommonUtil {
         CommonUtil.toTree(polygons,0);
         return polygons;
     }
+
+	public static NestPath cleanNestPath(NestPath srcPath){
+	    /**
+	     * Convert NestPath 2 Clipper
+	     */
+	    Path path = NestPath2Path(srcPath);
+	    // Convert self interacting polygons to simple ones
+	    Paths simple = DefaultClipper.simplifyPolygon(path, Clipper.PolyFillType.NON_ZERO);
+	    if(simple.size() == 0 ){
+	        return null;
+	    }
+	    Path biggest = simple.get(0);
+	    double biggestArea = Math.abs(biggest.area());
+	    for(int i = 1; i <simple.size();i++){
+	        double area = Math.abs(simple.get(i).area());
+	        if(area > biggestArea ){
+	            biggest = simple.get(i);
+	            biggestArea = area;
+	        }
+	    }
+	    // Remove vertices under tolerance specification
+	    Path clean = biggest.cleanPolygon(Config.CURVE_TOLERANCE * Config.CLIIPER_SCALE);
+	    if(clean.size() == 0 ){
+	        return null ;
+	    }
+
+	    /**
+	     *  Convert Clipper 2 NestPath
+	     */
+	    NestPath cleanPath = Path2NestPath(clean);
+	    cleanPath.bid = srcPath.bid;
+	    cleanPath.setRotation(srcPath.getRotation());
+	    cleanPath.setPossibleRotations(srcPath.getPossibleRotations());
+	    return cleanPath;
+	}
 }

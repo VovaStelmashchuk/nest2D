@@ -1,12 +1,13 @@
 package com.qunhe.util.nest.algorithm;
 
 
-import com.qunhe.util.nest.data.NestPath;
-import com.qunhe.util.nest.data.Segment;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.Test;
+
+import com.qunhe.util.nest.data.NestPath;
+import com.qunhe.util.nest.data.Segment;
 
 
 public class IndividualTest {
@@ -96,10 +97,10 @@ public class IndividualTest {
         individual2.getPlacement().add(nestPath2);
         individual2.getRotation().add(20);
 
-        List<Individual> individuals = new ArrayList<Individual>();
+        List<Individual> individuals = new ArrayList<>();
         individuals.add(individual);individuals.add(individual2);
 
-        List<Individual> individualList = new ArrayList<Individual>();
+        List<Individual> individualList = new ArrayList<>();
         for(Individual i :individuals) {
             Individual clone = new Individual(i);
             individualList.add(clone);
@@ -136,12 +137,12 @@ public class IndividualTest {
         individual3.getPlacement().add(nestPath3);
         individual3.getRotation().add(30);
 
-        List<Individual> individuals = new ArrayList<Individual>();
+        List<Individual> individuals = new ArrayList<>();
         individuals.add(individual);individuals.add(individual2);individuals.add(individual3);
 
         individuals.remove(1);
-        for(int i=0 ;i<individuals.size();i++){
-            System.out.println(individuals.get(i).toString());
+        for (Individual individual4 : individuals) {
+            System.out.println(individual4.toString());
         }
     }
 

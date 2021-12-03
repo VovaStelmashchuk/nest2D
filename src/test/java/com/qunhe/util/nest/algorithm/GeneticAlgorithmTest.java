@@ -1,14 +1,15 @@
 package com.qunhe.util.nest.algorithm;
 
-import com.qunhe.util.nest.data.NestPath;
-import com.qunhe.util.nest.data.Segment;
-import com.qunhe.util.nest.util.CommonUtil;
-import com.qunhe.util.nest.util.Config;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.junit.Test;
+
+import com.qunhe.util.nest.config.Config;
+import com.qunhe.util.nest.data.NestPath;
+import com.qunhe.util.nest.data.Segment;
+import com.qunhe.util.nest.util.CommonUtil;
 
 public class GeneticAlgorithmTest {
 
@@ -16,22 +17,22 @@ public class GeneticAlgorithmTest {
     @Test
     public void sortTest() throws Exception{
         Individual i1 = new Individual();
-        i1.fitness = 2;
+        i1.setFitness(2);
         Individual i2 = new Individual();
-        i2.fitness = 1;
-        List<Individual> individuals = new ArrayList<Individual>();
+        i2.setFitness(1);
+        List<Individual> individuals = new ArrayList<>();
         individuals.add(i1);individuals.add(i2);
         Collections.sort(individuals);
-        System.out.println(individuals.get(0).fitness);
+        System.out.println(individuals.get(0).getFitness());
     }
 
     @Test
     public void indexOfTest() throws Exception{
         Segment s1 = new Segment(1,2);
         Segment s2 = new Segment(3,4);
-        List<Segment> segments = new ArrayList<Segment>();
+        List<Segment> segments = new ArrayList<>();
         segments.add(s1);segments.add(s2);
-        List<Segment> segments1 = new ArrayList<Segment>();
+        List<Segment> segments1 = new ArrayList<>();
         for(Segment s : segments ){
             segments1.add(new Segment(s));
         }
@@ -71,13 +72,13 @@ public class GeneticAlgorithmTest {
         in.add(i1); in.add(i2); in.add(i3); in.add(i4);
 
 
-        List<NestPath> parts = new ArrayList<NestPath>();
+        List<NestPath> parts = new ArrayList<>();
         parts.add(in);parts.add(poly2); parts.add(poly1);
 
-        List<NestPath> tree = CommonUtil.BuildTree(parts,config.CURVE_TOLERANCE);
+        List<NestPath> tree = CommonUtil.BuildTree(parts,Config.CURVE_TOLERANCE);
         CommonUtil.offsetTree(tree , 0.5 * config.SPACING);
 
-        List<NestPath> adam = new ArrayList<NestPath>();
+        List<NestPath> adam = new ArrayList<>();
         for(NestPath np : tree ){
             NestPath clone = new NestPath(np);
             adam.add(clone);
