@@ -55,5 +55,18 @@
 			<artifactId>watchmaker-framework</artifactId>
 			<version>0.7.1</version>
 		</dependency>
+		
+		
+		<dependency>
+    <groupId>org.apache.xmlgraphics</groupId>
+    <artifactId>batik-svg-dom</artifactId>
+    <version>1.14</version>
+</dependency>
+  <dependency>
+    <groupId>org.apache.xmlgraphics</groupId>
+    <artifactId>batik-swing</artifactId>
+    <version>1.14</version>
+</dependency>
+		
 	</dependencies>
 </project>
