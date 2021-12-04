@@ -18,6 +18,7 @@ public class NestPath  implements Comparable<NestPath>{
     private int id;
     private int source ;
     private int rotation;
+    
     public int[] rotations;
     public Config config ;
     public double area ;
@@ -88,6 +89,7 @@ public class NestPath  implements Comparable<NestPath>{
         this.parent = parent;
     }
 
+    
     public void addChildren(NestPath nestPath){
         children.add(nestPath);
         nestPath.setParent(this);

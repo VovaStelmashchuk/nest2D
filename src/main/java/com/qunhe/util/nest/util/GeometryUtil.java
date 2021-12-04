@@ -35,6 +35,7 @@ public class GeometryUtil {
         return Math.abs(a-b)<TOL;
     }
 
+    
     public static boolean almostEqual(double a , double b  , double tolerance){
         return Math.abs(a-b)<tolerance;
     }
@@ -61,6 +62,7 @@ public class GeometryUtil {
      * @param p
      * @return
      */
+    
     public static boolean onSegment(Segment A, Segment B , Segment p ){
         // vertical line
         if(almostEqual(A.x, B.x) && almostEqual(p.x, A.x)){
@@ -125,6 +127,7 @@ public class GeometryUtil {
      * @param polygon
      * @return
      */
+    
     public static Boolean pointInPolygon(Segment point ,NestPath polygon){
         boolean inside = false;
         double offsetx = polygon.offsetX;
@@ -212,6 +215,7 @@ public class GeometryUtil {
      * @param degrees
      * @return
      */
+    
     public static NestPath rotatePolygon2Polygon(NestPath polygon , int degrees ){
         NestPath rotated = new NestPath();
         double angle = degrees * Math.PI / 180;
@@ -239,6 +243,7 @@ public class GeometryUtil {
      * @param tolerance
      * @return
      */
+    
     public static boolean isRectangle(NestPath poly , double tolerance){
         Bound bb = getPolygonBounds(poly);
 
@@ -258,6 +263,7 @@ public class GeometryUtil {
      * @param searchEdges
      * @return
      */
+    
     public static List<NestPath> noFitPolygon(final NestPath A ,final  NestPath B , boolean inside , boolean searchEdges){
         A.setOffsetX(0);
         A.setOffsetY(0);
@@ -524,6 +530,7 @@ public class GeometryUtil {
         return NFPlist;
     }
 
+    
     public static Segment searchStartPoint(NestPath CA ,NestPath CB , boolean inside ,List<NestPath> NFP){
 
         NestPath A = new NestPath(CA);
@@ -629,7 +636,7 @@ public class GeometryUtil {
      * @param nfp
      * @return
      */
-    public static boolean inNfp(Segment p , List<NestPath> nfp){
+    private static boolean inNfp(Segment p , List<NestPath> nfp){
         if(nfp == null ){
             return false;
         }
@@ -643,7 +650,7 @@ public class GeometryUtil {
         return false;
     }
 
-    public static Double polygonProjectionDistance(NestPath CA , NestPath CB , Segment direction){
+    private static Double polygonProjectionDistance(NestPath CA , NestPath CB , Segment direction){
         double Boffsetx = CB.offsetX ;
         double Boffsety = CB.offsetY ;
 
@@ -694,7 +701,7 @@ public class GeometryUtil {
         return distance;
     }
 
-    public static boolean intersect(final NestPath CA,final NestPath CB){
+    static boolean intersect(final NestPath CA,final NestPath CB){
         double Aoffsetx = CA.offsetX ;
         double Aoffsety = CA.offsetY ;
 
@@ -818,7 +825,7 @@ public class GeometryUtil {
         return false;
     }
 
-    public static Segment lineIntersect(Segment A ,Segment B ,Segment E ,Segment F , Boolean infinite){
+    static Segment lineIntersect(Segment A ,Segment B ,Segment E ,Segment F , Boolean infinite){
         double a1, a2, b1, b2, c1, c2, x, y;
 
         a1= B.y-A.y;
@@ -842,13 +849,12 @@ public class GeometryUtil {
             // coincident points do not count as intersecting
             if ((Math.abs(A.x-B.x) > TOL && (( A.x < B.x ) ? x < A.x || x > B.x : x > A.x || x < B.x )) || (Math.abs(A.y-B.y) > TOL && (( A.y < B.y ) ? y < A.y || y > B.y : y > A.y || y < B.y ))) return null;
 
-            if (Math.abs(E.x-F.x) > TOL && (( E.x < F.x ) ? x < E.x || x > F.x : x > E.x || x < F.x )) return null;
-            if (Math.abs(E.y-F.y) > TOL && (( E.y < F.y ) ? y < E.y || y > F.y : y > E.y || y < F.y )) return null;
+            if ((Math.abs(E.x-F.x) > TOL && (( E.x < F.x ) ? x < E.x || x > F.x : x > E.x || x < F.x )) || (Math.abs(E.y-F.y) > TOL && (( E.y < F.y ) ? y < E.y || y > F.y : y > E.y || y < F.y ))) return null;
         }
         return new Segment(x,y);
     }
 
-    public static Double polygonSlideDistance(final NestPath TA ,final NestPath TB , Segment direction , boolean ignoreNegative ){
+    static Double polygonSlideDistance(final NestPath TA ,final NestPath TB , Segment direction , boolean ignoreNegative ){
         double Aoffsetx = TA.offsetX;
         double Aoffsety = TA.offsetY;
 
@@ -900,6 +906,7 @@ public class GeometryUtil {
         return distance;
     }
 
+    
     public static Segment normalizeVector(Segment v ){
         if( almostEqual(v.x * v.x + v.y * v.y , 1)){
             return v;
@@ -910,6 +917,7 @@ public class GeometryUtil {
         return new Segment(v.x * inverse , v.y * inverse);
     }
 
+    
     public static Double segmentDistance (Segment A ,Segment B ,Segment E ,Segment F ,Segment direction ){
         double SEGTOL = 10E-4;
         Segment normal = new Segment( direction.y , - direction.x );
@@ -1065,6 +1073,7 @@ public class GeometryUtil {
         return minElement;
     }
 
+    
     public static Double pointDistance( Segment p ,Segment s1 , Segment s2 ,Segment normal , Boolean infinite){
         normal = normalizeVector(normal);
         Segment dir = new Segment(normal.y , - normal.x );
@@ -1099,6 +1108,7 @@ public class GeometryUtil {
      * @param B
      * @return
      */
+    
     public static List<NestPath> noFitPolygonRectangle(NestPath A , NestPath B){
         double minAx = A.get(0).x;
         double minAy = A.get(0).y;
@@ -1169,6 +1179,7 @@ public class GeometryUtil {
      * @param B
      * @return
      */
+    
     public static List<NestPath> minkowskiDifference(NestPath A, NestPath B){
         Path Ac = Placementworker.scaleUp2ClipperCoordinates(A);
         Path Bc = Placementworker.scaleUp2ClipperCoordinates(B);
@@ -1200,6 +1211,7 @@ public class GeometryUtil {
         return nfp;
     }
 
+    
     public static NestPath linearize(Segment p1 , Segment p2 , double rx , double ry , double angle ,int laregearc , int sweep , double tol ){
         NestPath finished = new NestPath();
         finished.add(p2);
@@ -1226,6 +1238,7 @@ public class GeometryUtil {
         return finished;
     }
 
+    
     public static DataExchange ConvertToSvg(Segment center , double rx , double ry , double theta1 , double extent , double angleDegrees){
         double theta2 = theta1 + extent;
 
@@ -1255,6 +1268,7 @@ public class GeometryUtil {
         return new DataExchange(new Segment(x0,y0), new Segment(x1,y1),rx,ry,angle , largearc , sweep , true);
     }
 
+    
     public static DataExchange ConvertToCenter(Segment p1 , Segment p2 , double rx , double ry , double angleDgrees , int largearc , int sweep){
         Segment mid = new Segment(0.5 *(p1.x +p2.x) ,0.5 *(p1.y +p2.y));
         Segment diff = new Segment(0.5 *(p2.x - p1.x ) , 0.5 * (p2.y - p1.y ));
@@ -1327,15 +1341,15 @@ public class GeometryUtil {
 
     }
 
-    public static double degreesToRadians(double angle){
+    private static double degreesToRadians(double angle){
         return angle * (Math.PI / 180);
     }
 
-    public static double radiansToDegree(double angle){
+    private static double radiansToDegree(double angle){
         return angle * ( 180 / Math.PI);
     }
 
-    static class DataExchange{
+    private static class DataExchange{
         Segment p1;
         Segment p2;
         Segment center;
@@ -1345,9 +1359,10 @@ public class GeometryUtil {
         double extent;
         double angle;
         double largearc;
-        int sweep;
+        private int sweep;
         boolean flag;
 
+        
         public DataExchange(Segment p1, Segment p2, double rx, double ry, double angle, double largearc, int sweep ,boolean flag) {
             this.p1 = p1;
             this.p2 = p2;
@@ -1360,6 +1375,7 @@ public class GeometryUtil {
         }
 
 
+        
         public DataExchange(Segment center, double rx, double ry, double theta, double extent, double angle , boolean flag) {
             this.center = center;
             this.rx = rx;
@@ -1383,6 +1399,7 @@ public class GeometryUtil {
         }
     }
 
+    
     public static boolean withinDistance( Segment p1 , Segment p2 , double distance){
         double dx = p1.x - p2.x ;
         double dy = p1.y - p2.y ;

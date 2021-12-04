@@ -28,14 +28,16 @@ import de.lighti.clipper.Point.LongPoint;
  */
 public class Placementworker {
     private static Gson gson = new GsonBuilder().create();
+    
     public NestPath binPolygon;
-    public Config config;
+    private Config config;
+    
     public Map<String, List<NestPath>> nfpCache;
 
     /**
-     * @param binPolygon 底板参数
-     * @param config     设置
-     * @param nfpCache   nfp列表
+     * @param binPolygon åº•æ�¿å�‚æ•°
+     * @param config     è®¾ç½®
+     * @param nfpCache   nfpåˆ—è¡¨
      */
     public Placementworker(NestPath binPolygon, Config config, Map<String, List<NestPath>> nfpCache) {
         this.binPolygon = binPolygon;
@@ -44,8 +46,8 @@ public class Placementworker {
     }
 
     /**
-     * According to the plate list and the rotation angle list, calculate the position of the plate on the 
-     * bottom plate through nfp, and return the fitness of this population 
+     * According to the plate list and the rotation angle list, calculate the position of the plate on the
+     * bottom plate through nfp, and return the fitness of this population
      *
      * @param paths
      * @return
@@ -262,12 +264,12 @@ public class Placementworker {
 
 
     /**
-     * 坐标转换，与clipper库交互必须坐标转换
+     * å��æ ‡è½¬æ�¢ï¼Œä¸Žclipperåº“äº¤äº’å¿…é¡»å��æ ‡è½¬æ�¢
      *
      * @param polygon
      * @return
      */
-    public static Path scaleUp2ClipperCoordinates(NestPath polygon) {
+    static Path scaleUp2ClipperCoordinates(NestPath polygon) {
         Path p = new Path();
         for (Segment s : polygon.getSegments()) {
             ClipperCoor cc = CommonUtil.toClipperCoor(s.x, s.y);
@@ -276,7 +278,7 @@ public class Placementworker {
         return p;
     }
 
-    public static NestPath toNestCoordinates(Path polygon) {
+    static NestPath toNestCoordinates(Path polygon) {
         NestPath clone = new NestPath();
         for (LongPoint element : polygon) {
             Segment s = new Segment((double) element.getX() / Config.CLIIPER_SCALE, (double) element.getY() / Config.CLIIPER_SCALE);

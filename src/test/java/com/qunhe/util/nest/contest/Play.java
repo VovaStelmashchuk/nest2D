@@ -4,21 +4,15 @@ package com.qunhe.util.nest.contest;
 import static com.qunhe.util.nest.util.IOUtils.log;
 import static com.qunhe.util.nest.util.IOUtils.saveSvgFile;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
 import org.junit.Test;
 
 import com.google.gson.Gson;
 import com.qunhe.util.nest.Nest;
-import com.qunhe.util.nest.NestTest;
 import com.qunhe.util.nest.config.Config;
 import com.qunhe.util.nest.data.NestPath;
 import com.qunhe.util.nest.data.Placement;
@@ -28,7 +22,7 @@ import com.qunhe.util.nest.util.SvgUtil;
 public class Play {
 
 
-  
+
     @Test
     public void play() throws Exception {
         //TODO change here to switch input file

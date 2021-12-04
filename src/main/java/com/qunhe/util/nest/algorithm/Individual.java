@@ -9,12 +9,12 @@ import com.qunhe.util.nest.data.NestPath;
  * @author yisa
  */
 public class Individual  implements Comparable<Individual>{
-    public List<NestPath> placement;
-    public List<Integer> rotation;
+    List<NestPath> placement;
+    List<Integer> rotation;
     private double fitness;
 
 
-    public Individual(Individual individual){
+    Individual(Individual individual){
     	fitness = individual.fitness;
         placement = new ArrayList<>();
         rotation = new ArrayList<>();
@@ -35,13 +35,13 @@ public class Individual  implements Comparable<Individual>{
         rotation = new ArrayList<>();
     }
 
-    public Individual(List<NestPath> placement, List<Integer> rotation) {
+    Individual(List<NestPath> placement, List<Integer> rotation) {
         setFitness(-1) ;
         this.placement = placement;
         this.rotation = rotation;
     }
 
-    public int size(){
+    private int size(){
         return placement.size();
     }
 
@@ -122,6 +122,4 @@ public class Individual  implements Comparable<Individual>{
     public void setFitness(double fitness) {
         this.fitness = fitness;
     }
-
-
 }

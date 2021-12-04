@@ -23,7 +23,7 @@ import de.lighti.clipper.Point.LongPoint;
 public class CommonUtil {
 
 
-    public static NestPath Path2NestPath (Path path){
+    private static NestPath Path2NestPath (Path path){
         NestPath nestPath = new NestPath();
         for (LongPoint lp : path) {
             NestCoor coor = CommonUtil.toNestCoor(lp.getX(),lp.getY());
@@ -32,7 +32,7 @@ public class CommonUtil {
         return nestPath;
     }
 
-    public static Path NestPath2Path (NestPath nestPath ){
+    private static Path NestPath2Path (NestPath nestPath ){
         Path path = new Path();
         for(Segment s : nestPath.getSegments()){
             ClipperCoor coor = CommonUtil.toClipperCoor(s.getX() , s.getY());
@@ -43,28 +43,28 @@ public class CommonUtil {
     }
 
     /**
-     * 坐标转换
+     * å��æ ‡è½¬æ�¢
      * @param x
      * @param y
      * @return
      */
-    public static ClipperCoor toClipperCoor(double x , double y ){
+    static ClipperCoor toClipperCoor(double x , double y ){
         return new ClipperCoor((long)(x*Config.CLIIPER_SCALE) , (long) (y * Config.CLIIPER_SCALE));
     }
 
     /**
-     * 坐标转换
+     * å��æ ‡è½¬æ�¢
      * @param x
      * @param y
      * @return
      */
-    public static NestCoor toNestCoor(long x , long y ){
+    private static NestCoor toNestCoor(long x , long y ){
         return new NestCoor(((double)x/Config.CLIIPER_SCALE) , ((double)y/Config.CLIIPER_SCALE));
     }
 
 
     /**
-     * 为Clipper下的Path添加点
+     * ä¸ºClipperä¸‹çš„Pathæ·»åŠ ç‚¹
      * @param x
      * @param y
      * @param path
@@ -76,8 +76,8 @@ public class CommonUtil {
 
 
     /**
-     * binPath是作为底板的NestPath , polys则为板件的Path列表
-     * 这个方法是为了将binPath和polys在不改变自身形状，角度的情况下放置在一个坐标系内，保证两两之间不交叉
+     * binPathæ˜¯ä½œä¸ºåº•æ�¿çš„NestPath , polysåˆ™ä¸ºæ�¿ä»¶çš„Pathåˆ—è¡¨
+     * è¿™ä¸ªæ–¹æ³•æ˜¯ä¸ºäº†å°†binPathå’Œpolysåœ¨ä¸�æ”¹å�˜è‡ªèº«å½¢çŠ¶ï¼Œè§’åº¦çš„æƒ…å†µä¸‹æ”¾ç½®åœ¨ä¸€ä¸ªå��æ ‡ç³»å†…ï¼Œä¿�è¯�ä¸¤ä¸¤ä¹‹é—´ä¸�äº¤å�‰
      * @param binPath
      * @param polys
      */
@@ -86,16 +86,16 @@ public class CommonUtil {
     }
 
     /**
-     *  将NestPath列表转换成父子关系的树
+     *  å°†NestPathåˆ—è¡¨è½¬æ�¢æˆ�çˆ¶å­�å…³ç³»çš„æ ‘
      * @param list
      * @param idstart
      * @return
      */
-    public static int toTree(List<NestPath> list , int idstart){
+    static int toTree(List<NestPath> list , int idstart){
         List<NestPath> parents = new ArrayList<>();
         int id = idstart;
         /**
-         * 找出所有的内回环
+         * æ‰¾å‡ºæ‰€æœ‰çš„å†…å›žçŽ¯
          */
         for(int i = 0 ; i<list.size() ; i ++){
             NestPath p = list.get(i);
@@ -117,7 +117,7 @@ public class CommonUtil {
             }
         }
         /**
-         *  将内环从list列表中去除
+         *  å°†å†…çŽ¯ä»Žliståˆ—è¡¨ä¸­åŽ»é™¤
          */
         for(int i = 0; !Config.ASSUME_NO_INNER_PARTS && i <list.size() ; i ++){
             if(parents.indexOf(list.get(i)) < 0 ){
@@ -139,7 +139,7 @@ public class CommonUtil {
         return id;
     }
 
-    public static NestPath clipperToNestPath(Path polygon){
+    private static NestPath clipperToNestPath(Path polygon){
         NestPath normal = new NestPath();
         for (LongPoint element : polygon) {
             NestCoor nestCoor = toNestCoor(element.getX() , element.getY());
@@ -188,7 +188,7 @@ public class CommonUtil {
         co.execute(newpaths , offset * Config.CLIIPER_SCALE);
 
         /**
-         * 这里的length是1的话就是我们想要的
+         * è¿™é‡Œçš„lengthæ˜¯1çš„è¯�å°±æ˜¯æˆ‘ä»¬æƒ³è¦�çš„
          */
         for (Path newpath : newpaths) {
             result.add(CommonUtil.clipperToNestPath(newpath));
@@ -208,7 +208,7 @@ public class CommonUtil {
 
 
     /**
-     * 对应于JS项目中的getParts
+     * å¯¹åº”äºŽJSé¡¹ç›®ä¸­çš„getParts
      */
     public static List<NestPath> BuildTree(List<NestPath> parts ,double curve_tolerance){
         List<NestPath> polygons = new ArrayList<>();

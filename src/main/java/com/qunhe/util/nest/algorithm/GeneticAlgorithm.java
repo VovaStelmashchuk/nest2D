@@ -20,7 +20,7 @@ public class GeneticAlgorithm {
     public Bound binBounds;
     public List<Integer> angles ;
     public List<Individual> population;
-    public Config config;
+    Config config;
 
     public GeneticAlgorithm(List<NestPath> adam, NestPath bin, Config config) {
         this.adam = adam;
@@ -162,7 +162,7 @@ public class GeneticAlgorithm {
     }
 
     /**
-     * Return an angle for a polygon 
+     * Return an angle for a polygon
      * @param part
      * @return
      */
@@ -215,6 +215,7 @@ public class GeneticAlgorithm {
         this.bin = bin;
     }
 
+    
     public void checkAndUpdate(Individual individual){
         for(int i = 0; i <individual.placement.size();i++){
             int angle = individual.getRotation().get(i);

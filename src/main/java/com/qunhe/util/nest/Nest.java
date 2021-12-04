@@ -37,18 +37,18 @@ public class Nest {
     private  NestPath binPath;
     private  List<NestPath> parts;
     private Config config;
-    int loopCount ;
+    private int loopCount ;
     private GeneticAlgorithm GA = null ;
     private Map<String,List<NestPath>> nfpCache;
     private static Gson gson = new GsonBuilder().create();
     private int launchcount =0;
 
     /**
-     *  åˆ›å»ºä¸€ä¸ªæ–°çš„Nestå¯¹è±¡
-     * @param binPath   åº•æ�¿å¤šè¾¹å½¢
-     * @param parts     æ�¿ä»¶å¤šè¾¹å½¢åˆ—è¡¨
-     * @param config    å�‚æ•°è®¾ç½®
-     * @param count     è¿­ä»£è®¡ç®—æ¬¡æ•°
+     *  Ã¥Ë†â€ºÃ¥Â»ÂºÃ¤Â¸â‚¬Ã¤Â¸ÂªÃ¦â€“Â°Ã§Å¡â€žNestÃ¥Â¯Â¹Ã¨Â±Â¡
+     * @param binPath   Ã¥Âºâ€¢Ã¦ï¿½Â¿Ã¥Â¤Å¡Ã¨Â¾Â¹Ã¥Â½Â¢
+     * @param parts     Ã¦ï¿½Â¿Ã¤Â»Â¶Ã¥Â¤Å¡Ã¨Â¾Â¹Ã¥Â½Â¢Ã¥Ë†â€”Ã¨Â¡Â¨
+     * @param config    Ã¥ï¿½â€šÃ¦â€¢Â°Ã¨Â®Â¾Ã§Â½Â®
+     * @param count     Ã¨Â¿Â­Ã¤Â»Â£Ã¨Â®Â¡Ã§Â®â€”Ã¦Â¬Â¡Ã¦â€¢Â°
      */
     public Nest(NestPath binPath, List<NestPath> parts, Config config, int count) {
         this.binPath = binPath;
@@ -59,7 +59,7 @@ public class Nest {
     }
 
     /**
-     *  å¼€å§‹è¿›è¡ŒNestè®¡ç®—
+     *  Ã¥Â¼â‚¬Ã¥Â§â€¹Ã¨Â¿â€ºÃ¨Â¡Å’NestÃ¨Â®Â¡Ã§Â®â€”
      * @return
      */
     public  List<List<Placement>> startNest(){
@@ -115,14 +115,14 @@ public class Nest {
         }
 
 
-        double binPolygonWidth = xbinmax - xbinmin;
-        double binPolygonHeight = ybinmax - ybinmin;
+        //double binPolygonWidth = xbinmax - xbinmin;
+        //double binPolygonHeight = ybinmax - ybinmin;
 
         if(GeometryUtil.polygonArea(binPolygon) > 0 ){
             binPolygon.reverse();
         }
         /**
-         * ç¡®ä¿�ä¸ºé€†æ—¶é’ˆ TODO why?
+         * Ã§Â¡Â®Ã¤Â¿ï¿½Ã¤Â¸ÂºÃ©â‚¬â€ Ã¦â€”Â¶Ã©â€™Ë† TODO why?
          */
         for (NestPath element : tree) {
             Segment start = element.get(0);
@@ -161,6 +161,7 @@ public class Nest {
         return appliedPlacement;
     }
 
+    
     public double computeUseRate(Result best, List<NestPath> tree){
         //Log new result
         double sumarea = 0;
@@ -174,12 +175,13 @@ public class Nest {
         return (sumarea/totalarea)*100;
     }
     /**
-     *  ä¸€æ¬¡è¿­ä»£è®¡ç®—
-     * @param tree  åº•æ�¿
-     * @param binPolygon    æ�¿ä»¶åˆ—è¡¨
-     * @param config    è®¾ç½®
+     *  Ã¤Â¸â‚¬Ã¦Â¬Â¡Ã¨Â¿Â­Ã¤Â»Â£Ã¨Â®Â¡Ã§Â®â€”
+     * @param tree  Ã¥Âºâ€¢Ã¦ï¿½Â¿
+     * @param binPolygon    Ã¦ï¿½Â¿Ã¤Â»Â¶Ã¥Ë†â€”Ã¨Â¡Â¨
+     * @param config    Ã¨Â®Â¾Ã§Â½Â®
      * @return
      */
+    
     public Result launchWorkers(List<NestPath> tree ,NestPath binPolygon ,Config config ){
         launchcount++;
         if(Config.IS_DEBUG){
@@ -217,7 +219,7 @@ public class Nest {
             log("launchWorkers(): GA: individual ready.");
         }
 
-        // ä»¥ä¸Šä¸ºGA. Now we got a set of candidates
+        // Ã¤Â»Â¥Ã¤Â¸Å Ã¤Â¸ÂºGA. Now we got a set of candidates
 
         List<NestPath> placelist = individual.getPlacement();
         List<Integer> rotations = individual.getRotation();
@@ -234,17 +236,19 @@ public class Nest {
         List<NfpPair> nfpPairs = new ArrayList<>();
         NfpKey key = null;
         /**
-         * å¦‚æžœåœ¨nfpCacheé‡Œæ²¡æ‰¾åˆ°nfpKey åˆ™æ·»åŠ è¿›nfpPairs
+         * Ã¥Â¦â€šÃ¦Å¾Å“Ã¥Å“Â¨nfpCacheÃ©â€¡Å’Ã¦Â²Â¡Ã¦â€°Â¾Ã¥Ë†Â°nfpKey Ã¥Ë†â„¢Ã¦Â·Â»Ã¥Å Â Ã¨Â¿â€ºnfpPairs
          */
         for(int i = 0 ; i< placelist.size();i++){
             NestPath part = placelist.get(i);
             key = new NfpKey(binPolygon .getId() , part.getId() , true , 0 , part.getRotation());
+            // ATTENZIONE sarà sempre false
             if(!nfpCache.containsKey(key)) {
                 nfpPairs.add(new NfpPair(binPolygon, part, key));
             }
             for(int j = 0 ; j< i ; j ++){
                 NestPath placed = placelist.get(j);
                 NfpKey keyed = new NfpKey(placed.getId() , part.getId() , false , rotations.get(j), rotations.get(i));
+                // ATTENZIONE sarà sempre false
                 if(!nfpCache.containsKey(keyed)) {
                     nfpPairs.add(new NfpPair(placed, part, keyed));
                 }
@@ -256,7 +260,7 @@ public class Nest {
         }
 
         /**
-         * ç¬¬ä¸€æ¬¡nfpCacheä¸ºç©º ï¼ŒnfpCacheå­˜çš„æ˜¯nfpKeyæ‰€å¯¹åº”çš„ä¸¤ä¸ªpolygonæ‰€å½¢æˆ�çš„Nfp( List<NestPath> )
+         * Ã§Â¬Â¬Ã¤Â¸â‚¬Ã¦Â¬Â¡nfpCacheÃ¤Â¸ÂºÃ§Â©Âº Ã¯Â¼Å’nfpCacheÃ¥Â­ËœÃ§Å¡â€žÃ¦ËœÂ¯nfpKeyÃ¦â€°â‚¬Ã¥Â¯Â¹Ã¥Âºâ€�Ã§Å¡â€žÃ¤Â¸Â¤Ã¤Â¸ÂªpolygonÃ¦â€°â‚¬Ã¥Â½Â¢Ã¦Ë†ï¿½Ã§Å¡â€žNfp( List<NestPath> )
          */
         List<ParallelData> generatedNfp = new ArrayList<>();
         int cnt = 0;
@@ -311,11 +315,12 @@ public class Nest {
     }
 
     /**
-     *  é€šè¿‡idä¸Žbidå°†translateå’Œrotateç»‘å®šåˆ°å¯¹åº”æ�¿ä»¶ä¸Š
+     *  Ã©â‚¬Å¡Ã¨Â¿â€¡idÃ¤Â¸Å½bidÃ¥Â°â€ translateÃ¥â€™Å’rotateÃ§Â»â€˜Ã¥Â®Å¡Ã¥Ë†Â°Ã¥Â¯Â¹Ã¥Âºâ€�Ã¦ï¿½Â¿Ã¤Â»Â¶Ã¤Â¸Å 
      * @param best
      * @param tree
      * @return
      */
+    
     public static List<List<Placement>> applyPlacement(Result best , List<NestPath> tree){
         List<List<Placement>> applyPlacement = new ArrayList<>();
         for(int i = 0; i<best.placements.size();i++){
@@ -337,7 +342,7 @@ public class Nest {
 
 
     /**
-     * åœ¨é�—ä¼ ç®—æ³•ä¸­æ¯�æ¬¡çª�å�˜æˆ–è€…æ˜¯äº¤é…�äº§ç”Ÿå‡ºæ–°çš„ç§�ç¾¤æ—¶ï¼Œå�¯èƒ½ä¼šå‡ºçŽ°æ�¿ä»¶ä¸Žæ—‹è½¬è§’åº¦ä¸�é€‚é…�çš„ç»“æžœï¼Œéœ€è¦�é‡�æ–°æ£€æŸ¥å¹¶é€‚é…�ã€‚
+     * Ã¥Å“Â¨Ã©ï¿½â€”Ã¤Â¼Â Ã§Â®â€”Ã¦Â³â€¢Ã¤Â¸Â­Ã¦Â¯ï¿½Ã¦Â¬Â¡Ã§Âªï¿½Ã¥ï¿½ËœÃ¦Ë†â€“Ã¨â‚¬â€¦Ã¦ËœÂ¯Ã¤ÂºÂ¤Ã©â€¦ï¿½Ã¤ÂºÂ§Ã§â€�Å¸Ã¥â€¡ÂºÃ¦â€“Â°Ã§Å¡â€žÃ§Â§ï¿½Ã§Â¾Â¤Ã¦â€”Â¶Ã¯Â¼Å’Ã¥ï¿½Â¯Ã¨Æ’Â½Ã¤Â¼Å¡Ã¥â€¡ÂºÃ§Å½Â°Ã¦ï¿½Â¿Ã¤Â»Â¶Ã¤Â¸Å½Ã¦â€”â€¹Ã¨Â½Â¬Ã¨Â§â€™Ã¥ÂºÂ¦Ã¤Â¸ï¿½Ã©â‚¬â€šÃ©â€¦ï¿½Ã§Å¡â€žÃ§Â»â€œÃ¦Å¾Å“Ã¯Â¼Å’Ã©Å“â‚¬Ã¨Â¦ï¿½Ã©â€¡ï¿½Ã¦â€“Â°Ã¦Â£â‚¬Ã¦Å¸Â¥Ã¥Â¹Â¶Ã©â‚¬â€šÃ©â€¦ï¿½Ã£â‚¬â€š
      * @param binPolygon
      * @param tree
      * @return

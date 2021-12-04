@@ -10,6 +10,7 @@ public class Vector {
     public double y;
     public int id;
     public int rotation;
+    
     public Paths nfp;
 
     public Vector(double x, double y, int id, int rotation) {

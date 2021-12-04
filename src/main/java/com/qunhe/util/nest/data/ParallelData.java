@@ -7,6 +7,7 @@ import java.util.List;
  * @author yisa
  */
 public class ParallelData {
+    
     public NfpKey key ;
     public List<NestPath> value ;
 

@@ -8,6 +8,7 @@ import java.util.List;
 public class Result {
     public List<List<Vector>> placements;
     public double fitness;
+    
     public List<NestPath> paths;
     public double area;
 
