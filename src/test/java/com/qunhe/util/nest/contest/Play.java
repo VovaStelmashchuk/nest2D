@@ -21,8 +21,6 @@ import com.qunhe.util.nest.util.SvgUtil;
 
 public class Play {
 
-
-
     @Test
     public void play() throws Exception {
         //TODO change here to switch input file
