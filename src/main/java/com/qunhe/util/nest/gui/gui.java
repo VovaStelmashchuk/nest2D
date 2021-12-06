@@ -1,4 +1,4 @@
-package com.qunhue.util.nest.gui;
+package com.qunhe.util.nest.gui;
 
 import java.awt.Color;
 import java.awt.EventQueue;
