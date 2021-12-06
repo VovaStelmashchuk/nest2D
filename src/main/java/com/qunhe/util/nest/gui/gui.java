@@ -18,8 +18,8 @@ import org.apache.batik.swing.JSVGCanvas;
 
 class gui {
 
-	private JFrame frmTest;
-	private JButton btnNewButton_1;
+	private JFrame frmGUI;
+	private JButton btnLoadSVG;
 	private JSVGCanvas svgcanvas;
 
 	/**
@@ -32,7 +32,7 @@ class gui {
 				try {
 
 					gui window = new gui();
-					window.frmTest.setVisible(true);
+					window.frmGUI.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -51,22 +51,22 @@ class gui {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frmTest = new JFrame();
-		frmTest.setTitle("GUI TEST");
-		frmTest.getContentPane().setBackground(new Color(245, 245, 245));
-		frmTest.setBounds(100, 100, 708, 549);
-		frmTest.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		frmGUI = new JFrame();
+		frmGUI.setTitle("GUI TEST");
+		frmGUI.getContentPane().setBackground(new Color(245, 245, 245));
+		frmGUI.setBounds(100, 100, 708, 549);
+		frmGUI.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-		JButton btnNewButton = new JButton("Start");
-		btnNewButton.addActionListener(new ActionListener() {
+		JButton btnStart = new JButton("Start");
+		btnStart.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
 			}
 		});
 
-		btnNewButton_1 = new JButton("LOAD SVG");
-		btnNewButton_1.addActionListener(new ActionListener() {
+		btnLoadSVG = new JButton("LOAD SVG");
+		btnLoadSVG.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
@@ -88,20 +88,20 @@ class gui {
 		});
 
 		svgcanvas = new JSVGCanvas();
-		GroupLayout groupLayout = new GroupLayout(frmTest.getContentPane());
+		GroupLayout groupLayout = new GroupLayout(frmGUI.getContentPane());
 		groupLayout.setHorizontalGroup(groupLayout.createParallelGroup(Alignment.LEADING)
 				.addGroup(groupLayout.createSequentialGroup().addGap(35)
-						.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING).addComponent(btnNewButton_1)
-								.addComponent(btnNewButton, GroupLayout.PREFERRED_SIZE, 85, GroupLayout.PREFERRED_SIZE))
+						.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING).addComponent(btnLoadSVG)
+								.addComponent(btnStart, GroupLayout.PREFERRED_SIZE, 85, GroupLayout.PREFERRED_SIZE))
 						.addGap(101).addComponent(svgcanvas, GroupLayout.DEFAULT_SIZE, 460, Short.MAX_VALUE)
 						.addGap(21)));
 		groupLayout.setVerticalGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
 				.addGroup(groupLayout.createSequentialGroup().addGap(28)
 						.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-								.addGroup(groupLayout.createSequentialGroup().addComponent(btnNewButton_1).addGap(182)
-										.addComponent(btnNewButton))
+								.addGroup(groupLayout.createSequentialGroup().addComponent(btnLoadSVG).addGap(182)
+										.addComponent(btnStart))
 								.addComponent(svgcanvas, GroupLayout.DEFAULT_SIZE, 452, Short.MAX_VALUE))
 						.addGap(30)));
-		frmTest.getContentPane().setLayout(groupLayout);
+		frmGUI.getContentPane().setLayout(groupLayout);
 	}
 }
