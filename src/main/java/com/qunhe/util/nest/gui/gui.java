@@ -16,7 +16,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.batik.swing.JSVGCanvas;
 
-
 class gui {
 
 	private JFrame frmTest;
@@ -31,10 +30,6 @@ class gui {
 			@Override
 			public void run() {
 				try {
-
-
-
-
 
 					gui window = new gui();
 					window.frmTest.setVisible(true);
@@ -67,9 +62,6 @@ class gui {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-
-
-
 			}
 		});
 
@@ -78,52 +70,38 @@ class gui {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-
-				//svgcanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
+				// svgcanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
 
 				JFileChooser fileChooser = new JFileChooser();
 
 				fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("SVG files", "svg"));
-				//fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+				// fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
 				fileChooser.setCurrentDirectory(new File("./samples"));
 				int result = fileChooser.showOpenDialog(fileChooser);
 				if (result == JFileChooser.APPROVE_OPTION) {
-				    File selectedFile = fileChooser.getSelectedFile();
-				    System.out.println("Selected file: " + selectedFile.getAbsolutePath());
-				    svgcanvas.setURI(selectedFile.toURI().toString());
+					File selectedFile = fileChooser.getSelectedFile();
+					System.out.println("Selected file: " + selectedFile.getAbsolutePath());
+					svgcanvas.setURI(selectedFile.toURI().toString());
 				}
-
-
-
 
 			}
 		});
 
 		svgcanvas = new JSVGCanvas();
 		GroupLayout groupLayout = new GroupLayout(frmTest.getContentPane());
-		groupLayout.setHorizontalGroup(
-			groupLayout.createParallelGroup(Alignment.LEADING)
-				.addGroup(groupLayout.createSequentialGroup()
-					.addGap(35)
-					.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
-						.addComponent(btnNewButton_1)
-						.addComponent(btnNewButton, GroupLayout.PREFERRED_SIZE, 85, GroupLayout.PREFERRED_SIZE))
-					.addGap(101)
-					.addComponent(svgcanvas, GroupLayout.DEFAULT_SIZE, 460, Short.MAX_VALUE)
-					.addGap(21))
-		);
-		groupLayout.setVerticalGroup(
-			groupLayout.createParallelGroup(Alignment.TRAILING)
-				.addGroup(groupLayout.createSequentialGroup()
-					.addGap(28)
-					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addGroup(groupLayout.createSequentialGroup()
-							.addComponent(btnNewButton_1)
-							.addGap(182)
-							.addComponent(btnNewButton))
-						.addComponent(svgcanvas, GroupLayout.DEFAULT_SIZE, 452, Short.MAX_VALUE))
-					.addGap(30))
-		);
+		groupLayout.setHorizontalGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+				.addGroup(groupLayout.createSequentialGroup().addGap(35)
+						.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING).addComponent(btnNewButton_1)
+								.addComponent(btnNewButton, GroupLayout.PREFERRED_SIZE, 85, GroupLayout.PREFERRED_SIZE))
+						.addGap(101).addComponent(svgcanvas, GroupLayout.DEFAULT_SIZE, 460, Short.MAX_VALUE)
+						.addGap(21)));
+		groupLayout.setVerticalGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
+				.addGroup(groupLayout.createSequentialGroup().addGap(28)
+						.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+								.addGroup(groupLayout.createSequentialGroup().addComponent(btnNewButton_1).addGap(182)
+										.addComponent(btnNewButton))
+								.addComponent(svgcanvas, GroupLayout.DEFAULT_SIZE, 452, Short.MAX_VALUE))
+						.addGap(30)));
 		frmTest.getContentPane().setLayout(groupLayout);
 	}
 }
