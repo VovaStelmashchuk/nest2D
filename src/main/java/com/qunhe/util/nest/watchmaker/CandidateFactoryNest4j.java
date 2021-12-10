@@ -14,6 +14,14 @@ import com.qunhe.util.nest.data.Segment;
 
 class CandidateFactoryNest4j implements CandidateFactory<Individual> {
 
+	NestPath nestPath;
+	CandidateFactoryNest4j(){
+		System.out.println("GENERATE INITIAL POPULATION");
+		// crea un nest path		
+		nestPath = generatePoly();		
+	}
+	
+	
 	@Override
 	public List<Individual> generateInitialPopulation(int populationSize, Random rng) {
 		List<Individual> individiualsList = new ArrayList<Individual>();
@@ -22,8 +30,8 @@ class CandidateFactoryNest4j implements CandidateFactory<Individual> {
 			// NestPaths random generation
 			Individual individual = new Individual();
 			for(int z=0 ; z<rng.nextInt(casualNum(5, 15)) ; z++) {
-				System.out.println("GENERATE INITIAL POPULATION");
-				NestPath nestPath = generatePoly();
+				// crea una variante del nestPath un po' differente ad esempio ruotando
+				// TODO
 				individual.getPlacement().add(nestPath);
 				individiualsList.add(individual);
 			}
@@ -45,8 +53,8 @@ class CandidateFactoryNest4j implements CandidateFactory<Individual> {
 		// ogni individuo è composto da piu NestPath (poligoni), quindi creo randomicamente una serie di poligoni (tra i 5 e i 15)
 		for(int i=0 ; i<rng.nextInt(casualNum(5, 15)) ; i++) {
 			System.out.println("GENERATE RANDOM CANDIDATE");
-			NestPath nPath = generatePoly();
-			individual.getPlacement().add(nPath);
+			// TODO ruota o latrre variazioni
+			individual.getPlacement().add(nestPath);
 		}
 		System.out.println(individual.toString());
 
