@@ -8,17 +8,17 @@ import com.qunhe.util.nest.data.NestPath;
 /**
  * @author yisa
  */
-public class Individual  implements Comparable<Individual>{
+public class Individual  implements Comparable<Individual> {
     List<NestPath> placement;
     List<Integer> rotation;
     private double fitness;
 
-
-    Individual(Individual individual){
+  
+    Individual(Individual individual) {
     	fitness = individual.fitness;
         placement = new ArrayList<>();
         rotation = new ArrayList<>();
-        for(int i = 0 ; i<individual.placement.size();i ++){
+        for(int i = 0 ; i<individual.placement.size() ; i++){
             NestPath cloneNestPath = new NestPath(individual.placement.get(i));
             placement.add(cloneNestPath);
         }

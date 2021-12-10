@@ -8,22 +8,22 @@ import com.qunhe.util.nest.config.Config;
 /**
  * @author yisa
  */
-public class NestPath  implements Comparable<NestPath>{
+public class NestPath implements Comparable<NestPath>{
     private List<Segment> segments;
     private List<NestPath> children;
     private NestPath parent;
     public double offsetX;
     public double offsetY;
-
+    
     private int id;
     private int source ;
-    private int rotation;
+    private int rotation;	// angolo rotazione
     
     public int[] rotations;
-    public Config config ;
+    public Config config ;	// ???????
     public double area ;
 
-    public int bid;
+    public int bid;	// Identificativo??
 
     public void add(double x , double y ){
         this.add(new Segment(x,y));

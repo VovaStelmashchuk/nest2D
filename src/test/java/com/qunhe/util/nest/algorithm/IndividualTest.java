@@ -36,7 +36,7 @@ public class IndividualTest {
         individual.getPlacement().add(nestPath1);
         individual.getPlacement().add(nestPath2);
 
-        individual.getRotation().add(10);
+        individual.getRotation().add(10);	// Rotazione di tutti i NestPath?
         individual.getRotation().add(20);
         individual.getRotation().add(30);
         Individual clone = new Individual(individual);
