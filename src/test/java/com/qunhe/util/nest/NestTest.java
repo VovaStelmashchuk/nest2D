@@ -37,18 +37,18 @@ public class NestTest {
         outer.add(800, 200);
         outer.add(800, 0);
         outer.setRotation(0);
-        outer.bid = 1;
+        outer.setBid(1);
         NestPath inner = new NestPath();
         inner.add(650, 50);
         inner.add(650, 150);
         inner.add(750, 150);
         inner.add(750, 50);
-        inner.bid = 2;
+        inner.setBid(2);
         NestPath little = new NestPath();
         little.add(900, 0);
         little.add(870, 20);
         little.add(930, 20);
-        little.bid = 3;
+        little.setBid(3);
         little.setRotation(4);
         List<NestPath> list = new ArrayList<>();
         list.add(inner);
@@ -75,7 +75,7 @@ public class NestTest {
         bin.add(binWidth, 0);
         bin.add(binWidth, binHeight);
         bin.add(0, binHeight);
-        bin.bid = -1;
+        bin.setBid(-1);
         Config config = new Config();
         config.SPACING = 0;
         config.POPULATION_SIZE = 6;
@@ -111,7 +111,7 @@ public class NestTest {
                     double y = Double.parseDouble(value[1]);
                     polygon.add(x, y);
                 }
-                polygon.bid = count;
+                polygon.setBid(count);
                 polygon.setRotation(4);
                 nestPaths.add(polygon);
             } else if ("rect".equals(element.getName())) {
@@ -124,7 +124,7 @@ public class NestTest {
                 rect.add(x + width, y);
                 rect.add(x + width, y + height);
                 rect.add(x, y + height);
-                rect.bid = count;
+                rect.setBid(count);
                 rect.setRotation(4);
                 nestPaths.add(rect);
             }

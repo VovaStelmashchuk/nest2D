@@ -45,7 +45,7 @@ public class SvgUtil {
 
     private static NestPath getNestPathByBid(int bid, List<NestPath> list) {
         for (NestPath nestPath : list) {
-            if (nestPath.bid == bid) {
+            if (nestPath.getBid() == bid) {
                 return nestPath;
             }
         }

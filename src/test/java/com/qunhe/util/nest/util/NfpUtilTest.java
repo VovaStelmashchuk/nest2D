@@ -20,18 +20,18 @@ public class NfpUtilTest {
         outer.add(600,0);outer.add(600,200);
         outer.add(800,200);outer.add(800,0);
         outer.setRotation(0);
-        outer.bid = 1;
+        outer.setBid(1);
         NestPath inner = new NestPath();
         inner.add(650,50);
         inner.add(650,150);
         inner.add(750,150);
         inner.add(750,50);
-        inner.bid =2;
+        inner.setBid(2);
         NestPath little = new NestPath();
         little.add(900,0);
         little.add(870,20);
         little.add(930,20);
-        little.bid = 3;
+        little.setBid(3);
 
         List<NestPath> list = new ArrayList<>();
         list.add(inner);list.add(outer);list.add(little);

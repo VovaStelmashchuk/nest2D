@@ -67,7 +67,7 @@ public class IOUtils {
                 polygon.add(x, y);
             }
 
-            polygon.bid = count++;
+            polygon.setBid(count++);
             polygon.setRotation(0);//TODO
             nestPaths.add(polygon);
             while(--nbPart >= 0) {

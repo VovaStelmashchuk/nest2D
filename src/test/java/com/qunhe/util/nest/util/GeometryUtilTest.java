@@ -218,7 +218,7 @@ public class GeometryUtilTest {
         r1.add(300,700);
         r1.add(600,700);
         r1.add(600,600);
-        r1.bid = 4;
+        r1.setBid(4);
         r1.setRotation(8);
 
 
@@ -264,13 +264,13 @@ public class GeometryUtilTest {
         data1.add(100,650);
         data1.add(100,500);
         data1.setRotation(0);
-        data1.bid = 0 ;
+        data1.setBid(0) ;
         NestPath data2 = new NestPath();
         data2.add(360,0);
         data2.add(450,100);
         data2.add(560,0);
         data2.setRotation(0);
-        data2.bid=1;
+        data2.setBid(1);
 
 
         data1 = CommonUtil.polygonOffset(data1,5).get(0);
