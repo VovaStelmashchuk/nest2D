@@ -55,7 +55,7 @@ public class ContestData {
                 double y = Double.parseDouble(m.group(2));
                 polygon.add(x, y);
             }
-            polygon.setBid(count++);
+           // NON SWERVE PIu' settato nel costruttore polygon.setBid(count++);
             //Init as 0
             polygon.setRotation(0);
             int[] rots = Arrays.stream(rotDegrees).mapToInt(Integer::parseInt).toArray();
@@ -73,9 +73,9 @@ public class ContestData {
             while(--nbPart > 0) {
                 NestPath polyCopy = new NestPath(polygon);
                 ContestData itemCopy = new ContestData(lotId, partId,matId);
-                polyCopy.setBid(count++);
-                itemCopy.setBid(polyCopy.getBid());
+                //polyCopy.setBid(count++);
                 itemCopy.setPolygon(polyCopy);
+                // inutile itemCopy.setBid(polyCopy.getBid());
                 nestPaths.add(polyCopy);
                 res.add(itemCopy);
             }
@@ -99,6 +99,7 @@ public class ContestData {
 
     public void setPolygon(NestPath polygon) {
         this.polygon = polygon;
+        this.bid = polygon.getBid();
     }
 
     public int getBid() {
