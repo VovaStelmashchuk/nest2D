@@ -226,7 +226,7 @@ public class GeometryUtil {
             double y1 = x*Math.sin(angle)+y*Math.cos(angle);
             rotated.add(new Segment(x1 , y1));
         }
-        rotated.bid = polygon.bid;
+        rotated.setBid(polygon.getBid());
         rotated.setId(polygon.getId());
         rotated.setSource(polygon.getSource());
         if(polygon.getChildren().size() > 0 ){

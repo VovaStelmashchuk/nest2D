@@ -215,7 +215,7 @@ public class CommonUtil {
         for(int i =0 ; i<parts.size();i++){
             // Do cleaning with Clipper: self intersecting, redundant vertices...
             NestPath cleanPoly = CommonUtil.cleanNestPath(parts.get(i));
-            cleanPoly.bid = parts.get(i).bid;
+            cleanPoly.setBid(parts.get(i).getBid());
             // Some parts are too small to keep. TODO remove this for the match
             if(cleanPoly.size() > 2 &&  Math.abs(GeometryUtil.polygonArea(cleanPoly)) > curve_tolerance * curve_tolerance){
                 cleanPoly.setSource(i);
@@ -257,7 +257,7 @@ public class CommonUtil {
 	     *  Convert Clipper 2 NestPath
 	     */
 	    NestPath cleanPath = Path2NestPath(clean);
-	    cleanPath.bid = srcPath.bid;
+	    cleanPath.setBid(srcPath.getBid());
 	    cleanPath.setRotation(srcPath.getRotation());
 	    cleanPath.setPossibleRotations(srcPath.getPossibleRotations());
 	    return cleanPath;

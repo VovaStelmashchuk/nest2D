@@ -8,23 +8,67 @@ import com.qunhe.util.nest.config.Config;
 /**
  * @author yisa
  */
-public class NestPath  implements Comparable<NestPath>{
+public class NestPath implements Comparable<NestPath>{
     private List<Segment> segments;
     private List<NestPath> children;
     private NestPath parent;
     public double offsetX;
     public double offsetY;
-
+    
     private int id;
     private int source ;
-    private int rotation;
+    private int rotation;	// angolo rotazione
     
     public int[] rotations;
-    public Config config ;
+    public Config config ;	// ???????
     public double area ;
 
-    public int bid;
+    // assgnied incrementally or cloned
+    private int bid;	// Identificativo??
 
+    static private int bid_counter = 1; 
+    
+    public NestPath(){
+    	this(new Config());
+    }
+
+
+    public NestPath(Config config) {
+        offsetX = 0;
+        offsetY = 0;
+        children = new ArrayList<>();
+        segments = new ArrayList<>();
+        area = 0;
+        this.config = config;
+        //
+        bid = bid_counter++;
+    }
+
+    public NestPath(NestPath srcNestPath){
+        segments = new ArrayList<>();
+        for(Segment segment : srcNestPath.getSegments() ){
+            segments.add(new Segment(segment));
+        }
+
+        this.id  = srcNestPath.id;
+        this.rotation = srcNestPath.rotation;
+        this.rotations =  srcNestPath.rotations;//TODO not clone.
+        this.source = srcNestPath.source;
+        this.offsetX = srcNestPath.offsetX;
+        this.offsetY = srcNestPath.offsetY;
+        this.bid = srcNestPath.bid;
+        this.area = srcNestPath.area;
+        children = new ArrayList<>();
+
+        for(NestPath nestPath: srcNestPath.getChildren()){
+            NestPath child = new NestPath(nestPath);
+            child.setParent(this);
+            children.add(child);
+        }
+    }
+
+    
+    
     public void add(double x , double y ){
         this.add(new Segment(x,y));
     }
@@ -142,47 +186,6 @@ public class NestPath  implements Comparable<NestPath>{
         this.source = source;
     }
 
-    public NestPath(){
-        offsetX = 0;
-        offsetY = 0;
-        children = new ArrayList<>();
-        segments = new ArrayList<>();
-        config = new Config();
-        area = 0;
-    }
-
-
-    public NestPath(Config config) {
-        offsetX = 0;
-        offsetY = 0;
-        children = new ArrayList<>();
-        segments = new ArrayList<>();
-        area = 0;
-        this.config = config;
-    }
-
-    public NestPath(NestPath srcNestPath){
-        segments = new ArrayList<>();
-        for(Segment segment : srcNestPath.getSegments() ){
-            segments.add(new Segment(segment));
-        }
-
-        this.id  = srcNestPath.id;
-        this.rotation = srcNestPath.rotation;
-        this.rotations =  srcNestPath.rotations;//TODO not clone.
-        this.source = srcNestPath.source;
-        this.offsetX = srcNestPath.offsetX;
-        this.offsetY = srcNestPath.offsetY;
-        this.bid = srcNestPath.bid;
-        this.area = srcNestPath.area;
-        children = new ArrayList<>();
-
-        for(NestPath nestPath: srcNestPath.getChildren()){
-            NestPath child = new NestPath(nestPath);
-            child.setParent(this);
-            children.add(child);
-        }
-    }
 
     /**
      * The lowest x coordinate and y coordinate value of NestPath must be 0 by translation,
@@ -293,4 +296,14 @@ public class NestPath  implements Comparable<NestPath>{
     public int[] getPossibleRotations() {
         return this.rotations;
     }
+
+
+	public int getBid() {
+		return bid;
+	}
+	@Deprecated
+	public void setBid(int bid) {
+		this.bid = bid;
+	}
+
 }

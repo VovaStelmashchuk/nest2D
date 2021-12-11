@@ -267,11 +267,11 @@ public class Nest {
         for(NfpPair nfpPair :nfpPairs){
             if(++cnt % 1000 == 0 ){
                 //debug(" nfp generated.");
-                debug("Generating nfp "+cnt+": "+nfpPair.getA().bid+","+nfpPair.getB().bid);
+                debug("Generating nfp "+cnt+": "+nfpPair.getA().getBid()+","+nfpPair.getB().getBid());
             }
             ParallelData data = NfpUtil.nfpGenerator(nfpPair,config);
             if(data == null){
-                debug("Null nfp "+cnt+": "+nfpPair.getA().bid+","+nfpPair.getB().bid);
+                debug("Null nfp "+cnt+": "+nfpPair.getA().getBid()+","+nfpPair.getB().getBid());
             }
             generatedNfp.add(data);
         }
@@ -329,10 +329,10 @@ public class Nest {
                 Vector v = best.placements.get(i).get(j);
                 NestPath nestPath = tree.get(v.id);
                 for(NestPath child : nestPath.getChildren()){
-                    Placement chPlacement = new Placement(child.bid , new Segment(v.x,v.y) , v.rotation);
+                    Placement chPlacement = new Placement(child.getBid() , new Segment(v.x,v.y) , v.rotation);
                     binTranslate.add(chPlacement);
                 }
-                Placement placement = new Placement(nestPath.bid , new Segment(v.x,v.y) , v.rotation);
+                Placement placement = new Placement(nestPath.getBid() , new Segment(v.x,v.y) , v.rotation);
                 binTranslate.add(placement);
             }
             applyPlacement.add(binTranslate);

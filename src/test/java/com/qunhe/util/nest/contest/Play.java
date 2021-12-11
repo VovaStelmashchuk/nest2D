@@ -67,7 +67,7 @@ public class Play {
         bin.add(Config.BIN_WIDTH, 0);
         bin.add(Config.BIN_WIDTH, Config.BIN_HEIGHT);
         bin.add(0, Config.BIN_HEIGHT);
-        bin.bid = -1;
+        bin.setBid(-1);
 
         Nest nest = new Nest(bin, polygons, config, Config.NB_ITERATIONS);
         List<List<Placement>> appliedPlacement = nest.startNest();
