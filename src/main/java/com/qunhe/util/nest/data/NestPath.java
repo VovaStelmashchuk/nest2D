@@ -1,7 +1,10 @@
 package com.qunhe.util.nest.data;
 
+import java.awt.Polygon;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.batik.ext.awt.geom.Polygon2D;
 
 import com.qunhe.util.nest.config.Config;
 
@@ -304,6 +307,34 @@ public class NestPath implements Comparable<NestPath>{
 	@Deprecated
 	public void setBid(int bid) {
 		this.bid = bid;
+	}
+	
+	
+	public Polygon2D toPolygon2D() {
+		Polygon2D newp;
+		
+		List<Float> xp = new ArrayList<Float>();
+		List<Float> yp = new ArrayList<Float>();
+		for(Segment s : segments){
+           xp.add((float)s.getX());
+           yp.add((float)s.getY());
+        }
+				
+		float[] xparray = new float[xp.size()];
+		float[] yparray = new float[yp.size()];
+		int i = 0;
+
+		for (Float f : xp) {
+		    xparray[i++] = (f != null ? f : Float.NaN); 
+		}
+		i=0;
+		for (Float f : yp) {
+		    yparray[i++] = (f != null ? f : Float.NaN);
+		}
+		
+		
+		newp = new Polygon2D(xparray, yparray, segments.size());
+		return newp;
 	}
 
 }

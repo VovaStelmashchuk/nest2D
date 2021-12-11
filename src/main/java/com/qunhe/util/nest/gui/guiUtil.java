@@ -6,22 +6,30 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import java.awt.Color;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.StringReader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
+import org.apache.batik.anim.dom.SVG12OMDocument;
+import org.apache.batik.util.XMLResourceDescriptor;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.w3c.dom.DocumentType;
+import org.w3c.dom.svg.SVGDocument;
 
 import com.qunhe.util.nest.config.Config;
 import com.qunhe.util.nest.data.NestPath;
 import com.qunhe.util.nest.data.Placement;
+import com.qunhe.util.nest.data.Segment;
 import com.qunhe.util.nest.util.SvgUtil;
 
 
@@ -51,7 +59,7 @@ class guiUtil {
 	                    double y = Double.parseDouble(value[1]);
 	                    polygon.add(x, y);
 	                }
-	                polygon.bid = count;
+	                //polygon.bid = count;
 	                polygon.setRotation(4);
 	                nestPaths.add(polygon);
 	            } else if ("rect".equals(element.getName())) {
@@ -64,7 +72,7 @@ class guiUtil {
 	                rect.add(x + width, y);
 	                rect.add(x + width, y + height);
 	                rect.add(x, y + height);
-	                rect.bid = count;
+	                //rect.bid = count;
 	                rect.setRotation(4);
 	                nestPaths.add(rect);
 	            }
@@ -88,6 +96,7 @@ class guiUtil {
 	 
 	 static void saveSvgFile(List<String> strings, String htmlfile, double binwidth, double binheight) throws Exception {
 	        File f = new File(htmlfile);
+	        
 	        if (!f.exists()) {
 	            f.createNewFile();
 	        }
@@ -99,7 +108,7 @@ class guiUtil {
 	                " \n" +
 	                //"<svg width=\"100%\" height=\"100%\" version=\"1.1\"\n" +
 	                //added for correct "AUTOZOOM"
-	                "<svg width=\"" + binwidth + "\" height=\"" + binheight + "\" viewBox=\"0 0 " + binwidth + " " +  binheight +"\" version=\"1.1\"\n" +
+	                "<svg width=\"" + binwidth + 10 + "\" height=\"" + binheight + 10 + "\" viewBox=\"0 0 " + binwidth + 10 +" " +  binheight +10+"\" version=\"1.1\"\n" +
 
 	                
 	                "xmlns=\"http://www.w3.org/2000/svg\">\n");
@@ -109,5 +118,62 @@ class guiUtil {
 	        writer.write("</svg>");
 	        writer.close();
 	    }
+	 
+	 
+	 
+	 static SVGDocument CreateSvgFile(List<String> strings,  double binwidth, double binheight) throws Exception {
+		
+	        
+	        //SVGDocument doc = null;
+	        
+	        StringBuilder DocumentTextBuilder = new StringBuilder();
+	        DocumentTextBuilder.append("<?xml version=\"1.0\" standalone=\"no\"?>\n" +
+	                "\n" +
+	                "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n" +
+	                "\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n" +
+	                " \n" +
+	                //"<svg width=\"100%\" height=\"100%\" version=\"1.1\"\n" +
+	                //added for correct "AUTOZOOM"
+	                "<svg width=\"" + binwidth + 10 + "\" height=\"" + binheight + 10 + "\" viewBox=\"0 0 " + binwidth + 10 +" " +  binheight +10+"\" version=\"1.1\"\n" +
+
+	                
+	                "xmlns=\"http://www.w3.org/2000/svg\">\n");
+	        
+	        
+	        for(String s : strings){
+	        	DocumentTextBuilder.append(s);
+	        }
+	        DocumentTextBuilder.append("</svg>");
+	        
+	        
+	        
+	        SAXSVGDocumentFactory factory;
+	        String parser = XMLResourceDescriptor.getXMLParserClassName();
+	        factory = new SAXSVGDocumentFactory(parser);
+	        
+	        SVGDocument doc = factory.createSVGDocument(null, new StringReader(DocumentTextBuilder.toString()));
+	        
+	        doc.setTextContent(DocumentTextBuilder.toString());
+	        
+	        return doc;
+	    }
+	 
+	 
+	 static void refresh(JFrame frame)//TODO non funziona
+	 {
+		 
+
+		 SwingUtilities.updateComponentTreeUI(frame);
+		 frame.invalidate();
+		 frame.validate();
+		 frame.repaint();
+		 
+//		 frame.setVisible(false);
+//		 frame.setVisible(true);
+
+	 }
+	
+	 
+	 
 
 }

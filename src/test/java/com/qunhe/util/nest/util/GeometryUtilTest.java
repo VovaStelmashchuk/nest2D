@@ -53,9 +53,9 @@ public class GeometryUtilTest {
     @Test
     public void getPolygonBoundsTest() throws Exception{
             NestPath nestPath = new NestPath();
-            nestPath.add(new Segment(0,0));
-            nestPath.add(new Segment(20,0));
-            nestPath.add(new Segment(10,10));
+            nestPath.add(new Segment(5,5));
+            nestPath.add(new Segment(25,5));
+            nestPath.add(new Segment(15,15));
             Bound bound = GeometryUtil.getPolygonBounds(nestPath);
             System.out.println("x = "+ bound.xmin +" , y = "+bound.ymin+" , width = "+ bound.width+" , height = "+bound.height);
     }
