@@ -52,6 +52,12 @@ public class Individual  implements Comparable<Individual> {
     public void setPlacement(List<NestPath> placement) {
         this.placement = placement;
     }
+    
+    public void showNestPaths() {
+    	for(NestPath elem: placement) {
+    		System.out.println(elem.toString());
+    	}
+    }
 
     public List<Integer> getRotation() {
         return rotation;
@@ -122,4 +128,5 @@ public class Individual  implements Comparable<Individual> {
     public void setFitness(double fitness) {
         this.fitness = fitness;
     }
+    
 }

@@ -1,5 +1,6 @@
 package com.qunhe.util.nest.watchmaker;
 
+import java.util.List;
 import java.util.Random;
 
 import org.uncommons.watchmaker.framework.EvolutionEngine;
@@ -14,22 +15,29 @@ public class Main {
 	public static void main(String[] args) {
 		
 		CandidateFactoryNest4j candidateFactory = new CandidateFactoryNest4j();
+		IndividualMutation mutation = new IndividualMutation();
 		
-		// Test CandidateFactory
-		//candidateFactory.generateInitialPopulation(10, new Random());
-		//candidateFactory.generateRandomCandidate(new Random());
+		
+		// Test Candidate Factory e Individual mutation
+		List<Individual> mutatedIndiv = mutation.apply(candidateFactory.generateInitialPopulation(10, new Random()), new Random());
+//		System.out.println("****************************");
+//		System.out.println("MUTATION:");
+//		System.out.println("**************************** \n");
+//		int i = 0;
+//		for(Individual elem: mutatedIndiv) {
+//			System.out.println("----------------------------");
+//			System.out.println("INDIVIDUO: " + (i++));
+//			System.out.println("---------------------------- \n");
+//			elem.showNestPaths();
+//		}
 	
 		
-		IndividualMutation evolutionaryOperator = new IndividualMutation();
-
-		evolutionaryOperator.apply(candidateFactory.generateInitialPopulation(10, new Random()), new Random());
-				
 		IndividualFitness fitnessEvaluator = new IndividualFitness();
 		
 		SelectionStrategy<? super Individual> selectionStrategy = new RankSelection();
 		Random rng = new Random();
 		
-		EvolutionEngine<Individual> engine = new GenerationalEvolutionEngine<>(candidateFactory, evolutionaryOperator, fitnessEvaluator, selectionStrategy, rng);
+		EvolutionEngine<Individual> engine = new GenerationalEvolutionEngine<>(candidateFactory, mutation, fitnessEvaluator, selectionStrategy, rng);
 		
 
 	}

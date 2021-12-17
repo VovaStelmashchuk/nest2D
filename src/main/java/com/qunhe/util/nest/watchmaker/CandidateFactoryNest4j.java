@@ -11,92 +11,85 @@ import org.uncommons.watchmaker.framework.CandidateFactory;
 import com.qunhe.util.nest.algorithm.Individual;
 import com.qunhe.util.nest.data.NestPath;
 import com.qunhe.util.nest.data.Segment;
+import com.qunhe.util.nest.util.GeometryUtil;
 
 class CandidateFactoryNest4j implements CandidateFactory<Individual> {
 
+	private static final int MIN_NUM_CANDIDATE = 8;
+	private static final int MAX_NUM_CANDIDATE = 20;
+	private static final int MIN_COORD_BOUND = 0;
+	private static final int MAX_COORD_BOUND = 1000;
+	private static final int MIN_DISTANCE = 4;
+	private static final int MAX_DISTANCE = 20;
+
 	NestPath nestPath;
-	CandidateFactoryNest4j(){
-		System.out.println("GENERATE INITIAL POPULATION");
-		// crea un nest path		
-		nestPath = generatePoly();		
-	}
 	
+	public CandidateFactoryNest4j() {
+		System.out.println("GENERATE INITIAL POPULATION\n");
+		//generateInitialPopulation(10, new Random());	// populationsize is useless
+	}
+
 	
 	@Override
 	public List<Individual> generateInitialPopulation(int populationSize, Random rng) {
+		// popolazione iniziale (Individual) di poligoni (NestPath)
 		List<Individual> individiualsList = new ArrayList<Individual>();
-		// Verranno creati più individui randomicamente
-		for(int i=0 ; i<populationSize ; i++) {
-			// NestPaths random generation
-			Individual individual = new Individual();
-			for(int z=0 ; z<rng.nextInt(casualNum(5, 15)) ; z++) {
-				// crea una variante del nestPath un po' differente ad esempio ruotando
-				// TODO
-				individual.getPlacement().add(nestPath);
-				individiualsList.add(individual);
-			}
+		Individual individual = new Individual();
+		NestPath np = new NestPath();
+		int numPoly = rng.nextInt(casualNum(MIN_NUM_CANDIDATE, MAX_NUM_CANDIDATE)) + 8;
+		
+		for (int i = 0; i < numPoly; i++) {
+			np = generatePoly(i + 1);
+			individual.getPlacement().add(np);
 		}
+		
+		System.out.println("Sono stati generati " + numPoly + " poligoni\n");
+//		individual.showNestPaths();
+		
+		individiualsList.add(individual);
 		return individiualsList;
 	}
 
+	
 	@Override
 	public List<Individual> generateInitialPopulation(int populationSize, Collection<Individual> seedCandidates, Random rng) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	
 	@Override
 	public Individual generateRandomCandidate(Random rng) {
-		
-		Individual individual = new Individual();
-		
-		// ogni individuo è composto da piu NestPath (poligoni), quindi creo randomicamente una serie di poligoni (tra i 5 e i 15)
-		for(int i=0 ; i<rng.nextInt(casualNum(5, 15)) ; i++) {
-			System.out.println("GENERATE RANDOM CANDIDATE");
-			// TODO ruota o latrre variazioni
-			individual.getPlacement().add(nestPath);
-		}
-		System.out.println(individual.toString());
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-		return individual;
-	}
 	
 	/**
-	 *Random number within bounds
+	 * Random polygon generation
 	 */
-	private int casualNum(int min, int max) {
-		return (int)(Math.random()*(max-min+1)+min);
-	}
-	
-	/**
-	 *Random polygon generation 
-	 */
-	private NestPath generatePoly() {
-		
+	private NestPath generatePoly(int id) {
 		NestPath poly = new NestPath();
 		
-		// coordinate bounds
-		int minCoord = 0;
-		int maxCoord = 800;
-		
-		// generazione numero di poligoni 
+		// generazione numero di poligoni (NestPath) nello stesso indivuduo (Individual)
 		Random r = new Random();
-		int switchRng = r.nextInt(casualNum(1, 3));	// esce anche 0
+		int switchRng = r.nextInt(casualNum(1, 5));	// range 0-4
+		int angolo = (int) (Math.random() * (73 - 0 + 1) + 0);	// 360°/72 = 5°, rotazione minima di 5°, range 0-72 (se 0 -> non viene ruotato)
 		
 		switch (switchRng) {
 		case 0:		// triangolo
-			System.out.println("TRIANGOLO");
+//			System.out.println("TRIANGOLO");
 			// 3 coordinate random
 			for(int i=0 ; i<3 ; i++) {
-				poly.add(new Segment(casualNum(minCoord, maxCoord), casualNum(minCoord, maxCoord)));	
+				poly.add(new Segment(casualNum(MIN_COORD_BOUND, MAX_COORD_BOUND), casualNum(MIN_COORD_BOUND, MAX_COORD_BOUND)));	
 			}
 			break;
-		case 1:		// rettangolo orizzontale, verrà poi eventualmente ruotato
-			System.out.println("RETTANGOLO");
-			int p1 = casualNum(minCoord, maxCoord);
-			int p2 = casualNum(minCoord, maxCoord);
-			int p3 = casualNum(4, 20);
-			int p4 = casualNum(4, 20);
+		case 1:		// rettangolo
+//			System.out.println("RETTANGOLO");
+			int p1 = casualNum(MIN_COORD_BOUND, MAX_COORD_BOUND);
+			int p2 = casualNum(MIN_COORD_BOUND, MAX_COORD_BOUND);
+			int p3 = casualNum(MIN_DISTANCE, MAX_DISTANCE);
+			int p4 = casualNum(MIN_DISTANCE, MAX_DISTANCE);
 			// base
 			poly.add(new Segment(p1, p2));
 			poly.add(new Segment(p1+p3, p2));
@@ -104,17 +97,34 @@ class CandidateFactoryNest4j implements CandidateFactory<Individual> {
 			poly.add(new Segment(p1, p2+p4));
 			poly.add(new Segment(p1+p3, p2+p4));
 			break;
-		default:	// polygono random
-			System.out.println("POLIGONO DI "+ switchRng + " LATI \n");
-			for(int i=0 ; i<switchRng ; i++) {
-				poly.add(new Segment(casualNum(minCoord, maxCoord), casualNum(minCoord, maxCoord)));	
+		default:	// poligono random
+//			System.out.println("POLIGONO DI "+ (switchRng+2) + " LATI");
+			for(int i=0 ; i<switchRng+2 ; i++) {
+				poly.add(new Segment(casualNum(MIN_COORD_BOUND, MAX_COORD_BOUND), casualNum(MIN_COORD_BOUND, MAX_COORD_BOUND)));	
 			}
 			break;
 		}
-		poly.toString();
+		
+		poly.setId(id);
+		poly.setRotation(angolo);
+		GeometryUtil.rotatePolygon2Polygon(poly, angolo);	// rotazione
+		
+//		System.out.println(poly.toString());
 		return poly;
 	}
 
+	/**
+	 * Random number within bounds
+	 * @param min minimo valore del range (compreso)
+	 * @param max massimo valore del range (escluso)
+	 */
+	private int casualNum(int min, int max) {
+		return (int) (Math.random() * (max - min + 1) + min);
+	}
+	
+	public NestPath getRandomNestPath(int id) {
+		return generatePoly(id);
+	}
 	
 }
 

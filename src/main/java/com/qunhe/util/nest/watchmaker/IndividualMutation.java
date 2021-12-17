@@ -1,25 +1,45 @@
 package com.qunhe.util.nest.watchmaker;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
 import org.uncommons.watchmaker.framework.EvolutionaryOperator;
+
+import com.qunhe.util.nest.algorithm.GeneticAlgorithm;
 import com.qunhe.util.nest.algorithm.Individual;
+import com.qunhe.util.nest.config.Config;
+import com.qunhe.util.nest.data.NestPath;
+import com.qunhe.util.nest.util.CommonUtil;
 import com.qunhe.util.nest.util.GeometryUtil;
 
 // fa ruotazioni a caso
-public class IndividualMutation implements EvolutionaryOperator<Individual>{
+public class IndividualMutation implements EvolutionaryOperator<Individual> {
 
-	// Mutation = un individuo alla volta
 	@Override
 	public List<Individual> apply(List<Individual> indivList, Random random) {
-		int angolo = (int)(Math.random()*(73-0+1)+0);	// 360°/72 = 5°, rotazione di 5°
-		int i=0;
-		for(Individual elem : indivList) {
-			GeometryUtil.rotatePolygon2Polygon(elem.getPlacement().get(i), angolo);
-			i++;
+		
+		Config config = new Config();
+		NestPath bin = new CandidateFactoryNest4j().getRandomNestPath(1);	// generazione random di un NestPath
+//		System.out.println("BIN = "+bin.toString());
+		 
+		List<NestPath> tree = CommonUtil.BuildTree(indivList.get(0).getPlacement(), Config.CURVE_TOLERANCE);
+		CommonUtil.offsetTree(tree, 0.5 * config.SPACING);
+
+		List<NestPath> adam = new ArrayList<>();	
+		for(NestPath np : tree) {
+			adam.add(np);
 		}
-		return null;
+		Collections.sort(adam);
+		
+		// MUTATION
+		GeneticAlgorithm ga = new GeneticAlgorithm(adam, bin, new Config());	// Creazione di 10 individui mutando il primo individuo (adam)
+			
+		// CROSSOVER
+		ga.generation();	// generazione dei figli
+		
+		return ga.population;	// verranno restituiti sempre 10 individui (POPULATION_SIZE = 10 by default)
 	}
 	
 }

@@ -85,7 +85,7 @@ public class GeneticAlgorithmTest {
         }
 
         Collections.sort(adam);
-        GeneticAlgorithm GA = new GeneticAlgorithm(adam,bin , config);
+        GeneticAlgorithm GA = new GeneticAlgorithm(adam, bin, config);
 
 
         Individual individual = null;

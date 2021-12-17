@@ -23,11 +23,11 @@ public class NestPath implements Comparable<NestPath>{
     private int rotation;	// angolo rotazione
     
     public int[] rotations;
-    public Config config ;	// ???????
+    public Config config ;	
     public double area ;
 
     // assgnied incrementally or cloned
-    private int bid;	// Identificativo??
+    private int bid;
 
     static private int bid_counter = 1; 
     

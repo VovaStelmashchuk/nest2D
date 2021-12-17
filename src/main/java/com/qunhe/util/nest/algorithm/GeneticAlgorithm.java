@@ -15,7 +15,7 @@ import com.qunhe.util.nest.util.GeometryUtil;
  */
 public class GeneticAlgorithm {
 
-    public List<NestPath> adam;
+    public List<NestPath> adam;	// Individual
     public NestPath bin;
     public Bound binBounds;
     public List<Integer> angles ;
@@ -31,14 +31,61 @@ public class GeneticAlgorithm {
         init();
     }
 
+    
+    private void init(){
+        angles = new ArrayList<>();
+        for(int i = 0 ; i< adam.size(); i ++) {
+            int angle = randomAngle(adam.get(i));	// nel mio caso, alla creazione del NestPath viene generato solo 1 angolo
+            angles.add(angle);						// nel mio caso verrà quindi aggiunto solo un angolo
+        }
+        population.add(new Individual(adam , angles));
+        while(population.size() < config.POPULATION_SIZE) {		// config.POPULATION_SIZE = 10 by default
+            Individual mutant = mutate(population.get(0));
+            population.add(mutant);
+        }
+    }
 
+    private Individual mutate(Individual individual) {
+        Individual clone = new Individual(individual);			// crea un clone (che verrà aggiunto a population) che muta e ruota gli individui originali
+        for(int i = 0 ; i< clone.placement.size() ; i ++){		// itera tutti i NestPath contenuti nell'individuo "clone"
+            double random = Math.random();
+            if( random < 0.01 * config.MUTATION_RATE ){			// config.MUTATION_RATE = 10 by default
+                int j = i + 1;
+                if( j < clone.placement.size() ){
+                    Collections.swap(clone.getPlacement(), i, j);	// Lo swap funge come ListOrderMutation di WatchMaker.framework.operators
+                }
+            }
+            random = Math.random();
+            if(random < 0.01 * config.MUTATION_RATE ){
+                clone.getRotation().set(i, randomAngle(clone.placement.get(i)));
+            }
+        }
+        checkAndUpdate(clone);
+        return clone;
+    }
+    
+    public void checkAndUpdate(Individual individual){
+        for(int i = 0; i<individual.placement.size(); i++){
+            int angle = individual.getRotation().get(i);
+            NestPath nestPath = individual.getPlacement().get(i);
+            Bound rotateBound = GeometryUtil.rotatePolygon(nestPath,angle);		// assegna nuovi Bound ad ogni NestPath, di conseguenza lo ruota
+            if(rotateBound.width < binBounds.width && rotateBound.height < binBounds.height){	// se larghezza e altezza del poligono ruotato sono minori della posizione originale
+                continue;
+            }
+            else{
+                int safeAngle = randomAngle(nestPath);
+                individual.getRotation().set(i , safeAngle);
+            }
+        }
+    }
 
+    // metodo per la generazione di figli
     public void generation(){
         List<Individual> newpopulation = new ArrayList<>();
         Collections.sort(population);
 
         newpopulation.add(population.get(0));
-        while(newpopulation.size() < config.POPULATION_SIZE){
+        while(newpopulation.size() < config.POPULATION_SIZE) {
             Individual male = randomWeightedIndividual(null);
             Individual female = randomWeightedIndividual(male);
             List<Individual> children = mate(male,female);
@@ -53,7 +100,7 @@ public class GeneticAlgorithm {
     private List<Individual> mate(Individual male , Individual female){
         List<Individual> children = new ArrayList<>();
 
-        long cutpoint = Math.round(Math.min(Math.max(Math.random(), 0.1), 0.9)*(male.placement.size()-1));
+        long cutpoint = Math.round(Math.min(Math.max(Math.random(), 0.1), 0.9)*(male.placement.size()-1));	// range circa 1-21
 
         List<NestPath> gene1 = new ArrayList<>();
         List<Integer> rot1 = new ArrayList<>();
@@ -100,16 +147,18 @@ public class GeneticAlgorithm {
         return false;
     }
 
-    private Individual randomWeightedIndividual(Individual exclude){
+    private Individual randomWeightedIndividual(Individual exclude) {
+    	// generazione di pop (clone di population)
         List<Individual> pop = new ArrayList<>();
         for(int i = 0 ; i < population.size(); i ++){
             Individual individual = population.get(i);
             Individual clone = new Individual(individual);
             pop.add(clone);
         }
-        if(exclude!= null){
+        
+        if(exclude != null){
             int index = pop.indexOf(exclude);
-            if(index >= 0){
+            if(index >= 0) {
                 pop.remove(index);
             }
         }
@@ -118,8 +167,8 @@ public class GeneticAlgorithm {
         double weight = 1/pop.size();
         double upper = weight;
 
-        for(int i =0 ; i <pop.size();i ++){
-            if(rand > lower && rand < upper ){
+        for(int i=0 ; i<pop.size() ; i++) {
+            if(rand > lower && rand < upper) {
                 return pop.get(i);
             }
             lower = upper;
@@ -128,45 +177,13 @@ public class GeneticAlgorithm {
         return pop.get(0);
     }
 
-    private void init(){
-        angles = new ArrayList<>();
-        for(int i = 0 ; i< adam.size(); i ++){
-            int angle = randomAngle(adam.get(i));
-            angles.add(angle);
-        }
-        population.add(new Individual(adam , angles));
-        while(population.size() < config.POPULATION_SIZE ){
-            Individual mutant = mutate(population.get(0));
-            population.add(mutant);
-        }
-    }
-
-    private Individual mutate(Individual individual ){
-
-        Individual clone = new Individual(individual);
-        for(int i = 0 ; i< clone.placement.size() ; i ++){
-            double random = Math.random();
-            if( random < 0.01 * config.MUTATION_RATE ){
-                int j = i +1;
-                if( j < clone.placement.size() ){
-                    Collections.swap(clone.getPlacement() , i , j );
-                }
-            }
-            random = Math.random();
-            if(random < 0.01 * config.MUTATION_RATE ){
-                clone.getRotation().set( i , randomAngle(clone.placement.get(i)));
-            }
-        }
-        checkAndUpdate(clone);
-        return clone;
-    }
 
     /**
      * Return an angle for a polygon
      * @param part
      * @return
      */
-    private  int randomAngleOld(NestPath part){
+    private int randomAngleOld(NestPath part){
         List<Integer> angleList = new ArrayList<>();
         int rotate = Math.max(1,part.getRotation());
         if(rotate == 0 ){
@@ -214,20 +231,5 @@ public class GeneticAlgorithm {
     public void setBin(NestPath bin) {
         this.bin = bin;
     }
-
-    
-    public void checkAndUpdate(Individual individual){
-        for(int i = 0; i <individual.placement.size();i++){
-            int angle = individual.getRotation().get(i);
-            NestPath nestPath = individual.getPlacement().get(i);
-            Bound rotateBound = GeometryUtil.rotatePolygon(nestPath,angle);
-            if(rotateBound.width < binBounds.width && rotateBound.height < binBounds.height){
-                continue;
-            }
-            else{
-                int safeAngle = randomAngle(nestPath);
-                individual.getRotation().set(i , safeAngle);
-            }
-        }
-    }
+ 
 }

@@ -18,10 +18,10 @@ import de.lighti.clipper.Point.LongPoint;
 
 /**
  *      y
- *      ↑
+ *      â†‘
  *      |
  *      |
- *      |__________ x 项目的坐标系
+ *      |__________ x é¡¹ç›®çš„å��æ ‡ç³»
  *
  */
 /**
@@ -41,7 +41,7 @@ public class GeometryUtil {
     }
 
     /**
-     * 计算多边形面积
+     * è®¡ç®—å¤šè¾¹å½¢é�¢ç§¯
      * @param polygon
      * @return
      */
@@ -56,7 +56,7 @@ public class GeometryUtil {
     }
 
     /**
-     * 判断点P是否在边AB上
+     * åˆ¤æ–­ç‚¹Pæ˜¯å�¦åœ¨è¾¹ABä¸Š
      * @param A
      * @param B
      * @param p
@@ -122,7 +122,7 @@ public class GeometryUtil {
     }
 
     /**
-     * 判断点P是否在多边形polygon上
+     * åˆ¤æ–­ç‚¹Pæ˜¯å�¦åœ¨å¤šè¾¹å½¢polygonä¸Š
      * @param point
      * @param polygon
      * @return
@@ -155,44 +155,44 @@ public class GeometryUtil {
     }
 
     /**
-     * 获取多边形边界
+     * èŽ·å�–å¤šè¾¹å½¢è¾¹ç•Œ
      * @param polygon
      * @return
      */
-    public static Bound getPolygonBounds( NestPath polygon){
+    public static Bound getPolygonBounds(NestPath polygon) {
 
         double xmin = polygon.getSegments().get(0).getX();
         double xmax = polygon.getSegments().get(0).getX();
         double ymin = polygon.getSegments().get(0).getY();
         double ymax = polygon.getSegments().get(0).getY();
 
-        for(int i = 1 ; i <polygon.getSegments().size(); i ++){
+        for(int i = 1; i<polygon.getSegments().size(); i++){
             double x = polygon.getSegments().get(i).getX();
             double y = polygon.getSegments().get(i).getY();
-            if(x > xmax ){
+            if(x > xmax) {
                 xmax = x;
             }
-            else if(x < xmin){
+            else if(x < xmin) {
                 xmin = x;
             }
 
             if(y > ymax ){
-                ymax =y;
+                ymax = y;
             }
-            else if(y< ymin ){
+            else if(y < ymin) {
                 ymin = y;
             }
         }
-        return new Bound(xmin,ymin,xmax-xmin , ymax-ymin);
+        return new Bound(xmin, ymin, xmax-xmin, ymax-ymin);
     }
 
     /**
-     * 将多边形旋转一定角度后，返回旋转后多边形的边界
+     * Ruota il poligono (NestPath) dell'angolo passato
      * @param polygon
      * @param angle
      * @return
      */
-    public static Bound rotatePolygon (NestPath polygon ,int angle){
+    public static Bound rotatePolygon(NestPath polygon ,int angle) {
         if(angle == 0 ){
             return getPolygonBounds(polygon);
         }
@@ -210,7 +210,7 @@ public class GeometryUtil {
     }
 
     /**
-     * 将多边形旋转一定角度后，返回该旋转后的多边形
+     * å°†å¤šè¾¹å½¢æ—‹è½¬ä¸€å®šè§’åº¦å�Žï¼Œè¿”å›žè¯¥æ—‹è½¬å�Žçš„å¤šè¾¹å½¢
      * @param polygon
      * @param degrees
      * @return
@@ -238,7 +238,7 @@ public class GeometryUtil {
     }
 
     /**
-     * 判断是否是矩形
+     * åˆ¤æ–­æ˜¯å�¦æ˜¯çŸ©å½¢
      * @param poly
      * @param tolerance
      * @return
@@ -256,7 +256,7 @@ public class GeometryUtil {
     }
 
     /**
-     * 构建NFP
+     * æž„å»ºNFP
      * @param A
      * @param B
      * @param inside
@@ -1103,7 +1103,7 @@ public class GeometryUtil {
     }
 
     /**
-     * 专门为环绕矩形生成的nfp
+     * ä¸“é—¨ä¸ºçŽ¯ç»•çŸ©å½¢ç”Ÿæˆ�çš„nfp
      * @param A
      * @param B
      * @return
