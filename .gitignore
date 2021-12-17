@@ -23,3 +23,7 @@ dist/
 nbdist/
 .nb-gradle/
 /bin/
+output/nfp.txt
+output/nfpL0003.txt
+/output/nfp.txt
+/output/nfpL0003.txt

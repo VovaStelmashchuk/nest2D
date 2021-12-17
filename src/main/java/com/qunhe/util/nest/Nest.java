@@ -8,6 +8,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Observer;
+
+import org.uncommons.watchmaker.framework.PopulationData;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -156,13 +159,29 @@ public class Nest {
                     log(e);
                 }
             }
+            //
+            // comunica agli observer che il result 
+            notifyObserver(appliedPlacement);
+            //
         }
         //appliedPlacement = applyPlacement(best,tree);
         return appliedPlacement;
     }
 
+    // observable /observe pattern
+    public interface ListPlacementObserver{
+    	void populationUpdate(List<List<Placement>> appliedPlacement);
+    }
     
-    public double computeUseRate(Result best, List<NestPath> tree){
+    public List<ListPlacementObserver>  observers = new ArrayList<>();
+    
+    public void notifyObserver(List<List<Placement>> appliedPlacement) {
+		for(ListPlacementObserver lo: observers) {
+			lo.populationUpdate(appliedPlacement);
+		}
+	}
+
+	public double computeUseRate(Result best, List<NestPath> tree){
         //Log new result
         double sumarea = 0;
         double totalarea = Config.BIN_HEIGHT*best.fitness;

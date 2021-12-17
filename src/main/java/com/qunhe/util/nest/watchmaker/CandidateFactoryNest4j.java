@@ -53,15 +53,14 @@ class CandidateFactoryNest4j implements CandidateFactory<Individual> {
 	
 	@Override
 	public List<Individual> generateInitialPopulation(int populationSize, Collection<Individual> seedCandidates, Random rng) {
-		// TODO Auto-generated method stub
-		return null;
+		// per ora ignoro i seed candidate
+		return generateInitialPopulation(populationSize, rng);
 	}
 
 	
 	@Override
 	public Individual generateRandomCandidate(Random rng) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("not implemented");
 	}
 
 	
@@ -74,7 +73,7 @@ class CandidateFactoryNest4j implements CandidateFactory<Individual> {
 		// generazione numero di poligoni (NestPath) nello stesso indivuduo (Individual)
 		Random r = new Random();
 		int switchRng = r.nextInt(casualNum(1, 5));	// range 0-4
-		int angolo = (int) (Math.random() * (73 - 0 + 1) + 0);	// 360°/72 = 5°, rotazione minima di 5°, range 0-72 (se 0 -> non viene ruotato)
+		int angolo = (int) (Math.random() * (73 - 0 + 1) + 0);	// 360ï¿½/72 = 5ï¿½, rotazione minima di 5ï¿½, range 0-72 (se 0 -> non viene ruotato)
 		
 		switch (switchRng) {
 		case 0:		// triangolo

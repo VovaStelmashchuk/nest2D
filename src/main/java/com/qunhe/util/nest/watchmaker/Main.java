@@ -4,9 +4,12 @@ import java.util.List;
 import java.util.Random;
 
 import org.uncommons.watchmaker.framework.EvolutionEngine;
+import org.uncommons.watchmaker.framework.EvolutionObserver;
 import org.uncommons.watchmaker.framework.GenerationalEvolutionEngine;
+import org.uncommons.watchmaker.framework.PopulationData;
 import org.uncommons.watchmaker.framework.SelectionStrategy;
 import org.uncommons.watchmaker.framework.selection.RankSelection;
+import org.uncommons.watchmaker.framework.termination.GenerationCount;
 
 import com.qunhe.util.nest.algorithm.Individual;
 
@@ -39,7 +42,17 @@ public class Main {
 		
 		EvolutionEngine<Individual> engine = new GenerationalEvolutionEngine<>(candidateFactory, mutation, fitnessEvaluator, selectionStrategy, rng);
 		
+		engine.addEvolutionObserver(new EvolutionObserver() {
+			@Override
+			public void populationUpdate(PopulationData data) {
+				// qui potresi mandare 
+				System.out.println("**** " + data.getBestCandidateFitness());
+			}			
+		});
+		
+		engine.addEvolutionObserver(new org.uncommons.watchmaker.swing.evolutionmonitor.EvolutionMonitor<Individual>());
 
+		engine.evolve(10, 1, new GenerationCount(10));
 	}
 
 }
