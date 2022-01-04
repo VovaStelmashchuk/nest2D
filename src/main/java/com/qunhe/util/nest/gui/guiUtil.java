@@ -41,7 +41,9 @@ class guiUtil {
 	 static List<NestPath> transferSvgIntoPolygons() throws DocumentException {
 	        List<NestPath> nestPaths = new ArrayList<>();
 	        SAXReader reader = new SAXReader();
-	        Document document = reader.read("input/test.xml");
+//	        Document document = reader.read("input/test.xml");
+	        Document document = reader.read("input/simple.xml");
+
 	        List<Element> elementList = document.getRootElement().elements();
 	        int count = 0;
 	        for (Element element : elementList) {

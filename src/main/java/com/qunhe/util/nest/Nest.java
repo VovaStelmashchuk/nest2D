@@ -158,11 +158,15 @@ public class Nest {
                 }catch (Exception e){
                     log(e);
                 }
+                
+                //
+                // comunica agli observer che il result 
+                // spostato dentro l'if
+                notifyObserver(appliedPlacement);
+                //
+                
             }
-            //
-            // comunica agli observer che il result 
-            notifyObserver(appliedPlacement);
-            //
+            
         }
         //appliedPlacement = applyPlacement(best,tree);
         return appliedPlacement;
