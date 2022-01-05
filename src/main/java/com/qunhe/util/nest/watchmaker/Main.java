@@ -13,7 +13,9 @@ import org.uncommons.watchmaker.framework.PopulationData;
 import org.uncommons.watchmaker.framework.SelectionStrategy;
 import org.uncommons.watchmaker.framework.selection.RankSelection;
 import org.uncommons.watchmaker.framework.termination.GenerationCount;
+
 import org.uncommons.watchmaker.*;
+
 
 import com.qunhe.util.nest.algorithm.Individual;
 import com.qunhe.util.nest.config.Config;
@@ -47,6 +49,7 @@ public class Main {
 		SelectionStrategy<? super Individual> selectionStrategy = new RankSelection();
 		
 		
+
 		// TARGET
 //		private static final int NUMBER_GENERATIONS = 20;
 //		// Target = numero di generazioni
@@ -64,6 +67,17 @@ public class Main {
 //		});
 //		
 //		engine.addEvolutionObserver(new org.uncommons.watchmaker.swing.evolutionmonitor.EvolutionMonitor<Individual>());
+		engine.addEvolutionObserver(new EvolutionObserver() {
+			@Override
+			public void populationUpdate(PopulationData data) {
+				// qui potresi mandare 
+				System.out.println("**** " + data.getBestCandidateFitness());
+			}			
+		});
+		
+		engine.addEvolutionObserver(new org.uncommons.watchmaker.swing.evolutionmonitor.EvolutionMonitor<Individual>());
+
+
 
 		//engine.evolve(10, 1, new GenerationCount(10));
 			
@@ -93,6 +107,9 @@ public class Main {
 		for(Individual elem: individui) {
 			judger.getFitness(elem, individui);
 		}
+
+		//engine.evolve(10, 1, new GenerationCount(10));
+
 	}
 
 }

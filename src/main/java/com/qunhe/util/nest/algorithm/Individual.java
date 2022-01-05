@@ -70,13 +70,7 @@ public class Individual  implements Comparable<Individual> {
 
     @Override
     public int compareTo(Individual o) {
-        if(fitness > o.fitness){
-            return 1;
-        }
-        else if(fitness == o.fitness){
-            return 0 ;
-        }
-        return -1;
+        return Double.compare(fitness,o.fitness);
     }
 
 
