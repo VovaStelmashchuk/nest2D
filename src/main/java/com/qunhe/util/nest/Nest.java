@@ -174,6 +174,8 @@ public class Nest {
         }
         return (sumarea/totalarea)*100;
     }
+    
+    
     /**
      *  ÃƒÂ¤Ã‚Â¸Ã¢â€šÂ¬ÃƒÂ¦Ã‚Â¬Ã‚Â¡ÃƒÂ¨Ã‚Â¿Ã‚Â­ÃƒÂ¤Ã‚Â»Ã‚Â£ÃƒÂ¨Ã‚Â®Ã‚Â¡ÃƒÂ§Ã‚Â®Ã¢â‚¬â€�
      * @param tree  ÃƒÂ¥Ã‚ÂºÃ¢â‚¬Â¢ÃƒÂ¦Ã¯Â¿Â½Ã‚Â¿
@@ -181,7 +183,6 @@ public class Nest {
      * @param config    ÃƒÂ¨Ã‚Â®Ã‚Â¾ÃƒÂ§Ã‚Â½Ã‚Â®
      * @return
      */
-    
     public Result launchWorkers(List<NestPath> tree ,NestPath binPolygon ,Config config ){
         launchcount++;
         if(Config.IS_DEBUG) {
@@ -286,7 +287,7 @@ public class Nest {
 
         debug("Launching placement worker...");
         // Here place parts according to the sequence specified by the individual
-        Placementworker worker = new Placementworker(binPolygon,config,nfpCache);
+        Placementworker worker = new Placementworker(binPolygon,config,nfpCache);	// -------->	serve per assegnare un valore di fitness, sfruttando Placementworker
         List<NestPath> placeListSlice = new ArrayList<>();
 
         for(int i = 0; i< placelist.size() ; i++){
@@ -307,7 +308,7 @@ public class Nest {
         Result bestResult = results.get(0);
         for(int i = 1; i <results.size() ; i++) {
             if (results.get(i).fitness < bestResult.fitness) {
-                bestResult = results.get(i);
+                bestResult = results.get(i);					// viene preso il valore di fitness più basso come miglior fitness
             }
         }
         debug("launchWorkers(): current best fitness = "+bestResult.fitness);

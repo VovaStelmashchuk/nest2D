@@ -30,7 +30,7 @@ public class Individual  implements Comparable<Individual> {
 
 
     public Individual() {
-    	fitness = -1;
+    	fitness = -1;	// valore standard della fitness
         placement = new ArrayList<>();
         rotation = new ArrayList<>();
     }

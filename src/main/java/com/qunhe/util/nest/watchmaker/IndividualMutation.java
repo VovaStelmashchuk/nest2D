@@ -22,8 +22,9 @@ public class IndividualMutation implements EvolutionaryOperator<Individual> {
 		
 		Config config = new Config();
 		NestPath bin = new CandidateFactoryNest4j().getRandomNestPath(1);	// generazione random di un NestPath
-//		System.out.println("BIN = "+bin.toString());
+//		System.out.println("BIN = " + bin.toString());
 		 
+		
 		List<NestPath> tree = CommonUtil.BuildTree(indivList.get(0).getPlacement(), Config.CURVE_TOLERANCE);
 		CommonUtil.offsetTree(tree, 0.5 * config.SPACING);
 
@@ -31,13 +32,15 @@ public class IndividualMutation implements EvolutionaryOperator<Individual> {
 		for(NestPath np : tree) {
 			adam.add(np);
 		}
-		Collections.sort(adam);
+		
 		
 		// MUTATION
 		GeneticAlgorithm ga = new GeneticAlgorithm(adam, bin, new Config());	// Creazione di 10 individui mutando il primo individuo (adam)
-			
+		
+		
 		// CROSSOVER
-		ga.generation();	// generazione dei figli
+		ga.generation();	// generazione dei figli - PERò MI PRENDE SEMPRE E SOLO IL PRIMO, perchè, dato che vengono ordinati (sort) verrrà sempre selezionato l'individuo avente AREA MINORE, quindi il "the best fit"
+		
 		
 		return ga.population;	// verranno restituiti sempre 10 individui (POPULATION_SIZE = 10 by default)
 	}
