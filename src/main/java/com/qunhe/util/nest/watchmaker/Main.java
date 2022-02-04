@@ -16,7 +16,7 @@ import org.uncommons.watchmaker.framework.termination.GenerationCount;
 
 import org.uncommons.watchmaker.*;
 
-
+import com.qunhe.util.nest.Nest;
 import com.qunhe.util.nest.algorithm.Individual;
 import com.qunhe.util.nest.config.Config;
 import com.qunhe.util.nest.data.NestPath;
@@ -27,7 +27,7 @@ import com.qunhe.util.nest.util.Placementworker;
 public class Main {
 
 	public static void main(String[] args) {
-		
+		//
 		CandidateFactoryNest4j candidateFactory = new CandidateFactoryNest4j();
 		IndividualMutation mutation = new IndividualMutation();
 		

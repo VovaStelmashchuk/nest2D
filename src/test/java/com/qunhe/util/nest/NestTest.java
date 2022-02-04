@@ -13,9 +13,12 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.junit.Test;
 
+import com.qunhe.util.nest.Nest.ListPlacementObserver;
+import com.qunhe.util.nest.Nest.ResultObserver;
 import com.qunhe.util.nest.config.Config;
 import com.qunhe.util.nest.data.NestPath;
 import com.qunhe.util.nest.data.Placement;
+import com.qunhe.util.nest.data.Result;
 import com.qunhe.util.nest.util.SvgUtil;
 
 
@@ -87,6 +90,18 @@ public class NestTest {
         saveSvgFile(strings,Config.OUTPUT_DIR+"problem.html");
         // find solution
         nest = new Nest(bin, polygons, config, 10);
+        nest.observers.add(new ListPlacementObserver() {			
+			@Override
+			public void populationUpdate(List<List<Placement>> appliedPlacement) {
+				System.out.println(" new placement");				
+			}
+		});  
+        nest.resultobservers.add(new ResultObserver() {
+			@Override
+			public void muationStepDone(Result result) {
+				System.out.println("fitness " + result.fitness + " area " + result.area);
+			}
+		});        
         appliedPlacement = nest.startNest();
         strings = SvgUtil.svgGenerator(polygons, appliedPlacement, binWidth, binHeight);
         saveSvgFile(strings,Config.OUTPUT_DIR+"solution.html");

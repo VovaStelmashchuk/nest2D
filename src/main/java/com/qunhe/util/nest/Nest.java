@@ -163,10 +163,9 @@ public class Nest {
                 // comunica agli observer che il result 
                 // spostato dentro l'if
                 notifyObserver(appliedPlacement);
-                //
-                
+                //                
             }
-            
+            notifyObserver(result);
         }
         //appliedPlacement = applyPlacement(best,tree);
         return appliedPlacement;
@@ -176,12 +175,24 @@ public class Nest {
     public interface ListPlacementObserver{
     	void populationUpdate(List<List<Placement>> appliedPlacement);
     }
+
+    public interface ResultObserver{
+    	void muationStepDone(Result result);
+    }
     
     public List<ListPlacementObserver>  observers = new ArrayList<>();
-    
+
+    public List<ResultObserver>  resultobservers = new ArrayList<>();
+
     public void notifyObserver(List<List<Placement>> appliedPlacement) {
 		for(ListPlacementObserver lo: observers) {
 			lo.populationUpdate(appliedPlacement);
+		}
+	}
+
+    public void notifyObserver(Result result) {
+		for(ResultObserver lo: resultobservers) {
+			lo.muationStepDone(result);
 		}
 	}
 
