@@ -85,6 +85,7 @@ public class NestTest {
         config.SPACING = 0;
         config.POPULATION_SIZE = 6;
         Nest nest = new Nest(bin, polygons, config, 1);
+        
         List<List<Placement>> appliedPlacement = nest.startNest();
         List<String> strings = SvgUtil.svgGenerator(polygons, appliedPlacement, binWidth, binHeight);
         saveSvgFile(strings,Config.OUTPUT_DIR+"problem.html");

@@ -46,13 +46,11 @@ public class Nest {
     private static Gson gson = new GsonBuilder().create();
     private int launchcount =0;
 
-    /**
-     *  ÃƒÂ¥Ã‹â€ Ã¢â‚¬ÂºÃƒÂ¥Ã‚Â»Ã‚ÂºÃƒÂ¤Ã‚Â¸Ã¢â€šÂ¬ÃƒÂ¤Ã‚Â¸Ã‚ÂªÃƒÂ¦Ã¢â‚¬â€œÃ‚Â°ÃƒÂ§Ã…Â¡Ã¢â‚¬Å¾NestÃƒÂ¥Ã‚Â¯Ã‚Â¹ÃƒÂ¨Ã‚Â±Ã‚Â¡
-     * @param binPath   ÃƒÂ¥Ã‚ÂºÃ¢â‚¬Â¢ÃƒÂ¦Ã¯Â¿Â½Ã‚Â¿ÃƒÂ¥Ã‚Â¤Ã…Â¡ÃƒÂ¨Ã‚Â¾Ã‚Â¹ÃƒÂ¥Ã‚Â½Ã‚Â¢
-     * @param parts     ÃƒÂ¦Ã¯Â¿Â½Ã‚Â¿ÃƒÂ¤Ã‚Â»Ã‚Â¶ÃƒÂ¥Ã‚Â¤Ã…Â¡ÃƒÂ¨Ã‚Â¾Ã‚Â¹ÃƒÂ¥Ã‚Â½Ã‚Â¢ÃƒÂ¥Ã‹â€ Ã¢â‚¬â€�ÃƒÂ¨Ã‚Â¡Ã‚Â¨
-     * @param config    ÃƒÂ¥Ã¯Â¿Â½Ã¢â‚¬Å¡ÃƒÂ¦Ã¢â‚¬Â¢Ã‚Â°ÃƒÂ¨Ã‚Â®Ã‚Â¾ÃƒÂ§Ã‚Â½Ã‚Â®
-     * @param count     ÃƒÂ¨Ã‚Â¿Ã‚Â­ÃƒÂ¤Ã‚Â»Ã‚Â£ÃƒÂ¨Ã‚Â®Ã‚Â¡ÃƒÂ§Ã‚Â®Ã¢â‚¬â€�ÃƒÂ¦Ã‚Â¬Ã‚Â¡ÃƒÂ¦Ã¢â‚¬Â¢Ã‚Â°
-     */
+    /**Create a new Nest object
+    * @param binPath base polygon
+    * @param parts list of plate polygons
+    * @param config parameter settings
+    * @param count The number of iterations to calculate*/
     public Nest(NestPath binPath, List<NestPath> parts, Config config, int count) {
         this.binPath = binPath;
         this.parts = parts;
@@ -62,7 +60,7 @@ public class Nest {
     }
 
     /**
-     *  ÃƒÂ¥Ã‚Â¼Ã¢â€šÂ¬ÃƒÂ¥Ã‚Â§Ã¢â‚¬Â¹ÃƒÂ¨Ã‚Â¿Ã¢â‚¬ÂºÃƒÂ¨Ã‚Â¡Ã…â€™NestÃƒÂ¨Ã‚Â®Ã‚Â¡ÃƒÂ§Ã‚Â®Ã¢â‚¬â€�
+     * Start the Nest calculation 
      * @return
      */
     public  List<List<Placement>> startNest(){
@@ -125,7 +123,7 @@ public class Nest {
             binPolygon.reverse();
         }
         /**
-         * ÃƒÂ§Ã‚Â¡Ã‚Â®ÃƒÂ¤Ã‚Â¿Ã¯Â¿Â½ÃƒÂ¤Ã‚Â¸Ã‚ÂºÃƒÂ©Ã¢â€šÂ¬Ã¢â‚¬Â ÃƒÂ¦Ã¢â‚¬â€�Ã‚Â¶ÃƒÂ©Ã¢â‚¬â„¢Ã‹â€  TODO why?
+         * Make sure it's counterclockwise TODO why?
          */
         for (NestPath element : tree) {
             Segment start = element.get(0);
