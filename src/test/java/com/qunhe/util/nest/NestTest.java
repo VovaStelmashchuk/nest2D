@@ -90,7 +90,7 @@ public class NestTest {
         List<String> strings = SvgUtil.svgGenerator(polygons, appliedPlacement, binWidth, binHeight);
         saveSvgFile(strings,Config.OUTPUT_DIR+"problem.html");
         // find solution
-        nest = new Nest(bin, polygons, config, 10);
+        nest = new Nest(bin, polygons, config, 20);
         nest.observers.add(new ListPlacementObserver() {			
 			@Override
 			public void populationUpdate(List<List<Placement>> appliedPlacement) {
