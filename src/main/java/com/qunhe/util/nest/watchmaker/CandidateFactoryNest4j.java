@@ -34,19 +34,25 @@ class CandidateFactoryNest4j implements CandidateFactory<Individual> {
 	public List<Individual> generateInitialPopulation(int populationSize, Random rng) {
 		// popolazione iniziale (Individual) di poligoni (NestPath)
 		List<Individual> individiualsList = new ArrayList<Individual>();
-		Individual individual = new Individual();
-		NestPath np = new NestPath();
-		int numPoly = rng.nextInt(casualNum(MIN_NUM_CANDIDATE, MAX_NUM_CANDIDATE)) + 8;
 		
-		for (int i = 0; i < numPoly; i++) {
-			np = generatePoly(i + 1);
-			individual.getPlacement().add(np);
+		//CREO PIU INDIVIDUI
+		
+		for(int z=0 ; z<populationSize ; z++) {				//AGGIUNTO SOLO IL FOR
+			Individual individual = new Individual();
+			NestPath np = new NestPath();
+			int numPoly = rng.nextInt(casualNum(MIN_NUM_CANDIDATE, MAX_NUM_CANDIDATE)) + 8;
+			
+			for (int i = 0; i < numPoly; i++) {
+				np = generatePoly(i + 1);
+				individual.getPlacement().add(np);
+			}
+			
+			System.out.println("Sono stati generati " + numPoly + " poligoni\n");
+//			individual.showNestPaths();
+			
+			individiualsList.add(individual);
 		}
-		
-		System.out.println("Sono stati generati " + numPoly + " poligoni\n");
-//		individual.showNestPaths();
-		
-		individiualsList.add(individual);
+	
 		return individiualsList;
 	}
 

@@ -26,7 +26,7 @@ public class GeneticAlgorithm {
         this.adam = adam;
         this.bin = bin;
         this.config = config;
-        this.binBounds = GeometryUtil.getPolygonBounds(bin);
+        this.binBounds = GeometryUtil.getPolygonBounds(bin);	// estremi della superficie (binPath) su cui si dispongono i poligoni
         population = new ArrayList<>();
         init();
     }
@@ -35,7 +35,7 @@ public class GeneticAlgorithm {
     private void init(){
         angles = new ArrayList<>();
         for(int i = 0 ; i< adam.size(); i ++) {
-            int angle = randomAngle(adam.get(i));	// nel mio caso, alla creazione del NestPath viene generato solo 1 angolo
+            int angle = randomAngle(adam.get(i));	// assegnazione di un angolo di rotazione casuale
             angles.add(angle);						// nel mio caso verrà quindi aggiunto solo un angolo
         }
         population.add(new Individual(adam , angles));
