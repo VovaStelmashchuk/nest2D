@@ -242,7 +242,8 @@ public class Placementworker {
                 }
             }
             if (minwidth != Double.MAX_VALUE) {
-                fitness += minwidth ;/// binarea;
+                //fitness += minwidth ;/// binarea;
+            	fitness = minwidth;
             }
 
 
@@ -262,7 +263,7 @@ public class Placementworker {
 
         }// End of while(paths.size>0)
         // there were paths that couldn't be placed
-        fitness += Config.BIN_WIDTH * paths.size();			// la fitness corrisponde a 
+        //fitness += Config.BIN_WIDTH * paths.size();		removed because	path.size() is always 0
         return new Result(allplacements, fitness, paths, binarea);
     }
 

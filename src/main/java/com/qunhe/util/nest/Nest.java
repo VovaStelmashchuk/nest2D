@@ -125,7 +125,7 @@ public class Nest {
 			binPolygon.reverse();
 		}
 		/**
-		 * Make sure it's counterclockwise TODO why?
+		 * Make sure it's counterclockwise(antiorario) TODO why?
 		 */
 		for (NestPath element : tree) {
 			Segment start = element.get(0);
