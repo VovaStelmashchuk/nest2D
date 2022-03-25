@@ -47,6 +47,7 @@ import java.awt.Dimension;
 import javax.swing.JPanel;
 
 import de.lighti.clipper.Path;
+import de.lighti.clipper.Clipper.ClipType;
 import de.lighti.clipper.Point.LongPoint;
 import de.lighti.clipper.gui.PolygonCanvas;
 import de.lighti.clipper.gui.StatusBar;
@@ -126,6 +127,7 @@ class gui {
 				Nest nest = null;
 				List<List<Placement>> appliedPlacement = null;
 				
+				
 				//inputpolygoncanvas.generateRandomPolygon();
 
 				try {
@@ -139,6 +141,7 @@ class gui {
 					for (NestPath p: polygons)
 					{
 						Polygon2D newp = p.toPolygon2D();
+												
 						final Path clip = new Path( newp.npoints );
 						
 						for (int i = 0; i < newp.npoints; ++i) {
@@ -170,6 +173,9 @@ class gui {
 				// config.IS_DEBUG=false;
 				config.SPACING = 0;
 				config.POPULATION_SIZE = 60;
+				config.BIN_HEIGHT=binHeight;
+				config.BIN_WIDTH=binWidth;
+				
 				nest = new Nest(bin, polygons, config, 10);
 				// aggiungi un observer per osservare il cambiamento ad ogni passo
 				nest.observers.add(new ListPlacementObserver() {					

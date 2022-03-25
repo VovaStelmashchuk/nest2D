@@ -37,6 +37,7 @@ import com.qunhe.util.nest.util.Placementworker;
  * @author yisa
  */
 public class Nest {
+
     private  NestPath binPath;
     private  List<NestPath> parts;
     private Config config;
@@ -46,24 +47,29 @@ public class Nest {
     private static Gson gson = new GsonBuilder().create();
     private int launchcount =0;
 
-    /**Create a new Nest object
-    * @param binPath base polygon
-    * @param parts list of plate polygons
-    * @param config parameter settings
-    * @param count The number of iterations to calculate*/
-    public Nest(NestPath binPath, List<NestPath> parts, Config config, int count) {
-        this.binPath = binPath;
-        this.parts = parts;
-        this.config = config;
-        this.loopCount = count;
-        nfpCache = new HashMap<>();
-    }
+
+	/**
+	 * Create a new Nest object
+	 * @param binPath base polygon
+	 * @param parts   list of plate polygons
+	 * @param config  parameter settings
+	 * @param count   The number of iterations to calculate
+	 */
+	public Nest(NestPath binPath, List<NestPath> parts, Config config, int count) {
+		this.binPath = binPath;
+		this.parts = parts;
+		this.config = config;
+		this.loopCount = count;
+		nfpCache = new HashMap<>();
+	}
+
 
     /**
      * Start the Nest calculation 
      * @return the placements' list of all NestPath
      */
     public  List<List<Placement>> startNest(){
+
 
     	/*---------------------------------------------------PRELIMINARY SETTINGS----------------------------------------------------------------*/
         
@@ -179,27 +185,28 @@ public class Nest {
         return appliedPlacement;
     }
 
-    // observable /observe pattern
-    public interface ListPlacementObserver{
-    	void populationUpdate(List<List<Placement>> appliedPlacement);
-    }
 
-    public interface ResultObserver{
-    	void muationStepDone(Result result);
-    }
-    
-    public List<ListPlacementObserver>  observers = new ArrayList<>();
+	// observable /observe pattern
+	public interface ListPlacementObserver {
+		void populationUpdate(List<List<Placement>> appliedPlacement);
+	}
 
-    public List<ResultObserver>  resultobservers = new ArrayList<>();
+	public interface ResultObserver {
+		void muationStepDone(Result result);
+	}
 
-    public void notifyObserver(List<List<Placement>> appliedPlacement) {
-		for(ListPlacementObserver lo: observers) {
+	public List<ListPlacementObserver> observers = new ArrayList<>();
+
+	public List<ResultObserver> resultobservers = new ArrayList<>();
+
+	public void notifyObserver(List<List<Placement>> appliedPlacement) {
+		for (ListPlacementObserver lo : observers) {
 			lo.populationUpdate(appliedPlacement);
 		}
 	}
 
-    public void notifyObserver(Result result) {
-		for(ResultObserver lo: resultobservers) {
+	public void notifyObserver(Result result) {
+		for (ResultObserver lo : resultobservers) {
 			lo.muationStepDone(result);
 		}
 	}
@@ -247,17 +254,18 @@ public class Nest {
             GA = new GeneticAlgorithm(adam , binPolygon  , config);
         }
 
-        Individual individual = null;
-        for (Individual element : GA.population) {
-            if( element.getFitness() <  0 ){
-                individual = element;
-                break;
-            }
-        }
+		Individual individual = null;
+		for (Individual element : GA.population) {
+			if (element.getFitness() < 0) {
+				individual = element;
+				break;
+			}
+		}
 //        if(individual == null ){
 //            GA.generation();
 //            individual = GA.population.get(1);
 //        }
+
         
         
         /*-----------------------------------GENERAZIONE DI FIGLI A PARTIRE DALLA POPOLAZIONE DI INDIVIDUI INIZIALE------------------------------------------*/
@@ -270,9 +278,11 @@ public class Nest {
             log("launchWorkers(): GA: individual ready.");
         }
 
+
         // Now we got a set of candidates
         List<NestPath> placelist = individual.getPlacement();
         List<Integer> rotations = individual.getRotation();
+
 
         List<Integer> ids = new ArrayList<>();	//Vengono assegnati i vari identificativi dei poligoni
         for(int i = 0 ; i < placelist.size(); i ++){
@@ -308,9 +318,11 @@ public class Nest {
             }
         }
 
-        if(Config.IS_DEBUG) {
-            log("launchWorkers(): Generating nfp...nb of nfp pairs = "+nfpPairs.size());
-        }
+
+		if (Config.IS_DEBUG) {
+			log("launchWorkers(): Generating nfp...nb of nfp pairs = " + nfpPairs.size());
+		}
+
 
         /**
          * ÃƒÂ§Ã‚Â¬Ã‚Â¬ÃƒÂ¤Ã‚Â¸Ã¢â€šÂ¬ÃƒÂ¦Ã‚Â¬Ã‚Â¡nfpCacheÃƒÂ¤Ã‚Â¸Ã‚ÂºÃƒÂ§Ã‚Â©Ã‚Âº ÃƒÂ¯Ã‚Â¼Ã…â€™nfpCacheÃƒÂ¥Ã‚Â­Ã‹Å“ÃƒÂ§Ã…Â¡Ã¢â‚¬Å¾ÃƒÂ¦Ã‹Å“Ã‚Â¯nfpKeyÃƒÂ¦Ã¢â‚
@@ -337,8 +349,7 @@ public class Nest {
         log("Saving nfpCache.");
         String lotId = InputConfig.INPUT == null ? "" : InputConfig.INPUT.get(0).lotId;
         IOUtils.saveNfpCache(nfpCache, Config.OUTPUT_DIR+"nfp"+ lotId+".txt");
-
-        
+  
         
         /*----------------------------------------------------ASSEGNAZIONE VALORE DELLA FITNESS------------------------------------------------------------------------*/
         debug("Launching placement worker...");
@@ -346,30 +357,32 @@ public class Nest {
         Placementworker worker = new Placementworker(binPolygon,config,nfpCache);	// -------->	serve per assegnare un valore di fitness, sfruttando Placementworker
         List<NestPath> placeListSlice = new ArrayList<>();
 
-        for(int i = 0; i< placelist.size() ; i++){
-            placeListSlice.add( new NestPath(placelist.get(i)));
-        }
-        // Some simplification:
-        //List<List<NestPath>> data = new ArrayList<List<NestPath>>();
-        //data.add(placeListSlice);
-        List<Result> results = new ArrayList<>();
-        //for(int i = 0 ;i <data.size() ; i++){
-        Result result = worker.placePaths(placeListSlice);//data.get(i)
-        results.add(result);
-        //}
-        if(results.size() == 0){
-            return null;
-        }
-        individual.setFitness(results.get(0).fitness);
-        Result bestResult = results.get(0);
-        for(int i = 1; i <results.size() ; i++) {
-            if (results.get(i).fitness < bestResult.fitness) {
-                bestResult = results.get(i);					// viene preso il valore di fitness più basso come miglior fitness
-            }
-        }
-        debug("launchWorkers(): current best fitness = "+bestResult.fitness);
-        return bestResult;
-    }
+
+		for (int i = 0; i < placelist.size(); i++) {
+			placeListSlice.add(new NestPath(placelist.get(i)));
+		}
+		// Some simplification:
+		// List<List<NestPath>> data = new ArrayList<List<NestPath>>();
+		// data.add(placeListSlice);
+		List<Result> results = new ArrayList<>();
+		// for(int i = 0 ;i <data.size() ; i++){
+		Result result = worker.placePaths(placeListSlice);// data.get(i)
+		results.add(result);
+		// }
+		if (results.size() == 0) {
+			return null;
+		}
+		individual.setFitness(results.get(0).fitness);
+		Result bestResult = results.get(0);
+		for (int i = 1; i < results.size(); i++) {
+			if (results.get(i).fitness < bestResult.fitness) {
+				bestResult = results.get(i); // viene preso il valore di fitness più basso come miglior fitness
+			}
+		}
+		debug("launchWorkers(): current best fitness = " + bestResult.fitness);
+		return bestResult;
+	}
+
 
     /**
      *  ÃƒÂ©Ã¢â€šÂ¬Ã…Â¡ÃƒÂ¨Ã‚Â¿Ã¢â‚¬Â¡idÃƒÂ¤Ã‚Â¸Ã…Â½bidÃƒÂ¥Ã‚Â°Ã¢â‚¬Â translateÃƒÂ¥Ã¢â‚¬â„¢Ã…â€™rotateÃƒÂ§Ã‚Â»Ã¢â‚¬ËœÃƒÂ¥Ã‚Â®Ã…Â¡ÃƒÂ¥Ã‹â€ Ã‚Â°ÃƒÂ¥Ã‚Â¯Ã‚Â¹ÃƒÂ¥Ã‚ÂºÃ¢â‚
@@ -398,65 +411,63 @@ public class Nest {
     }
 
 
-    /**
-     * ÃƒÂ¥Ã…â€œÃ‚Â¨ÃƒÂ©Ã¯Â¿Â½Ã¢â‚¬â€�ÃƒÂ¤Ã‚Â¼Ã‚Â ÃƒÂ§Ã‚Â®Ã¢â‚¬â€�ÃƒÂ¦Ã‚Â³Ã¢â‚¬Â¢ÃƒÂ¤Ã‚Â¸Ã‚Â­ÃƒÂ¦Ã‚Â¯Ã¯Â¿Â½ÃƒÂ¦Ã‚Â¬Ã‚Â¡ÃƒÂ§Ã‚ÂªÃ¯Â¿Â½ÃƒÂ¥Ã¯Â¿Â½Ã‹Å“ÃƒÂ¦Ã‹â€ Ã¢â‚¬â€œÃƒÂ¨Ã¢â€šÂ¬Ã¢â‚¬Â¦ÃƒÂ¦Ã‹Å“Ã‚Â¯ÃƒÂ¤Ã‚ÂºÃ‚Â¤ÃƒÂ©Ã¢â‚¬Â¦Ã¯Â¿Â½ÃƒÂ¤Ã‚ÂºÃ‚Â§ÃƒÂ§Ã¢â‚¬ï¿½Ã…Â¸ÃƒÂ¥Ã¢â‚¬Â¡Ã‚ÂºÃƒÂ¦Ã¢â‚¬â€œÃ‚Â°ÃƒÂ§Ã…Â¡Ã¢â‚¬Å¾ÃƒÂ§Ã‚Â§Ã¯Â¿Â½ÃƒÂ§Ã‚Â¾Ã‚Â¤ÃƒÂ¦Ã¢â‚¬â€�Ã‚Â¶ÃƒÂ¯Ã‚Â¼Ã…â€™ÃƒÂ¥Ã¯Â¿Â½Ã‚Â¯ÃƒÂ¨Ã†â€™Ã‚Â½ÃƒÂ¤Ã‚Â¼Ã…Â¡ÃƒÂ¥Ã¢â‚¬Â¡Ã‚ÂºÃƒÂ§Ã…Â½Ã‚Â°ÃƒÂ¦Ã¯Â¿Â½Ã‚Â¿ÃƒÂ¤Ã‚Â»Ã‚Â¶ÃƒÂ¤Ã‚Â¸Ã…Â½ÃƒÂ¦Ã¢â‚¬â€�Ã¢â‚¬Â¹ÃƒÂ¨Ã‚Â½Ã‚Â¬ÃƒÂ¨Ã‚Â§Ã¢â‚¬â„¢ÃƒÂ¥Ã‚ÂºÃ‚Â¦ÃƒÂ¤Ã‚Â¸Ã¯Â¿Â½ÃƒÂ©Ã¢â€šÂ¬Ã¢â‚¬Å¡ÃƒÂ©Ã¢â‚¬Â¦Ã¯Â¿Â½ÃƒÂ§Ã…Â¡Ã¢â‚¬Å¾ÃƒÂ§Ã‚Â»Ã¢â‚¬Å“ÃƒÂ¦Ã…Â¾Ã…â€œÃƒÂ¯Ã‚Â¼Ã…â€™ÃƒÂ©Ã…â€œÃ¢â€šÂ¬ÃƒÂ¨Ã‚Â¦Ã¯Â¿Â½ÃƒÂ©Ã¢â‚¬Â¡Ã¯Â¿Â½ÃƒÂ¦Ã¢â‚¬â€œÃ‚Â°ÃƒÂ¦Ã‚Â£Ã¢â€šÂ¬ÃƒÂ¦Ã…Â¸Ã‚Â¥ÃƒÂ¥Ã‚Â¹Ã‚Â¶ÃƒÂ©Ã¢â€šÂ¬Ã¢â‚¬Å¡ÃƒÂ©Ã¢â‚¬Â¦Ã¯Â¿Â½ÃƒÂ£Ã¢â€šÂ¬Ã¢â‚¬Å¡
-     * @param binPolygon
-     * @param tree
-     * @return
-     */
-    private static List<Integer>  checkIfCanBePlaced(NestPath binPolygon , List<NestPath> tree ){
-        List<Integer> CanBePlacdPolygonIndex = new ArrayList<>();
-        Bound binBound = GeometryUtil.getPolygonBounds(binPolygon);
-        for(int i = 0; i <tree.size() ; i++ ){
-            NestPath nestPath = tree.get(i);
-            if(nestPath.getRotation() == 0 ){
-                Bound bound = GeometryUtil.getPolygonBounds(nestPath);
-                if(bound.width < binBound.width && bound.height < binBound.height ){
-                    CanBePlacdPolygonIndex.add(i);
-                    continue;
-                }
-            }
-            else{
-                for(int j = 0 ; j<nestPath.getRotation() ; j ++){
-                    Bound rotatedBound = GeometryUtil.rotatePolygon(nestPath , (360/nestPath.getRotation()) * j );
-                    if(rotatedBound.width < binBound.width && rotatedBound.height < binBound.height ){
-                        CanBePlacdPolygonIndex.add(i);
-                        break;
-                    }
-                }
-            }
-        }
-        return CanBePlacdPolygonIndex;
-    }
+	/**
+	 * ÃƒÂ¥Ã…â€œÃ‚Â¨ÃƒÂ©Ã¯Â¿Â½Ã¢â‚¬â€�ÃƒÂ¤Ã‚Â¼Ã‚Â ÃƒÂ§Ã‚Â®Ã¢â‚¬â€�ÃƒÂ¦Ã‚Â³Ã¢â‚¬Â¢ÃƒÂ¤Ã‚Â¸Ã‚Â­ÃƒÂ¦Ã‚Â¯Ã¯Â¿Â½ÃƒÂ¦Ã‚Â¬Ã‚Â¡ÃƒÂ§Ã‚ÂªÃ¯Â¿Â½ÃƒÂ¥Ã¯Â¿Â½Ã‹Å“ÃƒÂ¦Ã‹â€ Ã¢â‚¬â€œÃƒÂ¨Ã¢â€šÂ¬Ã¢â‚¬Â¦ÃƒÂ¦Ã‹Å“Ã‚Â¯ÃƒÂ¤Ã‚ÂºÃ‚Â¤ÃƒÂ©Ã¢â‚¬Â¦Ã¯Â¿Â½ÃƒÂ¤Ã‚ÂºÃ‚Â§ÃƒÂ§Ã¢â‚¬ï¿½Ã…Â¸ÃƒÂ¥Ã¢â‚¬Â¡Ã‚ÂºÃƒÂ¦Ã¢â‚¬â€œÃ‚Â°ÃƒÂ§Ã…Â¡Ã¢â‚¬Å¾ÃƒÂ§Ã‚Â§Ã¯Â¿Â½ÃƒÂ§Ã‚Â¾Ã‚Â¤ÃƒÂ¦Ã¢â‚¬â€�Ã‚Â¶ÃƒÂ¯Ã‚Â¼Ã…â€™ÃƒÂ¥Ã¯Â¿Â½Ã‚Â¯ÃƒÂ¨Ã†â€™Ã‚Â½ÃƒÂ¤Ã‚Â¼Ã…Â¡ÃƒÂ¥Ã¢â‚¬Â¡Ã‚ÂºÃƒÂ§Ã…Â½Ã‚Â°ÃƒÂ¦Ã¯Â¿Â½Ã‚Â¿ÃƒÂ¤Ã‚Â»Ã‚Â¶ÃƒÂ¤Ã‚Â¸Ã…Â½ÃƒÂ¦Ã¢â‚¬â€�Ã¢â‚¬Â¹ÃƒÂ¨Ã‚Â½Ã‚Â¬ÃƒÂ¨Ã‚Â§Ã¢â‚¬â„¢ÃƒÂ¥Ã‚ÂºÃ‚Â¦ÃƒÂ¤Ã‚Â¸Ã¯Â¿Â½ÃƒÂ©Ã¢â€šÂ¬Ã¢â‚¬Å¡ÃƒÂ©Ã¢â‚¬Â¦Ã¯Â¿Â½ÃƒÂ§Ã…Â¡Ã¢â‚¬Å¾ÃƒÂ§Ã‚Â»Ã¢â‚¬Å“ÃƒÂ¦Ã…Â¾Ã…â€œÃƒÂ¯Ã‚Â¼Ã…â€™ÃƒÂ©Ã…â€œÃ¢â€šÂ¬ÃƒÂ¨Ã‚Â¦Ã¯Â¿Â½ÃƒÂ©Ã¢â‚¬Â¡Ã¯Â¿Â½ÃƒÂ¦Ã¢â‚¬â€œÃ‚Â°ÃƒÂ¦Ã‚Â£Ã¢â€šÂ¬ÃƒÂ¦Ã…Â¸Ã‚Â¥ÃƒÂ¥Ã‚Â¹Ã‚Â¶ÃƒÂ©Ã¢â€šÂ¬Ã¢â‚¬Å¡ÃƒÂ©Ã¢â‚¬Â¦Ã¯Â¿Â½ÃƒÂ£Ã¢â€šÂ¬Ã¢â‚¬Å¡
+	 * 
+	 * @param binPolygon
+	 * @param tree
+	 * @return
+	 */
+	private static List<Integer> checkIfCanBePlaced(NestPath binPolygon, List<NestPath> tree) {
+		List<Integer> CanBePlacdPolygonIndex = new ArrayList<>();
+		Bound binBound = GeometryUtil.getPolygonBounds(binPolygon);
+		for (int i = 0; i < tree.size(); i++) {
+			NestPath nestPath = tree.get(i);
+			if (nestPath.getRotation() == 0) {
+				Bound bound = GeometryUtil.getPolygonBounds(nestPath);
+				if (bound.width < binBound.width && bound.height < binBound.height) {
+					CanBePlacdPolygonIndex.add(i);
+					continue;
+				}
+			} else {
+				for (int j = 0; j < nestPath.getRotation(); j++) {
+					Bound rotatedBound = GeometryUtil.rotatePolygon(nestPath, (360 / nestPath.getRotation()) * j);
+					if (rotatedBound.width < binBound.width && rotatedBound.height < binBound.height) {
+						CanBePlacdPolygonIndex.add(i);
+						break;
+					}
+				}
+			}
+		}
+		return CanBePlacdPolygonIndex;
+	}
 
+	public void add(NestPath np) {
+		parts.add(np);
+	}
 
+	public NestPath getBinPath() {
+		return binPath;
+	}
 
-    public  void add(NestPath np ){
-        parts.add(np);
-    }
+	public List<NestPath> getParts() {
+		return parts;
+	}
 
-    public  NestPath getBinPath() {
-        return binPath;
-    }
+	public void setBinPath(NestPath binPath) {
+		this.binPath = binPath;
+	}
 
-    public  List<NestPath> getParts() {
-        return parts;
-    }
+	public void setParts(List<NestPath> parts) {
+		this.parts = parts;
+	}
 
-    public void setBinPath(NestPath binPath) {
-        this.binPath = binPath;
-    }
+	public Config getConfig() {
+		return config;
+	}
 
-    public void setParts(List<NestPath> parts) {
-        this.parts = parts;
-    }
-
-    public Config getConfig() {
-        return config;
-    }
-
-    public void setConfig(Config config) {
-        this.config = config;
-    }
+	public void setConfig(Config config) {
+		this.config = config;
+	}
 
 }

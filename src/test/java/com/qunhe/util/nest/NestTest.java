@@ -80,7 +80,7 @@ public class NestTest {
         bin.add(binWidth, 0);
         bin.add(binWidth, binHeight);
         bin.add(0, binHeight);
-//        bin.setBid(-1);
+//      bin.setBid(-1);
         Config config = new Config();
         config.SPACING = 0;
         config.POPULATION_SIZE = 6;
@@ -90,9 +90,11 @@ public class NestTest {
         List<List<Placement>> appliedPlacement = nest.startNest();
         List<String> strings = SvgUtil.svgGenerator(polygons, appliedPlacement, binWidth, binHeight);
         saveSvgFile(strings,Config.OUTPUT_DIR+"problem.html");
+
        
         // Soluzione finale -> file "solution.html"
         nest = new Nest(bin, polygons, config, 10);
+
         nest.observers.add(new ListPlacementObserver() {			
 			@Override
 			public void populationUpdate(List<List<Placement>> appliedPlacement) {

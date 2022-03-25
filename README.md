@@ -1,45 +1,43 @@
 # Nest4J
 
-[en_us version](./README_en_us.md)
+Nest4J is a Nest algorithm tool written in Java which designed to run in server-side.  And it is based by [SVGNest](https://github.com/Jack000/SVGnest).
 
-Nest4J是一款基于Java作为开发语言的Nest算法包。可以看做一款能在服务端进行运行计算的Nest算法库。 基于[SVGNest](https://github.com/Jack000/SVGnest)进行了Java化的改造。
+Also, Nest4J is my Undergraduate Graduation Project which let me know the charm of Computational geometry.
 
-同样这也作为了我本科的毕业设计，让我领略到了计算几何和遗传算法的魅力。
+# What is Nest Problem?
 
-## 什么是套料？
+Given a square piece of material and some letters to be laser-cut:
 
-在给定一个矩形底板和以及一些字母材料时，如何将这些字母材料尽可能的塞进这个矩形底板并且保持字母两两之间并不会重合？通过一些特殊的摆放顺序与位置以及将每个字母旋转到合适的角度，我们可以达到这个目的。而如何去计算出材料与地板之间的位置关系以及材料的旋转角度，或者其他更高的要求，我们将这类问题称之为套料问题。
+We want to pack all the letters into the square, using as little material as possible. If a single square is not enough, we also want to minimize the number of squares used.
 
+In the CNC world this is called "nesting", and software that does this is typically targeted at industrial customers and very expensive.
 
 ![example](./png/nest.png)
 
-更多细节请参考[SVGNest](https://github.com/Jack000/SVGnest)
+for more detail , please go to [SVGNest](https://github.com/Jack000/SVGnest)
 
-
-## 效果
-
-我使用了SVGNest的Demo例子让Nest4J进行计算。得出了以下的效果图
+## Performance
+I used SVGNest Demo to test Nest4J and here is my result.
 
 ![sample](./png/sample.png)
 
-
-## 如何使用
-
-本算法基于SVGNest,做了Java化的改造，使得这个算法可以运行在服务器环境中进行后台计算服务。
-
-Nest4J的使用方法非常简单。通过以下几步，你就可以轻松掌握如何使用Nest4J
-
-### 环境
-
-Nest4J使用JDK1.8版本编写而成，使用到了[Clipper-java](https://github.com/lightbringer/clipper-java)的maven依赖。
-所以你需要先将[Clipper-java](https://github.com/lightbringer/clipper-java)下载至本地后打成本地依赖才能将Nest4J打成mvn依赖包。
+## How to use?
 
 
-### 多边形表示方法
+Nest4J is based by SVGNest and ported it into Java so that it can runs in server-side.
 
-Nest4J的多边形表示方法就是通用的通过点集来表示一个多边形。下面这个例子向我们展示了如何构造出一个矩形的多边形。
+It is esay to use Nest4J by following steps.
 
-**值得注意的是，Nest4J表示多边形的方法是基于一个二维直角坐标系，即你需要保证输入的多边形两两之间并不会重合，否则就会引起报错。**
+## Env
+
+Nest4J needs JDK1.8 version , and the maven dependency of [Clipper-java](https://github.com/lightbringer/clipper-java). You have to download [Clipper-java](https://github.com/lightbringer/clipper-java) and install it into your local maven repository.
+
+## Express an Polygon
+
+Nest4J use a common way to express an polygon by a collection of Points. Here is an example to show you .
+
+
+**It is important that Nest4J express polygons in an 2d coordinate system , so you have to ensure that each polygon won't be covered by another.**
 
 ```java
         NestPath bin = new NestPath();
@@ -52,23 +50,24 @@ Nest4J的多边形表示方法就是通用的通过点集来表示一个多边�
 
 ```
 
-### 构造板件素材
 
-当我们知道如何构造多边形时，在构造板件集合时，其实就是构造一个多边形的集合。
+## Construct an material list.
+
+It is easy to construct a material list when we know how to express a ploygon. it's just a collection of polygons.
 
 ```java
         List<NestPath> list = new ArrayList<NestPath>();
-        list.add(inner);
-        list.add(outer);
-        list.add(little);
+        list.add(polygon1);
+        list.add(polygon2);
+        list.add(polygon3);
 
 ```
 
-### 板件的扩展选择
+### Extended Attributes of Polygon
 
-当一个板件被构造出来时，他的默认Rotation属性为0，这意味着我们在套料过程中固定住这个板件，不能使他旋转。为了让他旋转，我们可以设置他的Rotation属性为4，这意味着这个板件在套料过程中可以旋转90°，180°，270°。即当我们设置某个板件的Rotation为N时，这个板件在套料过程中就有旋转**(360/N)\*k , k= 0,1,2,3,...N**这些选择。同时，你也可以设置每个板件的**bid**属性，这将帮助你在套料开始前与套料结束后对你的板件一一对应。
+When one polygon is constructed , its default Rotation attr is 0 , which means we will fix it during our Nest Program. We can set it as 4 and this polygon may rotate in 90°,180°,270°. If we set Rotation attr as N, this polygon may these rotation angles `(360/N) *k , k= 0,1,2,3,...N`
 
-**与SVGNest不同，你可以在构造板件过程中自己设置每个板件的旋转角度，使得每个板件的旋转角度选择不同，建议rotation属性设置为360的因数**
+Meanwhile you can use `bid` to help you identify the polygons. It is useful when we get nest result.
 
 ``` java
 
@@ -78,9 +77,9 @@ Nest4J的多边形表示方法就是通用的通过点集来表示一个多边�
 ``` 
 
 
-### 空心板件
+### Hollow Polygon
 
-对于某些存在空心的板件，空心可以不止一个空心。Nest4J表示一个存在空心的多边形也非常简单,只要通过将这个空心的图形通过二维平面直角坐标系描述出来以后，在板件的内部中即可。Nest4J会自动发现板件中存在空心。
+For those hollow polgyons, Nest4J provides a simple way to express by 2d coordinate system. If one polygon is inside in another by their coordinates, the Nest4J will detact it automaticly.
 
 ```java
 
@@ -100,10 +99,10 @@ Nest4J的多边形表示方法就是通用的通过点集来表示一个多边�
 
 ```
 
-### 属性设置
 
-Nest4J在开始套料计算前，允许用户进行一些自定义的设置。
+### Configuration 
 
+Before we start to nest , you can set configuration.
 
 ```java
         Config config = new Config();
@@ -114,35 +113,37 @@ Nest4J在开始套料计算前，允许用户进行一些自定义的设置。
 
 <table>
     <tr>
-        <td>属性</td>
-        <td>描述</td>
-        <td>默认值</td>
+        <td>Attr</td>
+        <td>Description</td>
+        <td>Default</td>
     </tr>
     <tr>
         <td>SPACING</td>
-        <td>在套料过程中，所有板件两两之间的距离</td>
+        <td>the distance of each plygons on bin</td>
         <td>0</td>
     </tr>
     <tr>
         <td>POPULATION_SIZE</td>
-        <td>利用遗传算法时所生成的族群个体数量</td>
+        <td>the number of population in GA algorithm</td>
         <td>10</td>
     </tr>
     <tr>
         <td>MUTATION_RATE</td>
-        <td>利用遗传算法时，套料顺序的变异几率</td>
-        <td>百分之10</td>
+        <td>the rate of mutate in GA algorithm</td>
+        <td>10%</td>
     </tr> 
     <tr>
         <td>USE_HOLE</td>
-        <td>当板件中存在空心板件时，是否允许将板件放在空心板件当中</td>
+        <td>allow to put polygons into hollow polygons</td>
         <td>false</td>
     </tr>     
 </table>
 
-### 开始计算
 
-当我们配置好所需要的底板，板件集，以及相关参数后，以及我们需要的迭代次数，我们便可以开始进行套料计算。
+## start to nest
+
+
+When we configure the bin, the material list and the configuration, we can start to nest.
 
 ```java
 
@@ -151,9 +152,11 @@ Nest4J在开始套料计算前，允许用户进行一些自定义的设置。
 
 ```
 
+
 ### Placement
 
-Placement作为我们最后计算结果的一个单元，代表着某个Bid的板件,相对于他的底板左上角的偏移值和旋转角度。 我们最终拿到了一个`List<List<Placement>> `的计算结果，其中`<List<Placement>`代表着在一块底板中，某些板件的偏移值及旋转角度。
+
+Placement is our unit of final result , which represents a polygon with a specific `bid` placed into a rotation angel and relative coordiates to its bin of top left corner.
 
 ```java
 public class Placement {
@@ -174,9 +177,9 @@ public class Placement {
 
 ```
 
-### 可视化
+## Visualization 
 
-对于输出结果，我提供了一种基于SVG可视化的方法。你可以在`NestTest`中查看。
+I use SVG to help us see the result. You can find it in `NestTest`.
 
 ```java
         List<String> strings = SvgUtil.svgGenerator(polygons, appliedPlacement, binWidth, binHeight);
@@ -184,16 +187,16 @@ public class Placement {
 
 ```
 
-### 参考论文
+
+## Referenced Paper
 
 - [López-Camacho *et al.* 2013](http://www.cs.stir.ac.uk/~goc/papers/EffectiveHueristic2DAOR2013.pdf)
 - [Kendall 2000](http://www.graham-kendall.com/papers/k2001.pdf)
 - [E.K. Burke *et al.* 2006](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.440.379&rep=rep1&type=pdf)
 
-## TODO
 
-1. 基于Java1.8进行语言层面的优化
-2. 进行多线程改造优化效率
-3. 改造NFP的缓存策略。
-4. 改造多边形的放大缩小计算效率。
+## Todo
+
+1. make Nest4J process more parallel.
+
 

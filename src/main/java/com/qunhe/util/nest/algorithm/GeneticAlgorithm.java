@@ -22,6 +22,12 @@ public class GeneticAlgorithm {
     public List<Individual> population;
     Config config;
 
+    /**
+     * Costruttore di un oggetto GA
+     * @param adam	lista dei poligoni
+     * @param bin	superficie principale su cui disporre i poligoni
+     * @param config   confiugurazione standard
+     */
     public GeneticAlgorithm(List<NestPath> adam, NestPath bin, Config config) {
         this.adam = adam;
         this.bin = bin;
