@@ -227,6 +227,10 @@ public class CommonUtil {
         return polygons;
     }
 
+	/**
+	 * @param srcPath
+	 * @return polygon without self-intersecting parts
+	 */
 	public static NestPath cleanNestPath(NestPath srcPath){
 	    /**
 	     * Convert NestPath 2 Clipper

@@ -69,6 +69,10 @@ public class Nest {
 	 */
 	public List<List<Placement>> startNest() {
 
+		
+		/*---------------------PRELIMINARY OPERATIONS---------------------*/
+		
+		// conversion of eventual self-intersecting polygons into simple polygons
 		List<NestPath> tree = CommonUtil.BuildTree(parts, Config.CURVE_TOLERANCE);
 
 		CommonUtil.offsetTree(tree, 0.5 * config.SPACING);
@@ -76,6 +80,9 @@ public class Nest {
 		for (NestPath nestPath : parts) {
 			nestPath.config = config;
 		}
+		
+		
+		// conversion of eventual self-intersecting binpath into simple polygon
 		NestPath binPolygon = CommonUtil.cleanNestPath(binPath);
 		// Bound binBound = GeometryUtil.getPolygonBounds(binPolygon);
 		if (Config.BOUND_SPACING > 0) {
@@ -95,6 +102,8 @@ public class Nest {
 			}
 			tree = safeTree;
 		}
+		
+		//coordinates of binpath are traslated to have origin in (0;0)
 		double xbinmax = binPolygon.get(0).x;
 		double xbinmin = binPolygon.get(0).x;
 		double ybinmax = binPolygon.get(0).y;
@@ -124,6 +133,8 @@ public class Nest {
 		if (GeometryUtil.polygonArea(binPolygon) > 0) {
 			binPolygon.reverse();
 		}
+		
+		
 		/**
 		 * Make sure it's counterclockwise(antiorario) TODO why?
 		 */
@@ -138,6 +149,8 @@ public class Nest {
 			}
 		}
 
+		
+		/*---------------------ACTUALLY STARTS NESTING---------------------*/
 		launchcount = 0;
 		Result best = null;
 		List<List<Placement>> appliedPlacement = null;
@@ -157,8 +170,7 @@ public class Nest {
 				} catch (Exception e) {
 					log(e);
 				}
-
-				//
+				
 				// comunica agli observer che il result
 				// spostato dentro l'if
 				notifyObserver(appliedPlacement);
@@ -211,17 +223,19 @@ public class Nest {
 	/**
 	 * Iterative calculation
 	 * 
-	 * @param tree       ÃƒÂ¥Ã‚ÂºÃ¢â‚¬Â¢ÃƒÂ¦Ã¯Â¿Â½Ã‚Â¿
+	 * @param tree       list of polygons to nest
 	 * @param binPolygon
 	 * @param config
-	 * @return
+	 * @return bestResult
 	 */
 	public Result launchWorkers(List<NestPath> tree, NestPath binPolygon, Config config) {
 		launchcount++;
 		if (Config.IS_DEBUG) {
 			log("launchWorkers(): launching worker " + launchcount);
 		}
+		// GA is null by default
 		if (GA == null) {
+			// A clone of tree is created
 			List<NestPath> adam = new ArrayList<>();
 			for (NestPath nestPath : tree) {
 				NestPath clone = new NestPath(nestPath);
@@ -245,6 +259,9 @@ public class Nest {
 //            GA.generation();
 //            individual = GA.population.get(1);
 //        }
+		
+		/*---------------------GENERATION OF CHILDERN---------------------*/
+	
 		if (launchcount > 1 && individual == null) {
 			GA.generation();
 			individual = GA.population.get(1);
@@ -258,11 +275,16 @@ public class Nest {
 		List<NestPath> placelist = individual.getPlacement();
 		List<Integer> rotations = individual.getRotation();
 
+		// polygons are being set the ids
 		List<Integer> ids = new ArrayList<>();
 		for (int i = 0; i < placelist.size(); i++) {
 			ids.add(placelist.get(i).getId());
 			placelist.get(i).setRotation(rotations.get(i));
 		}
+		
+		
+		/*---------------------NO FIT POLYGON---------------------*/
+		
 		if (Config.NFP_CACHE_PATH != null) {
 			debug("Loading nfp from file " + Config.NFP_CACHE_PATH);
 			nfpCache = IOUtils.loadNfpCache(Config.NFP_CACHE_PATH);
@@ -282,7 +304,7 @@ public class Nest {
 			for (int j = 0; j < i; j++) {
 				NestPath placed = placelist.get(j);
 				NfpKey keyed = new NfpKey(placed.getId(), part.getId(), false, rotations.get(j), rotations.get(i));
-				// ATTENZIONE sarÃ  sempre false
+				// ATTENZIONE sara'� sempre false
 				if (!nfpCache.containsKey(keyed)) {
 					nfpPairs.add(new NfpPair(placed, part, keyed));
 				}
@@ -317,11 +339,13 @@ public class Nest {
 		String lotId = InputConfig.INPUT == null ? "" : InputConfig.INPUT.get(0).lotId;
 		IOUtils.saveNfpCache(nfpCache, Config.OUTPUT_DIR + "nfp" + lotId + ".txt");
 
+		
+		/*---------------------FITNESS COMPUTATION---------------------*/
+		
 		debug("Launching placement worker...");
-		// Here place parts according to the sequence specified by the individual
-		Placementworker worker = new Placementworker(binPolygon, config, nfpCache); // --------> serve per assegnare un
-																					// valore di fitness, sfruttando
-																					// Placementworker
+		// Places parts according to the sequence specified by the individual
+		Placementworker worker = new Placementworker(binPolygon, config, nfpCache); // --------> uses Placementworker to set fitness value
+																					
 		List<NestPath> placeListSlice = new ArrayList<>();
 
 		for (int i = 0; i < placelist.size(); i++) {
@@ -342,7 +366,7 @@ public class Nest {
 		Result bestResult = results.get(0);
 		for (int i = 1; i < results.size(); i++) {
 			if (results.get(i).fitness < bestResult.fitness) {
-				bestResult = results.get(i); // viene preso il valore di fitness più basso come miglior fitness
+				bestResult = results.get(i); // Fitness is the lowest value
 			}
 		}
 		debug("launchWorkers(): current best fitness = " + bestResult.fitness);

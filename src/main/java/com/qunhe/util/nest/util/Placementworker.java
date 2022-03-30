@@ -74,16 +74,16 @@ public class Placementworker {
         String key = null;
         List<NestPath> nfp = null;
 
-        // Cicla tutti i NestPath passati
+        // Loops over all the Nestpaths passed to the function
         while (paths.size() > 0) {
 
-            List<NestPath> placed = new ArrayList<>();		// poligoni (NestPath) da piazzare
-            List<Vector> placements = new ArrayList<>();	// coordinate
+            List<NestPath> placed = new ArrayList<>();		// polygons (NestPath) to place
+            List<Vector> placements = new ArrayList<>();	// coordinates
 
             //fitness += 1;
             double minwidth = Double.MAX_VALUE;				// valore che verrà assegnato alla fitness
             
-            // cicla tutti i poligoni (paths)
+            // Loops over all the polygons (paths)
             for (int i = 0; i < paths.size(); i++) {
                 NestPath path = paths.get(i);
 
@@ -237,7 +237,7 @@ public class Placementworker {
                 }
                 if (position != null) {
 
-                    placed.add(path);				// viene aggiunto il poligono 
+                    placed.add(path);				// polygon added
                     placements.add(position);
                 }
             }
