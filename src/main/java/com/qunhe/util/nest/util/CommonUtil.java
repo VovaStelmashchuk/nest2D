@@ -43,7 +43,7 @@ public class CommonUtil {
     }
 
     /**
-     * å��æ ‡è½¬æ�¢
+     * Coordinate conversion
      * @param x
      * @param y
      * @return
@@ -53,7 +53,7 @@ public class CommonUtil {
     }
 
     /**
-     * å��æ ‡è½¬æ�¢
+     * Coordinate conversion
      * @param x
      * @param y
      * @return
@@ -64,7 +64,7 @@ public class CommonUtil {
 
 
     /**
-     * ä¸ºClipperä¸‹çš„Pathæ·»åŠ ç‚¹
+     * Add points to Path under Clipper     
      * @param x
      * @param y
      * @param path
@@ -76,8 +76,8 @@ public class CommonUtil {
 
 
     /**
-     * binPathæ˜¯ä½œä¸ºåº•æ�¿çš„NestPath , polysåˆ™ä¸ºæ�¿ä»¶çš„Pathåˆ—è¡¨
-     * è¿™ä¸ªæ–¹æ³•æ˜¯ä¸ºäº†å°†binPathå’Œpolysåœ¨ä¸�æ”¹å�˜è‡ªèº«å½¢çŠ¶ï¼Œè§’åº¦çš„æƒ…å†µä¸‹æ”¾ç½®åœ¨ä¸€ä¸ªå��æ ‡ç³»å†…ï¼Œä¿�è¯�ä¸¤ä¸¤ä¹‹é—´ä¸�äº¤å�‰
+     * binPath is the NestPath as the base plate, and polys is the Path list of the board
+     * This method placeA binPath and polys in a coordinate system without changing their shape and angle to ensure that they do not intersect
      * @param binPath
      * @param polys
      */
@@ -86,7 +86,7 @@ public class CommonUtil {
     }
 
     /**
-     *  å°†NestPathåˆ—è¡¨è½¬æ�¢æˆ�çˆ¶å­�å…³ç³»çš„æ ‘
+     * Convert the NestPath list into a tree of parent-child relationships
      * @param list
      * @param idstart
      * @return
@@ -94,9 +94,9 @@ public class CommonUtil {
     static int toTree(List<NestPath> list , int idstart){
         List<NestPath> parents = new ArrayList<>();
         int id = idstart;
-        /**
-         * æ‰¾å‡ºæ‰€æœ‰çš„å†…å›žçŽ¯
-         */
+        
+       // find all inner loops
+        
         for(int i = 0 ; i<list.size() ; i ++){
             NestPath p = list.get(i);
             boolean isChild = false;
@@ -117,7 +117,7 @@ public class CommonUtil {
             }
         }
         /**
-         *  å°†å†…çŽ¯ä»Žliståˆ—è¡¨ä¸­åŽ»é™¤
+         *  remove the inner loop from the list
          */
         for(int i = 0; !Config.ASSUME_NO_INNER_PARTS && i <list.size() ; i ++){
             if(parents.indexOf(list.get(i)) < 0 ){
@@ -187,9 +187,8 @@ public class CommonUtil {
         Paths newpaths = new Paths();
         co.execute(newpaths , offset * Config.CLIIPER_SCALE);
 
-        /**
-         * è¿™é‡Œçš„lengthæ˜¯1çš„è¯�å°±æ˜¯æˆ‘ä»¬æƒ³è¦�çš„
-         */
+        // The length here is 1, which is what we want
+
         for (Path newpath : newpaths) {
             result.add(CommonUtil.clipperToNestPath(newpath));
         }
@@ -208,7 +207,7 @@ public class CommonUtil {
 
 
     /**
-     * å¯¹åº”äºŽJSé¡¹ç›®ä¸­çš„getParts
+     * Corresponds to getParts in JS projects
      */
     public static List<NestPath> BuildTree(List<NestPath> parts ,double curve_tolerance){
         List<NestPath> polygons = new ArrayList<>();

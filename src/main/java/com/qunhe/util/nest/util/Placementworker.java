@@ -35,9 +35,9 @@ public class Placementworker {
     public Map<String, List<NestPath>> nfpCache;
 
     /**
-     * @param binPolygon åº•æ�¿å�‚æ•°
-     * @param config     è®¾ç½®
-     * @param nfpCache   nfpåˆ—è¡¨
+     * @param binPolygon
+     * @param config
+     * @param nfpCache   nfpList
      */
     public Placementworker(NestPath binPolygon, Config config, Map<String, List<NestPath>> nfpCache) {
         this.binPolygon = binPolygon;
@@ -269,7 +269,7 @@ public class Placementworker {
 
 
     /**
-     * å��æ ‡è½¬æ�¢ï¼Œä¸Žclipperåº“äº¤äº’å¿…é¡»å��æ ‡è½¬æ�¢
+     * coordinate conversion required to interact with the clipper library
      *
      * @param polygon
      * @return

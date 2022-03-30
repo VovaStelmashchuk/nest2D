@@ -5,7 +5,7 @@ import java.util.List;
 import com.qunhe.util.nest.data.NestPath;
 
 /**
- * 接收一组NestPath , 并且将其坐标变换到二维坐标平面上。
+ * Receive a set of NestPath, and transform its coordinates to the two-dimensional coordinate plane
  */
 public class PostionUtil {
 

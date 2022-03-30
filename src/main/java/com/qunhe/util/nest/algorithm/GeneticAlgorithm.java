@@ -202,7 +202,7 @@ public class GeneticAlgorithm {
             }
         }
         /**
-         * æ²¡æœ‰æ‰¾åˆ°å�ˆæ³•çš„è§’åº¦
+		 * No valid angle found
          */
         return -1;
     }
