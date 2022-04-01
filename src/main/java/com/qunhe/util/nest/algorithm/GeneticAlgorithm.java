@@ -32,7 +32,7 @@ public class GeneticAlgorithm {
         this.adam = adam;
         this.bin = bin;
         this.config = config;
-        this.binBounds = GeometryUtil.getPolygonBounds(bin);
+        this.binBounds = GeometryUtil.getPolygonBounds(bin);	// estremi della superficie (binPath) su cui si dispongono i poligoni
         population = new ArrayList<>();
         init();
     }

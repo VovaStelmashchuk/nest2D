@@ -94,9 +94,7 @@ public class CommonUtil {
     static int toTree(List<NestPath> list , int idstart){
         List<NestPath> parents = new ArrayList<>();
         int id = idstart;
-        
-       // find all inner loops
-        
+        // find all inner loops
         for(int i = 0 ; i<list.size() ; i ++){
             NestPath p = list.get(i);
             boolean isChild = false;
@@ -188,7 +186,6 @@ public class CommonUtil {
         co.execute(newpaths , offset * Config.CLIIPER_SCALE);
 
         // The length here is 1, which is what we want
-
         for (Path newpath : newpaths) {
             result.add(CommonUtil.clipperToNestPath(newpath));
         }
@@ -208,6 +205,9 @@ public class CommonUtil {
 
     /**
      * Corresponds to getParts in JS projects
+     * @param parts (all polygons)
+     * @param curve_tolerance 
+     * @return polygons without self intersecting parts
      */
     public static List<NestPath> BuildTree(List<NestPath> parts ,double curve_tolerance){
         List<NestPath> polygons = new ArrayList<>();
@@ -227,16 +227,16 @@ public class CommonUtil {
         return polygons;
     }
 
-	/**
-	 * @param srcPath
-	 * @return polygon without self-intersecting parts
-	 */
+  /**
+   * @param scrPath (all polygons)
+   * @return polygons without self intersecting parts
+   */
 	public static NestPath cleanNestPath(NestPath srcPath){
 	    /**
 	     * Convert NestPath 2 Clipper
 	     */
-	    Path path = NestPath2Path(srcPath);
-	    // Convert self interacting polygons to simple ones
+	    Path path = NestPath2Path(srcPath);	//scrPath è il binPath passato come argomento, la superficie su cui disporre le figure
+	    // Convert self intersecting polygons to simple ones
 	    Paths simple = DefaultClipper.simplifyPolygon(path, Clipper.PolyFillType.NON_ZERO);
 	    if(simple.size() == 0 ){
 	        return null;

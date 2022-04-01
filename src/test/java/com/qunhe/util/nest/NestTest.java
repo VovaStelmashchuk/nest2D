@@ -61,8 +61,8 @@ public class NestTest {
         list.add(little);
         Config config = new Config();
         config.USE_HOLE = true;
-        Nest nest = new Nest(binPolygon, list, config, 10);
-        List<List<Placement>> appliedPlacement = nest.startNest();
+        Nest nest = new Nest(binPolygon, list, config, 20);
+        List<List<Placement>> appliedPlacement = nest.startNest();	// Posizionamenti che vengono effettuati dei vari poligoni dopo avere effettuato il nesting
         List<String> strings = SvgUtil.svgGenerator(list, appliedPlacement, width, height);
         for (String s : strings) {
             System.out.println(s);
@@ -80,17 +80,21 @@ public class NestTest {
         bin.add(binWidth, 0);
         bin.add(binWidth, binHeight);
         bin.add(0, binHeight);
-        bin.setBid(-1);
+//      bin.setBid(-1);
         Config config = new Config();
         config.SPACING = 0;
         config.POPULATION_SIZE = 6;
+       
+        // Primo tentativo -> file "problem.html"
         Nest nest = new Nest(bin, polygons, config, 1);
-        
         List<List<Placement>> appliedPlacement = nest.startNest();
         List<String> strings = SvgUtil.svgGenerator(polygons, appliedPlacement, binWidth, binHeight);
         saveSvgFile(strings,Config.OUTPUT_DIR+"problem.html");
-        // find solution
-        nest = new Nest(bin, polygons, config, 20);
+
+       
+        // Soluzione finale -> file "solution.html"
+        nest = new Nest(bin, polygons, config, 10);
+
         nest.observers.add(new ListPlacementObserver() {			
 			@Override
 			public void populationUpdate(List<List<Placement>> appliedPlacement) {
@@ -147,6 +151,7 @@ public class NestTest {
                 nestPaths.add(rect);
             }
         }
+       // System.out.print("FIGURE TOTALI = " + count);
         return nestPaths;
     }
 

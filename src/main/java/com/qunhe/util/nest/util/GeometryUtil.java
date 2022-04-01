@@ -43,7 +43,7 @@ public class GeometryUtil {
     /**
      * Calculates polygon area
      * @param polygon
-     * @return
+     * @return area of the polygon
      */
     public static double polygonArea(NestPath polygon){
         double area = 0;

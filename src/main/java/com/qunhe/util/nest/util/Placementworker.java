@@ -198,6 +198,7 @@ public class Placementworker {
                 NestPath nf = null;
                 double area = Double.MIN_VALUE;
                 Vector shifvector = null;
+//                System.out.println("UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
                 for (NestPath element : finalNfpf) {
                     nf = element;
                     if (Math.abs(GeometryUtil.polygonArea(nf)) < 2) {	
@@ -224,11 +225,13 @@ public class Placementworker {
                         Bound rectBounds = GeometryUtil.getPolygonBounds(allpoints);
 
                         area = rectBounds.getWidth() * 2 + rectBounds.getHeight();
+//                        System.out.println("SONO FUORIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII");
                         if (minarea == Double.MIN_VALUE
                                 || area < minarea
                                 || (GeometryUtil.almostEqual(minarea, area)
                                 && (minX == Double.MIN_VALUE || shifvector.x < minX))) {
                             minarea = area;
+//                            System.out.println("HEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEY");
                             minwidth = rectBounds.getWidth();
                             position = shifvector;
                             minX = shifvector.x;
@@ -245,8 +248,7 @@ public class Placementworker {
                 //fitness += minwidth ;/// binarea;
             	fitness = minwidth;
             }
-
-
+	
             for (int i = 0; i < placed.size(); i++) {
                 int index = paths.indexOf(placed.get(i));
                 if (index >= 0) {

@@ -27,6 +27,7 @@ import com.qunhe.util.nest.util.Placementworker;
 public class Main {
 
 	public static void main(String[] args) {
+		
 		//
 		CandidateFactoryNest4j candidateFactory = new CandidateFactoryNest4j();
 		IndividualMutation mutation = new IndividualMutation();
