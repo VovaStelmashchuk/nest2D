@@ -35,9 +35,9 @@ public class Placementworker {
     public Map<String, List<NestPath>> nfpCache;
 
     /**
-     * @param binPolygon åº•æ�¿å�‚æ•°
-     * @param config     è®¾ç½®
-     * @param nfpCache   nfpåˆ—è¡¨
+     * @param binPolygon
+     * @param config
+     * @param nfpCache   nfpList
      */
     public Placementworker(NestPath binPolygon, Config config, Map<String, List<NestPath>> nfpCache) {
         this.binPolygon = binPolygon;
@@ -74,16 +74,16 @@ public class Placementworker {
         String key = null;
         List<NestPath> nfp = null;
 
-        // Cicla tutti i NestPath passati
+        // Loops over all the Nestpaths passed to the function
         while (paths.size() > 0) {
 
-            List<NestPath> placed = new ArrayList<>();		// poligoni (NestPath) da piazzare
-            List<Vector> placements = new ArrayList<>();	// coordinate
+            List<NestPath> placed = new ArrayList<>();		// polygons (NestPath) to place
+            List<Vector> placements = new ArrayList<>();	// coordinates
 
             //fitness += 1;
             double minwidth = Double.MAX_VALUE;				// valore che verr� assegnato alla fitness
             
-            // cicla tutti i poligoni (paths)
+            // Loops over all the polygons (paths)
             for (int i = 0; i < paths.size(); i++) {
                 NestPath path = paths.get(i);
 
@@ -240,7 +240,7 @@ public class Placementworker {
                 }
                 if (position != null) {
 
-                    placed.add(path);				// viene aggiunto il poligono 
+                    placed.add(path);				// polygon added
                     placements.add(position);
                 }
             }
@@ -271,7 +271,7 @@ public class Placementworker {
 
 
     /**
-     * å��æ ‡è½¬æ�¢ï¼Œä¸Žclipperåº“äº¤äº’å¿…é¡»å��æ ‡è½¬æ�¢
+     * coordinate conversion required to interact with the clipper library
      *
      * @param polygon
      * @return

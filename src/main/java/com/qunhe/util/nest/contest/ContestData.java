@@ -55,7 +55,7 @@ public class ContestData {
                 double y = Double.parseDouble(m.group(2));
                 polygon.add(x, y);
             }
-           // NON SWERVE PIu' settato nel costruttore polygon.setBid(count++);
+           // NON SERVE PIU' settato nel costruttore polygon.setBid(count++);
             //Init as 0
             polygon.setRotation(0);
             int[] rots = Arrays.stream(rotDegrees).mapToInt(Integer::parseInt).toArray();

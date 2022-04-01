@@ -23,10 +23,10 @@ public class GeneticAlgorithm {
     Config config;
 
     /**
-     * Costruttore di un oggetto GA
-     * @param adam	lista dei poligoni
-     * @param bin	superficie principale su cui disporre i poligoni
-     * @param config   confiugurazione standard
+     * GA object constructor
+     * @param adam		polygons list
+     * @param bin		bin polygon
+     * @param config
      */
     public GeneticAlgorithm(List<NestPath> adam, NestPath bin, Config config) {
         this.adam = adam;
@@ -41,8 +41,8 @@ public class GeneticAlgorithm {
     private void init(){
         angles = new ArrayList<>();
         for(int i = 0 ; i< adam.size(); i ++) {
-            int angle = randomAngle(adam.get(i));	// assegnazione di un angolo di rotazione casuale
-            angles.add(angle);						// nel mio caso verr� quindi aggiunto solo un angolo
+            int angle = randomAngle(adam.get(i));	// nel mio caso, alla creazione del NestPath viene generato solo 1 angolo
+            angles.add(angle);						// Random angle added
         }
         population.add(new Individual(adam , angles));
         while(population.size() < config.POPULATION_SIZE) {		// config.POPULATION_SIZE = 10 by default
@@ -52,8 +52,8 @@ public class GeneticAlgorithm {
     }
 
     private Individual mutate(Individual individual) {
-        Individual clone = new Individual(individual);			// crea un clone (che verr� aggiunto a population) che muta e ruota gli individui originali
-        for(int i = 0 ; i< clone.placement.size() ; i ++){		// itera tutti i NestPath contenuti nell'individuo "clone"
+        Individual clone = new Individual(individual);			// creates a clone (added to the population) that mutates and rotates original individuals
+        for(int i = 0 ; i< clone.placement.size() ; i ++){		// iterate all the NestPath included in the "clone" ondividual
             double random = Math.random();
             if( random < 0.01 * config.MUTATION_RATE ){			// config.MUTATION_RATE = 10 by default
                 int j = i + 1;
@@ -85,7 +85,7 @@ public class GeneticAlgorithm {
         }
     }
 
-    // metodo per la generazione di figli
+    // children generation method
     public void generation(){
         List<Individual> newpopulation = new ArrayList<>();
         Collections.sort(population);
@@ -154,7 +154,7 @@ public class GeneticAlgorithm {
     }
 
     private Individual randomWeightedIndividual(Individual exclude) {
-    	// generazione di pop (clone di population)
+    	// pop (clone of population) generation
         List<Individual> pop = new ArrayList<>();
         for(int i = 0 ; i < population.size(); i ++){
             Individual individual = population.get(i);
@@ -208,7 +208,7 @@ public class GeneticAlgorithm {
             }
         }
         /**
-         * æ²¡æœ‰æ‰¾åˆ°å�ˆæ³•çš„è§’åº¦
+		 * No valid angle found
          */
         return -1;
     }

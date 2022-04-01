@@ -63,7 +63,6 @@ public class Nest {
 		nfpCache = new HashMap<>();
 	}
 
-
     /**
      * Start the Nest calculation 
      * @return the placements' list of all NestPath
@@ -157,7 +156,7 @@ public class Nest {
         for(int i = 0 ; i<loopCount ; i++) {
             Result result = launchWorkers(tree, binPolygon, config);
             
-            // se result ottiene valore minore della fitness, sarà il nuovo vaolre di best fitness
+            // se result ottiene valore minore della fitness, sarÃ  il nuovo vaolre di best fitness
             if(i == 0 ||  best.fitness > result.fitness){
                 best = result;
                 double rate = computeUseRate(best, tree);
@@ -185,7 +184,6 @@ public class Nest {
         return appliedPlacement;
     }
 
-
 	// observable /observe pattern
 	public interface ListPlacementObserver {
 		void populationUpdate(List<List<Placement>> appliedPlacement);
@@ -211,48 +209,45 @@ public class Nest {
 		}
 	}
 
-	public double computeUseRate(Result best, List<NestPath> tree){
-        //Log new result
-        double sumarea = 0;
-        double totalarea = Config.BIN_HEIGHT*best.fitness;
-        //System.out.println("VALORE DI BEST = " + best.fitness);
-        for (List<Vector> element : best.placements) {
-            //totalarea += Math.abs(GeometryUtil.polygonArea(binPolygon));
-            for (Vector element2 : element) {
-                sumarea += Math.abs(GeometryUtil.polygonArea(tree.get(element2.id)));
-            }
-        }
-        return (sumarea/totalarea)*100;
-    }
-    
-    
-    /**
-     * Applicazione dell'algoritmo di nesting
-     * @param tree  lista di tutti i poligoni da disporre
-     * @param binPolygon    superficie principale su cui disporre i poligoni
-     * @param config   confiugurazione standard
-     * @return	bestResult 
-     */
-    public Result launchWorkers(List<NestPath> tree, NestPath binPolygon ,Config config ){
-        launchcount++;
-        if(Config.IS_DEBUG) {
-            log("launchWorkers(): launching worker "+launchcount);
-        }
-        
-        // di default alla creazione di un NestPath, GA == null
-        if(GA == null){
-        	// viene creata una lista che contine un clone della lista tree
-            List<NestPath> adam = new ArrayList<>();
-            for(NestPath nestPath : tree ){
-                NestPath clone = new NestPath(nestPath);
-                adam.add(clone);
-            }
-            for(NestPath nestPath: adam){
-                nestPath.area = GeometryUtil.polygonArea(nestPath);	// calcolo dell'area del poligono
-            }
-            Collections.sort(adam);		//ordine di adam in ordine crescente di area-----> CORRETOOO????????????????????????????????????????????????
-            GA = new GeneticAlgorithm(adam , binPolygon  , config);
-        }
+	public double computeUseRate(Result best, List<NestPath> tree) {
+		// Log new result
+		double sumarea = 0;
+		double totalarea = Config.BIN_HEIGHT * best.fitness;
+		for (List<Vector> element : best.placements) {
+			// totalarea += Math.abs(GeometryUtil.polygonArea(binPolygon));
+			for (Vector element2 : element) {
+				sumarea += Math.abs(GeometryUtil.polygonArea(tree.get(element2.id)));
+			}
+		}
+		return (sumarea / totalarea) * 100;
+	}
+
+	/**
+	 *Applicazione dell'algoritmo di nesting
+   * @param tree  lista di tutti i poligoni da disporre
+   * @param binPolygon    superficie principale su cui disporre i poligoni
+   * @param config   confiugurazione standard
+   * @return	bestResult 
+	 */
+	public Result launchWorkers(List<NestPath> tree, NestPath binPolygon, Config config) {
+		launchcount++;
+		if (Config.IS_DEBUG) {
+			log("launchWorkers(): launching worker " + launchcount);
+		}
+		// GA is null by default
+		if (GA == null) {
+			// A clone of tree is created
+			List<NestPath> adam = new ArrayList<>();
+			for (NestPath nestPath : tree) {
+				NestPath clone = new NestPath(nestPath);
+				adam.add(clone);
+			}
+			for (NestPath nestPath : adam) {
+				nestPath.area = GeometryUtil.polygonArea(nestPath);
+			}
+			Collections.sort(adam);
+			GA = new GeneticAlgorithm(adam, binPolygon, config);
+		}
 
 		Individual individual = null;
 		for (Individual element : GA.population) {
@@ -261,14 +256,12 @@ public class Nest {
 				break;
 			}
 		}
-//        if(individual == null ){
-//            GA.generation();
-//            individual = GA.population.get(1);
-//        }
-
-        
-        
-        /*-----------------------------------GENERAZIONE DI FIGLI A PARTIRE DALLA POPOLAZIONE DI INDIVIDUI INIZIALE------------------------------------------*/
+    //        if(individual == null ){
+    //            GA.generation();
+    //            individual = GA.population.get(1);
+    //        }
+               
+        /*---------------------GENERATION OF CHILDERN---------------------*/
         // dalla seconda iterazione di loopcount nel metodo startNest --> launchcount >= 2
         if(launchcount > 1 && individual == null ){
             GA.generation();
@@ -279,12 +272,12 @@ public class Nest {
         }
 
 
-        // Now we got a set of candidates
+        //Above is GA. Now we got a set of candidates
         List<NestPath> placelist = individual.getPlacement();
         List<Integer> rotations = individual.getRotation();
 
-
-        List<Integer> ids = new ArrayList<>();	//Vengono assegnati i vari identificativi dei poligoni
+        // polygons are being set the ids
+        List<Integer> ids = new ArrayList<>();	
         for(int i = 0 ; i < placelist.size(); i ++){
             ids.add(placelist.get(i).getId());
             placelist.get(i).setRotation(rotations.get(i));
@@ -297,66 +290,60 @@ public class Nest {
         }
         List<NfpPair> nfpPairs = new ArrayList<>();
         NfpKey key = null;
-        /**
-         * ÃƒÂ¥Ã‚Â¦Ã¢â‚¬Å¡ÃƒÂ¦Ã…Â¾Ã…â€œÃƒÂ¥Ã…â€œÃ‚Â¨nfpCacheÃƒÂ©Ã¢â‚¬Â¡Ã…â€™ÃƒÂ¦Ã‚Â²Ã‚Â¡ÃƒÂ¦Ã¢â‚¬Â°Ã‚Â¾ÃƒÂ¥Ã‹â€ Ã‚Â°nfpKey 
-         * ÃƒÂ¥Ã‹â€ Ã¢â€žÂ¢ÃƒÂ¦Ã‚Â·Ã‚Â»ÃƒÂ¥Ã…Â Ã‚Â ÃƒÂ¨Ã‚Â¿Ã¢â‚¬ÂºnfpPairs
-         */
+        //If nfpKey is not found in nfpCache, add it to nfpPairs.
         for(int i = 0 ; i< placelist.size();i++){
             NestPath part = placelist.get(i);
             key = new NfpKey(binPolygon .getId() , part.getId() , true , 0 , part.getRotation());
-            // ATTENZIONE sara'  sempre false
+            // ATTENZIONE sara'Â  sempre false
             if(!nfpCache.containsKey(key)) {
                 nfpPairs.add(new NfpPair(binPolygon, part, key));
             }
             for(int j = 0 ; j< i ; j ++){
                 NestPath placed = placelist.get(j);
                 NfpKey keyed = new NfpKey(placed.getId() , part.getId() , false , rotations.get(j), rotations.get(i));
-                // ATTENZIONE sarÃ  sempre false
+                // ATTENZIONE sarÃÂ  sempre false
                 if(!nfpCache.containsKey(keyed)) {
                     nfpPairs.add(new NfpPair(placed, part, keyed));
                 }
             }
         }
 
-
 		if (Config.IS_DEBUG) {
 			log("launchWorkers(): Generating nfp...nb of nfp pairs = " + nfpPairs.size());
 		}
 
+		// The first time nfpCache is empty, nfpCache stores Nfp ( List<NestPath> ) formed by two polygons corresponding to nfpKey
+		
+		List<ParallelData> generatedNfp = new ArrayList<>();
+		int cnt = 0;
+		for (NfpPair nfpPair : nfpPairs) {
+			if (++cnt % 1000 == 0) {
+				// debug(" nfp generated.");
+				debug("Generating nfp " + cnt + ": " + nfpPair.getA().getBid() + "," + nfpPair.getB().getBid());
+			}
+			ParallelData data = NfpUtil.nfpGenerator(nfpPair, config);
+			if (data == null) {
+				debug("Null nfp " + cnt + ": " + nfpPair.getA().getBid() + "," + nfpPair.getB().getBid());
+			}
+			generatedNfp.add(data);
+		}
+		for (ParallelData Nfp : generatedNfp) {
+			// TODO remove gson & generate a new key algorithm
+			String tkey = gson.toJson(Nfp.getKey());
+			nfpCache.put(tkey, Nfp.value);
+		}
+		log("Saving nfpCache.");
+		String lotId = InputConfig.INPUT == null ? "" : InputConfig.INPUT.get(0).lotId;
+		IOUtils.saveNfpCache(nfpCache, Config.OUTPUT_DIR + "nfp" + lotId + ".txt");
 
-        /**
-         * ÃƒÂ§Ã‚Â¬Ã‚Â¬ÃƒÂ¤Ã‚Â¸Ã¢â€šÂ¬ÃƒÂ¦Ã‚Â¬Ã‚Â¡nfpCacheÃƒÂ¤Ã‚Â¸Ã‚ÂºÃƒÂ§Ã‚Â©Ã‚Âº ÃƒÂ¯Ã‚Â¼Ã…â€™nfpCacheÃƒÂ¥Ã‚Â­Ã‹Å“ÃƒÂ§Ã…Â¡Ã¢â‚¬Å¾ÃƒÂ¦Ã‹Å“Ã‚Â¯nfpKeyÃƒÂ¦Ã¢â‚
-         * ¬Â°Ã¢â€šÂ¬ÃƒÂ¥Ã‚Â¯Ã‚Â¹ÃƒÂ¥Ã‚ÂºÃ¢â‚¬ï¿½ÃƒÂ§Ã…Â¡Ã¢â‚¬Å¾ÃƒÂ¤Ã‚Â¸Ã‚Â¤ÃƒÂ¤Ã‚Â¸Ã‚ÂªpolygonÃƒÂ¦Ã¢â‚¬Â°Ã¢â€šÂ¬ÃƒÂ¥Ã‚Â½Ã‚Â¢ÃƒÂ¦Ã‹â€ Ã¯Â¿Â½ÃƒÂ§Ã…Â¡Ã¢â‚¬Å¾Nfp( List<NestPath> )
-         */
-        List<ParallelData> generatedNfp = new ArrayList<>();
-        int cnt = 0;
-        for(NfpPair nfpPair :nfpPairs){
-            if(++cnt % 1000 == 0 ){
-                //debug(" nfp generated.");
-                debug("Generating nfp "+cnt+": "+nfpPair.getA().getBid()+","+nfpPair.getB().getBid());
-            }
-            ParallelData data = NfpUtil.nfpGenerator(nfpPair,config);
-            if(data == null){
-                debug("Null nfp "+cnt+": "+nfpPair.getA().getBid()+","+nfpPair.getB().getBid());
-            }
-            generatedNfp.add(data);
-        }
-        for (ParallelData Nfp : generatedNfp) {
-            //TODO remove gson & generate a new key algorithm
-            String tkey = gson.toJson(Nfp.getKey());
-            nfpCache.put(tkey, Nfp.value);
-        }
-        log("Saving nfpCache.");
-        String lotId = InputConfig.INPUT == null ? "" : InputConfig.INPUT.get(0).lotId;
-        IOUtils.saveNfpCache(nfpCache, Config.OUTPUT_DIR+"nfp"+ lotId+".txt");
-  
-        
-        /*----------------------------------------------------ASSEGNAZIONE VALORE DELLA FITNESS------------------------------------------------------------------------*/
-        debug("Launching placement worker...");
-        // Here place parts according to the sequence specified by the individual
-        Placementworker worker = new Placementworker(binPolygon,config,nfpCache);	// -------->	serve per assegnare un valore di fitness, sfruttando Placementworker
-        List<NestPath> placeListSlice = new ArrayList<>();
-
+		
+		/*---------------------FITNESS COMPUTATION---------------------*/
+		
+		debug("Launching placement worker...");
+		// Places parts according to the sequence specified by the individual
+		Placementworker worker = new Placementworker(binPolygon, config, nfpCache); // --------> uses Placementworker to set fitness value
+																					
+		List<NestPath> placeListSlice = new ArrayList<>();
 
 		for (int i = 0; i < placelist.size(); i++) {
 			placeListSlice.add(new NestPath(placelist.get(i)));
@@ -376,21 +363,20 @@ public class Nest {
 		Result bestResult = results.get(0);
 		for (int i = 1; i < results.size(); i++) {
 			if (results.get(i).fitness < bestResult.fitness) {
-				bestResult = results.get(i); // viene preso il valore di fitness più basso come miglior fitness
+				bestResult = results.get(i); // Fitness is the lowest value
 			}
 		}
 		debug("launchWorkers(): current best fitness = " + bestResult.fitness);
 		return bestResult;
 	}
 
-
-    /**
-     *  ÃƒÂ©Ã¢â€šÂ¬Ã…Â¡ÃƒÂ¨Ã‚Â¿Ã¢â‚¬Â¡idÃƒÂ¤Ã‚Â¸Ã…Â½bidÃƒÂ¥Ã‚Â°Ã¢â‚¬Â translateÃƒÂ¥Ã¢â‚¬â„¢Ã…â€™rotateÃƒÂ§Ã‚Â»Ã¢â‚¬ËœÃƒÂ¥Ã‚Â®Ã…Â¡ÃƒÂ¥Ã‹â€ Ã‚Â°ÃƒÂ¥Ã‚Â¯Ã‚Â¹ÃƒÂ¥Ã‚ÂºÃ¢â‚
-     *  ¬ï¿½ÃƒÂ¦Ã¯Â¿Â½Ã‚Â¿ÃƒÂ¤Ã‚Â»Ã‚Â¶ÃƒÂ¤Ã‚Â¸Ã…Â 
-     * @param best	current fitness best value
-     * @param tree	all NestPaths
-     * @return	applyPlacement 	all the translations/rotations that have been done on the best current Individual
-     */
+	/**
+	 * Bind translate and rotate to the corresponding board by id and bid
+	 *
+	 * @param best  current fitness best value
+	 * @param tree  all NestPaths
+	 * @return applyPlacement 	all the translations/rotations that have been done on the best current Individual
+	 */
     public static List<List<Placement>> applyPlacement(Result best , List<NestPath> tree){
         List<List<Placement>> applyPlacement = new ArrayList<>();
         for(int i = 0; i<best.placements.size();i++){
@@ -412,8 +398,9 @@ public class Nest {
 
 
 	/**
-	 * ÃƒÂ¥Ã…â€œÃ‚Â¨ÃƒÂ©Ã¯Â¿Â½Ã¢â‚¬â€�ÃƒÂ¤Ã‚Â¼Ã‚Â ÃƒÂ§Ã‚Â®Ã¢â‚¬â€�ÃƒÂ¦Ã‚Â³Ã¢â‚¬Â¢ÃƒÂ¤Ã‚Â¸Ã‚Â­ÃƒÂ¦Ã‚Â¯Ã¯Â¿Â½ÃƒÂ¦Ã‚Â¬Ã‚Â¡ÃƒÂ§Ã‚ÂªÃ¯Â¿Â½ÃƒÂ¥Ã¯Â¿Â½Ã‹Å“ÃƒÂ¦Ã‹â€ Ã¢â‚¬â€œÃƒÂ¨Ã¢â€šÂ¬Ã¢â‚¬Â¦ÃƒÂ¦Ã‹Å“Ã‚Â¯ÃƒÂ¤Ã‚ÂºÃ‚Â¤ÃƒÂ©Ã¢â‚¬Â¦Ã¯Â¿Â½ÃƒÂ¤Ã‚ÂºÃ‚Â§ÃƒÂ§Ã¢â‚¬ï¿½Ã…Â¸ÃƒÂ¥Ã¢â‚¬Â¡Ã‚ÂºÃƒÂ¦Ã¢â‚¬â€œÃ‚Â°ÃƒÂ§Ã…Â¡Ã¢â‚¬Å¾ÃƒÂ§Ã‚Â§Ã¯Â¿Â½ÃƒÂ§Ã‚Â¾Ã‚Â¤ÃƒÂ¦Ã¢â‚¬â€�Ã‚Â¶ÃƒÂ¯Ã‚Â¼Ã…â€™ÃƒÂ¥Ã¯Â¿Â½Ã‚Â¯ÃƒÂ¨Ã†â€™Ã‚Â½ÃƒÂ¤Ã‚Â¼Ã…Â¡ÃƒÂ¥Ã¢â‚¬Â¡Ã‚ÂºÃƒÂ§Ã…Â½Ã‚Â°ÃƒÂ¦Ã¯Â¿Â½Ã‚Â¿ÃƒÂ¤Ã‚Â»Ã‚Â¶ÃƒÂ¤Ã‚Â¸Ã…Â½ÃƒÂ¦Ã¢â‚¬â€�Ã¢â‚¬Â¹ÃƒÂ¨Ã‚Â½Ã‚Â¬ÃƒÂ¨Ã‚Â§Ã¢â‚¬â„¢ÃƒÂ¥Ã‚ÂºÃ‚Â¦ÃƒÂ¤Ã‚Â¸Ã¯Â¿Â½ÃƒÂ©Ã¢â€šÂ¬Ã¢â‚¬Å¡ÃƒÂ©Ã¢â‚¬Â¦Ã¯Â¿Â½ÃƒÂ§Ã…Â¡Ã¢â‚¬Å¾ÃƒÂ§Ã‚Â»Ã¢â‚¬Å“ÃƒÂ¦Ã…Â¾Ã…â€œÃƒÂ¯Ã‚Â¼Ã…â€™ÃƒÂ©Ã…â€œÃ¢â€šÂ¬ÃƒÂ¨Ã‚Â¦Ã¯Â¿Â½ÃƒÂ©Ã¢â‚¬Â¡Ã¯Â¿Â½ÃƒÂ¦Ã¢â‚¬â€œÃ‚Â°ÃƒÂ¦Ã‚Â£Ã¢â€šÂ¬ÃƒÂ¦Ã…Â¸Ã‚Â¥ÃƒÂ¥Ã‚Â¹Ã‚Â¶ÃƒÂ©Ã¢â€šÂ¬Ã¢â‚¬Å¡ÃƒÂ©Ã¢â‚¬Â¦Ã¯Â¿Â½ÃƒÂ£Ã¢â€šÂ¬Ã¢â‚¬Å¡
-	 * 
+	 ** Every time a new population is generated by mutation or mating in the genetic algorithm,
+	 *the result that the plate and the rotation angle do not match may occur, and it needs to be re-checked and adapted.
+	 *
 	 * @param binPolygon
 	 * @param tree
 	 * @return

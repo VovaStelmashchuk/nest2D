@@ -43,7 +43,7 @@ public class CommonUtil {
     }
 
     /**
-     * Ã¥ï¿½ï¿½Ã¦Â â€¡Ã¨Â½Â¬Ã¦ï¿½Â¢
+     * Coordinate conversion
      * @param x
      * @param y
      * @return
@@ -53,7 +53,7 @@ public class CommonUtil {
     }
 
     /**
-     * Ã¥ï¿½ï¿½Ã¦Â â€¡Ã¨Â½Â¬Ã¦ï¿½Â¢
+     * Coordinate conversion
      * @param x
      * @param y
      * @return
@@ -64,7 +64,7 @@ public class CommonUtil {
 
 
     /**
-     * Ã¤Â¸ÂºClipperÃ¤Â¸â€¹Ã§Å¡â€žPathÃ¦Â·Â»Ã¥Å Â Ã§â€šÂ¹
+     * Add points to Path under Clipper     
      * @param x
      * @param y
      * @param path
@@ -76,8 +76,8 @@ public class CommonUtil {
 
 
     /**
-     * binPathÃ¦ËœÂ¯Ã¤Â½Å“Ã¤Â¸ÂºÃ¥Âºâ€¢Ã¦ï¿½Â¿Ã§Å¡â€žNestPath , polysÃ¥Ë†â„¢Ã¤Â¸ÂºÃ¦ï¿½Â¿Ã¤Â»Â¶Ã§Å¡â€žPathÃ¥Ë†â€”Ã¨Â¡Â¨
-     * Ã¨Â¿â„¢Ã¤Â¸ÂªÃ¦â€“Â¹Ã¦Â³â€¢Ã¦ËœÂ¯Ã¤Â¸ÂºÃ¤Âºâ€ Ã¥Â°â€ binPathÃ¥â€™Å’polysÃ¥Å“Â¨Ã¤Â¸ï¿½Ã¦â€�Â¹Ã¥ï¿½ËœÃ¨â€¡ÂªÃ¨ÂºÂ«Ã¥Â½Â¢Ã§Å Â¶Ã¯Â¼Å’Ã¨Â§â€™Ã¥ÂºÂ¦Ã§Å¡â€žÃ¦Æ’â€¦Ã¥â€ ÂµÃ¤Â¸â€¹Ã¦â€�Â¾Ã§Â½Â®Ã¥Å“Â¨Ã¤Â¸â‚¬Ã¤Â¸ÂªÃ¥ï¿½ï¿½Ã¦Â â€¡Ã§Â³Â»Ã¥â€ â€¦Ã¯Â¼Å’Ã¤Â¿ï¿½Ã¨Â¯ï¿½Ã¤Â¸Â¤Ã¤Â¸Â¤Ã¤Â¹â€¹Ã©â€”Â´Ã¤Â¸ï¿½Ã¤ÂºÂ¤Ã¥ï¿½â€°
+     * binPath is the NestPath as the base plate, and polys is the Path list of the board
+     * This method placeA binPath and polys in a coordinate system without changing their shape and angle to ensure that they do not intersect
      * @param binPath
      * @param polys
      */
@@ -86,7 +86,7 @@ public class CommonUtil {
     }
 
     /**
-     *  Ã¥Â°â€ NestPathÃ¥Ë†â€”Ã¨Â¡Â¨Ã¨Â½Â¬Ã¦ï¿½Â¢Ã¦Ë†ï¿½Ã§Ë†Â¶Ã¥Â­ï¿½Ã¥â€¦Â³Ã§Â³Â»Ã§Å¡â€žÃ¦Â â€˜
+     * Convert the NestPath list into a tree of parent-child relationships
      * @param list
      * @param idstart
      * @return
@@ -94,9 +94,7 @@ public class CommonUtil {
     static int toTree(List<NestPath> list , int idstart){
         List<NestPath> parents = new ArrayList<>();
         int id = idstart;
-        /**
-         * Ã¦â€°Â¾Ã¥â€¡ÂºÃ¦â€°â‚¬Ã¦Å“â€°Ã§Å¡â€žÃ¥â€ â€¦Ã¥â€ºÅ¾Ã§Å½Â¯
-         */
+        // find all inner loops
         for(int i = 0 ; i<list.size() ; i ++){
             NestPath p = list.get(i);
             boolean isChild = false;
@@ -117,7 +115,7 @@ public class CommonUtil {
             }
         }
         /**
-         *  Ã¥Â°â€ Ã¥â€ â€¦Ã§Å½Â¯Ã¤Â»Å½listÃ¥Ë†â€”Ã¨Â¡Â¨Ã¤Â¸Â­Ã¥Å½Â»Ã©â„¢Â¤
+         *  remove the inner loop from the list
          */
         for(int i = 0; !Config.ASSUME_NO_INNER_PARTS && i <list.size() ; i ++){
             if(parents.indexOf(list.get(i)) < 0 ){
@@ -187,9 +185,7 @@ public class CommonUtil {
         Paths newpaths = new Paths();
         co.execute(newpaths , offset * Config.CLIIPER_SCALE);
 
-        /**
-         * Ã¨Â¿â„¢Ã©â€¡Å’Ã§Å¡â€žlengthÃ¦ËœÂ¯1Ã§Å¡â€žÃ¨Â¯ï¿½Ã¥Â°Â±Ã¦ËœÂ¯Ã¦Ë†â€˜Ã¤Â»Â¬Ã¦Æ’Â³Ã¨Â¦ï¿½Ã§Å¡â€ž
-         */
+        // The length here is 1, which is what we want
         for (Path newpath : newpaths) {
             result.add(CommonUtil.clipperToNestPath(newpath));
         }
@@ -208,7 +204,7 @@ public class CommonUtil {
 
 
     /**
-     * Ã¥Â¯Â¹Ã¥Âºâ€�Ã¤ÂºÅ½JSÃ©Â¡Â¹Ã§â€ºÂ®Ã¤Â¸Â­Ã§Å¡â€žgetParts
+     * Corresponds to getParts in JS projects
      * @param parts (all polygons)
      * @param curve_tolerance 
      * @return polygons without self intersecting parts
@@ -231,11 +227,10 @@ public class CommonUtil {
         return polygons;
     }
 
-    
-    /**
-     * @param scrPath (all polygons)
-     * @return polygons without self intersecting parts
-     */
+  /**
+   * @param scrPath (all polygons)
+   * @return polygons without self intersecting parts
+   */
 	public static NestPath cleanNestPath(NestPath srcPath){
 	    /**
 	     * Convert NestPath 2 Clipper

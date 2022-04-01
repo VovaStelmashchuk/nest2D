@@ -17,13 +17,13 @@ import de.lighti.clipper.Point.LongPoint;
 
 
 /**
- *      y
- *      â†‘
- *      |
- *      |
- *      |__________ x é¡¹ç›®çš„å��æ ‡ç³»
- *
- */
+*y
+* ^
+* |
+* |
+* |__________ x coordinate system of the item
+*
+*/
 /**
  * @author yisa
  */
@@ -41,7 +41,7 @@ public class GeometryUtil {
     }
 
     /**
-     * è®¡ç®—å¤šè¾¹å½¢é�¢ç§¯
+     * Calculates polygon area
      * @param polygon
      * @return area of the polygon
      */
@@ -56,7 +56,7 @@ public class GeometryUtil {
     }
 
     /**
-     * åˆ¤æ–­ç‚¹Pæ˜¯å�¦åœ¨è¾¹ABä¸Š
+     * Determine if the point P is on the edge AB
      * @param A
      * @param B
      * @param p
@@ -122,7 +122,7 @@ public class GeometryUtil {
     }
 
     /**
-     * åˆ¤æ–­ç‚¹Pæ˜¯å�¦åœ¨å¤šè¾¹å½¢polygonä¸Š
+     * Determine if point P is on the polygon
      * @param point
      * @param polygon
      * @return
@@ -155,7 +155,7 @@ public class GeometryUtil {
     }
 
     /**
-     * èŽ·å�–å¤šè¾¹å½¢è¾¹ç•Œ
+     * Get polygon boundaries
      * @param polygon
      * @return
      */
@@ -188,6 +188,7 @@ public class GeometryUtil {
 
     /**
      * Ruota il poligono (NestPath) dell'angolo passato
+     * After rotating the polygon by a certain angle, return the bounds of the rotated polygon
      * @param polygon
      * @param angle
      * @return
@@ -210,7 +211,7 @@ public class GeometryUtil {
     }
 
     /**
-     * å°†å¤šè¾¹å½¢æ—‹è½¬ä¸€å®šè§’åº¦å�Žï¼Œè¿”å›žè¯¥æ—‹è½¬å�Žçš„å¤šè¾¹å½¢
+     * After rotating the polygon by a certain angle, return the rotated polygon
      * @param polygon
      * @param degrees
      * @return
@@ -238,7 +239,7 @@ public class GeometryUtil {
     }
 
     /**
-     * åˆ¤æ–­æ˜¯å�¦æ˜¯çŸ©å½¢
+     * Determine if it is a rectangle
      * @param poly
      * @param tolerance
      * @return
@@ -256,7 +257,7 @@ public class GeometryUtil {
     }
 
     /**
-     * æž„å»ºNFP
+     * Builds no fit polygon
      * @param A
      * @param B
      * @param inside
@@ -1103,7 +1104,7 @@ public class GeometryUtil {
     }
 
     /**
-     * ä¸“é—¨ä¸ºçŽ¯ç»•çŸ©å½¢ç”Ÿæˆ�çš„nfp
+     * specially generated nfp for surrounding rectangle
      * @param A
      * @param B
      * @return

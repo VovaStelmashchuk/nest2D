@@ -14,7 +14,7 @@ import com.qunhe.util.nest.data.ParallelData;
 public class NfpUtil {
 
     /**
-     * 获取一对多边形，并生成nfp
+     * Get a pair of polygons and generate nfp
      * @param pair
      * @param config
      * @return
