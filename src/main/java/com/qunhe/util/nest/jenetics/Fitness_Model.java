@@ -7,7 +7,10 @@ import java.util.function.Function;
 
 import org.apache.batik.ext.awt.geom.Polygon2D;
 
+import com.qunhe.util.nest.data.Bound;
 import com.qunhe.util.nest.data.NestPath;
+import com.qunhe.util.nest.data.Segment;
+import com.qunhe.util.nest.util.GeometryUtil;
 
 import io.jenetics.Genotype;
 
@@ -36,12 +39,36 @@ public class Fitness_Model {
 	public double scalarFitness(final Genotype model)
     {
 		
+		double maxX=0;
+		
+		for(int i=0; i<list.size();i++)
+		{
+			List<Segment> ls = list.get(i).getSegments();
+			
+			for(int j=0; j<ls.size();j++)
+			{
+				if (ls.get(j).getX()>maxX) maxX = ls.get(j).getX();
+			}
+			
+		}
+		
+		
+		
+	double penalty = maxX;
+		
+
+        //double area = rectBounds.getWidth() * 2 + rectBounds.getHeight();
+		
+		
         ArrayList<NestPath> new_list = (ArrayList<NestPath>) Model_Factory.convert(model,list);
-        double penalty = 0;
+        
         for (int i=0; i< list.size(); i++){
             for (int j=0; j< list.size(); j++){
-                if(i!=j)
-                    penalty += overlap(new_list.get(i).toPolygon2D(), new_list.get(j).toPolygon2D());
+                if(i!=j) 
+                {
+                	double add= overlap(new_list.get(i).toPolygon2D(), new_list.get(j).toPolygon2D());
+                    penalty += add;
+                }
                 
             }
         }

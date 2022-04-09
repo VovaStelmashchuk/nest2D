@@ -23,9 +23,8 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
-import org.w3c.dom.DocumentType;
+//import org.w3c.dom.DocumentType;
 import org.w3c.dom.svg.SVGDocument;
-
 import com.qunhe.util.nest.config.Config;
 import com.qunhe.util.nest.data.NestPath;
 import com.qunhe.util.nest.data.Placement;
@@ -123,7 +122,7 @@ public class guiUtil {
 	 
 	 
 	 
-	 static SVGDocument CreateSvgFile(List<String> strings,  double binwidth, double binheight) throws Exception {
+	 public static SVGDocument CreateSvgFile(List<String> strings,  double binwidth, double binheight) throws Exception {
 		
 	        
 	        //SVGDocument doc = null;

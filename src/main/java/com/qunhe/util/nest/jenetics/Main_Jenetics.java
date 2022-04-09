@@ -4,12 +4,16 @@ package com.qunhe.util.nest.jenetics;
 import java.awt.Polygon;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.dom4j.DocumentException;
+import org.w3c.dom.svg.SVGDocument;
 
 import com.qunhe.util.nest.Nest;
 import com.qunhe.util.nest.config.Config;
 import com.qunhe.util.nest.data.NestPath;
+import com.qunhe.util.nest.data.Placement;
 import com.qunhe.util.nest.data.Segment;
 import com.qunhe.util.nest.gui.guiUtil;
 import com.qunhe.util.nest.util.CommonUtil;
@@ -141,13 +145,69 @@ public class Main_Jenetics {
 		
 		//Factory<Genotype<AnyGene<NestPath>>> gtf = Genotype.of(AnyChromosome.of(Main_Jenetics::generateRandomPositioning,length));
 		
+        NestPath binPolygon1 = new NestPath();	//Contenitore quadrato
+        double width = 400;
+        double height = 400;
+        binPolygon1.add(0, 0);
+        binPolygon1.add(0, height);
+        binPolygon1.add(width, height);
+        binPolygon1.add(width, 0);
+        NestPath outer = new NestPath();	// quadrato
+        outer.add(600, 0);
+        outer.add(600, 200);
+        outer.add(800, 200);
+        outer.add(800, 0);
+        outer.setRotation(0);
+        assert outer.getBid() == 1;
+        NestPath inner = new NestPath();	//quadrato
+        inner.add(650, 50);
+        inner.add(650, 150);
+        inner.add(750, 150);
+        inner.add(750, 50);
+        assert inner.getBid() == 2;
+        //inner.setBid(2);
+        NestPath little = new NestPath();	//triangolino
+        little.add(900, 0);
+        little.add(870, 20);
+        little.add(930, 20);
+        assert little.getBid() == 3;
+        //little.setBid(3);
+        NestPath rect = new NestPath();	//quadrato
+        rect.add(1000, 0);
+        rect.add(1000, 100);
+        rect.add(1050, 100);
+        rect.add(1050, 0);
+        assert inner.getBid() == 4;
+        NestPath squa = new NestPath();	//quadrato
+        squa.add(1100, 0);
+        squa.add(1100, 50);
+        squa.add(1150, 50);
+        squa.add(1250, 0);
+        assert inner.getBid() == 5;
+        little.setRotation(4);		// rotazione di 360/4 = 90° in senso antiorario
         
-        Fitness_Model fm = new Fitness_Model(tree);
-
-        Factory<Genotype<DoubleGene>> model = Model_Factory.of(tree, binWidth,binHeight);
+        // Inizializzazione in una lista
+        List<NestPath> list = new ArrayList<>();
+        list.add(inner);
+        list.add(outer);
+        list.add(little);
+        list.add(rect);
+        list.add(squa);
+        
+        // Scelta di fare il nesting all'interno delle figure
+        Config config1 = new Config();
+        config1.USE_HOLE = true;
+        
+        
+        
+        
+        
+        Fitness_Model fm = new Fitness_Model(list);
+        
+        Factory<Genotype<DoubleGene>> model = Model_Factory.of(list, 1400,1400);
 
         Engine<DoubleGene, Double> engine = Engine.builder(fm.getFitness(), model)
-                .populationSize(10000)
+                .populationSize(100)
                 .optimize(Optimize.MINIMUM)
                 .alterers(
                         new Mutator<>(.05),
@@ -155,13 +215,22 @@ public class Main_Jenetics {
                 )
                 .build();
         
+        
         final EvolutionStatistics<Double, ?> statistics = EvolutionStatistics.ofNumber();
         final Phenotype<DoubleGene, Double> best = engine.stream()
                 .limit(bySteadyFitness(40))
                 .peek(statistics)
                 .collect(toBestPhenotype());
         
-        ArrayList<NestPath> rooms = (ArrayList<NestPath>) Model_Factory.convert(best.genotype(), tree);
+        ArrayList<NestPath> rooms = (ArrayList<NestPath>) Model_Factory.convert(best.genotype(), list);
+       
+        SVGDocument docFinals;
+        try {
+			docFinals = guiUtil.CreateSvgFile(createsvg(rooms,binWidth,binHeight), binWidth, binHeight);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         System.out.println(statistics);
         System.out.println(best);
 
@@ -171,6 +240,43 @@ public class Main_Jenetics {
 		
 		
 	}
+	
+	public static List<String> createsvg(List<NestPath> list, double binwidth, double binheight)
+	{
+		
+        List<String> strings = new ArrayList<>();
+        String s = "    <rect x=\"0\" y=\"0\" width=\"" + binwidth + "\" height=\"" + binheight + "\"  fill=\"none\" stroke=\"#010101\" stroke-width=\"1\" />\n";
+        
+        for(int j=0; j<list.size(); j++)
+        {
+        	NestPath nestPath = list.get(j);
+//        	double ox = placement.translate.x;
+//        	double oy = placement.translate.y;
+//        	double rotate = placement.rotate;
+        	//s += "<g transform=\"translate(" + ox + x + " " + oy + y + ") rotate(" + rotate + ")\"> \n";
+        	s += "<path d=\"";
+        	for (int i = 0; i < nestPath.getSegments().size(); i++) {
+        		if (i == 0) {
+        			s += "M";
+        		} else {
+        			s += "L";
+        		}
+        		Segment segment = nestPath.get(i);
+        		s += segment.x + " " + segment.y + " ";
+        	}
+        	s += "Z\" fill=\"#8498d1\" stroke=\"#010101\" stroke-width=\"1\" />" + " \n";
+        	//s += "</g> \n";
+        }
+        //y += binHeight + 50;
+        strings.add(s);
+	
+	return strings;
+
+        
+        
+        
+        
+		}
 
 
 	
