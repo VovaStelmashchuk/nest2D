@@ -35,10 +35,10 @@ import com.qunhe.util.nest.util.SvgUtil;
 
 import com.qunhe.util.nest.data.NestPath;
 
-class guiUtil {
+public class guiUtil {
 	
 		
-	 static List<NestPath> transferSvgIntoPolygons() throws DocumentException {
+	 public static List<NestPath> transferSvgIntoPolygons() throws DocumentException {
 	        List<NestPath> nestPaths = new ArrayList<>();
 	        SAXReader reader = new SAXReader();
 	        //Document document = reader.read("input/test.xml");

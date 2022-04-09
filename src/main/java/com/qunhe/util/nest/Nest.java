@@ -405,7 +405,7 @@ public class Nest {
 	 * @param tree
 	 * @return
 	 */
-	private static List<Integer> checkIfCanBePlaced(NestPath binPolygon, List<NestPath> tree) {
+	public static List<Integer> checkIfCanBePlaced(NestPath binPolygon, List<NestPath> tree) {
 		List<Integer> CanBePlacdPolygonIndex = new ArrayList<>();
 		Bound binBound = GeometryUtil.getPolygonBounds(binPolygon);
 		for (int i = 0; i < tree.size(); i++) {

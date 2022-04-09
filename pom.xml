@@ -62,8 +62,6 @@
 			<artifactId>watchmaker-framework</artifactId>
 			<version>0.7.1</version>
 		</dependency>
-
-
 		<dependency>
 			<groupId>org.apache.xmlgraphics</groupId>
 			<artifactId>batik-svg-dom</artifactId>
@@ -83,6 +81,11 @@
 			<groupId>org.uncommons.watchmaker</groupId>
 			<artifactId>watchmaker-swing</artifactId>
 			<version>0.7.1</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jenetics</groupId>
+			<artifactId>jenetics</artifactId>
+			<version>6.3.0</version>
 		</dependency>
 	</dependencies>
 </project>

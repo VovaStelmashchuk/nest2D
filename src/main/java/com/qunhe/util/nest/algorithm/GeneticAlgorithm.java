@@ -189,6 +189,7 @@ public class GeneticAlgorithm {
      * @param part
      * @return
      */
+    @Deprecated
     private int randomAngleOld(NestPath part){
         List<Integer> angleList = new ArrayList<>();
         int rotate = Math.max(1,part.getRotation());
