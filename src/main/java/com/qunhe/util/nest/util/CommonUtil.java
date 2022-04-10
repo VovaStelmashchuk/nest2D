@@ -22,6 +22,24 @@ import de.lighti.clipper.Point.LongPoint;
  */
 public class CommonUtil {
 
+	
+	
+	
+	public static ArrayList<NestPath> cloneArrayListNestpath (List<NestPath> list)
+	{
+		
+		ArrayList<NestPath> clonedList = new ArrayList<>();
+		for (NestPath nestPath : list) {
+			NestPath clone = new NestPath(nestPath);
+			clonedList.add(clone);
+		}
+		for (NestPath nestPath : clonedList) {
+			nestPath.area = GeometryUtil.polygonArea(nestPath);
+		}
+		
+		return clonedList;
+		
+	}
 
     private static NestPath Path2NestPath (Path path){
         NestPath nestPath = new NestPath();

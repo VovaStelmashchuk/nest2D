@@ -155,7 +155,7 @@ public class NestTest {
         return nestPaths;
     }
 
-    private void saveSvgFile(List<String> strings, String htmlfile) throws Exception {
+    public void saveSvgFile(List<String> strings, String htmlfile) throws Exception {
         File f = new File(htmlfile);
         if (!f.exists()) {
             f.createNewFile();

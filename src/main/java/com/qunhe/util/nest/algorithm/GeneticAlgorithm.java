@@ -214,7 +214,7 @@ public class GeneticAlgorithm {
         return -1;
     }
 
-    private  int randomAngle(NestPath part){
+    public static int randomAngle(NestPath part){
         int[]poss = part.getPossibleRotations();
         if(poss==null || poss.length<2){
             return part.getRotation();

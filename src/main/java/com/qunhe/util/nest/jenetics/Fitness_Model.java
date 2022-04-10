@@ -5,11 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+import javax.lang.model.type.IntersectionType;
+
 import org.apache.batik.ext.awt.geom.Polygon2D;
+import org.apache.xmlgraphics.image.loader.util.Penalty;
 
 import com.qunhe.util.nest.data.Bound;
 import com.qunhe.util.nest.data.NestPath;
 import com.qunhe.util.nest.data.Segment;
+import com.qunhe.util.nest.util.CommonUtil;
 import com.qunhe.util.nest.util.GeometryUtil;
 
 import io.jenetics.Genotype;
@@ -17,60 +21,87 @@ import io.jenetics.Genotype;
 public class Fitness_Model {
 	
 	public List<NestPath> list;
+	Double binWidth,binHeight;
 	
-	public Fitness_Model(List<NestPath> l) {
+	public Fitness_Model(List<NestPath> l, double binW, double binH) {
 		
 		this.list = l;
+		this.binHeight=binH;
+		this.binWidth=binW;
 		
 	}
 	
 	
-	private static double overlap(Polygon2D p1, Polygon2D p2)
-    {
-		
+	private static double overlapDouble(Polygon2D p1, Polygon2D p2)
+    {		
 		Area area = new Area(p1);
 		area.intersect(new Area(p2));
-		return area.getBounds().getWidth()*area.getBounds().getHeight();
-		
+		return area.getBounds().getWidth()*area.getBounds().getHeight();		
     }
 	
+	private static boolean overlapBool(NestPath p1, NestPath p2)
+    {		
+		return  GeometryUtil.intersect(p1, p2);
+    }
 	
 	
 	public double scalarFitness(final Genotype model)
     {
 		
 		double maxX=0;
+		double penalty=0;
 		
-		for(int i=0; i<list.size();i++)
+		ArrayList<NestPath> polys = CommonUtil.cloneArrayListNestpath(list);
+		Model_Factory.convert(model, polys);
+		
+		for(int i=0; i<polys.size();i++)
 		{
-			List<Segment> ls = list.get(i).getSegments();
+			NestPath p = polys.get(i);
+			if(p.getMaxX()>binWidth) penalty+=p.getMaxX()-binWidth;
+			if(p.getMaxY()>binHeight) penalty+=p.getMaxY()-binHeight;
+			if(p.getMinX()<0) penalty+=-p.getMinX()*Math.abs(p.area)*10;
+			if(p.getMinY()<0) penalty+=-p.getMinY()*Math.abs(p.area)*10;
+
 			
-			for(int j=0; j<ls.size();j++)
-			{
-				if (ls.get(j).getX()>maxX) maxX = ls.get(j).getX();
-			}
+			
+			List<Segment> ls = polys.get(i).getSegments();
+			
+//			for(int j=0; j<ls.size();j++)
+//			{
+//				if (ls.get(j).getX()>maxX) maxX = ls.get(j).getX();
+//			}
 			
 		}
 		
 		
 		
-	double penalty = maxX;
+		//penalty += maxX;
 		
 
         //double area = rectBounds.getWidth() * 2 + rectBounds.getHeight();
 		
 		
-        ArrayList<NestPath> new_list = (ArrayList<NestPath>) Model_Factory.convert(model,list);
+       // ArrayList<NestPath> new_list = (ArrayList<NestPath>) Model_Factory.convert(model,list);
         
-        for (int i=0; i< list.size(); i++){
-            for (int j=0; j< list.size(); j++){
+        for (int i=0; i< polys.size(); i++){
+            for (int j=0; j< polys.size(); j++){
                 if(i!=j) 
                 {
-                	double add= overlap(new_list.get(i).toPolygon2D(), new_list.get(j).toPolygon2D());
+                	double add= overlapDouble(polys.get(i).toPolygon2D(), polys.get(j).toPolygon2D());
                     penalty += add;
+                    
+//                	NestPath p1 = polys.get(i);
+//                	NestPath p2 = polys.get(j);
+//
+//                	if(GeometryUtil.intersect(p1, p2)) penalty+=50;
                 }
                 
             }
+        }
+        
+        if(penalty<=0)
+        {
+        	return 0;
         }
         return penalty;
     }

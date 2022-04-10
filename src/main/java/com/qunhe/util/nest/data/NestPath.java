@@ -275,6 +275,29 @@ public class NestPath implements Comparable<NestPath>{
         return -1;
     }
 
+    
+    public double getMinY(){
+        double MinY = Double.MAX_VALUE;
+        for(Segment s : segments){
+            if(MinY > s.getY()){
+                MinY = s.getY();
+            }
+        }
+        return MinY;
+    }
+    
+    public double getMinX(){
+        double MinX = Double.MAX_VALUE;
+        for(Segment s : segments){
+            if(MinX > s.getX()){
+                MinX = s.getX();
+            }
+        }
+        return MinX;
+    }
+    
+    
+    
     public double getMaxY(){
         double MaxY = Double.MIN_VALUE;
         for(Segment s : segments){
@@ -283,6 +306,16 @@ public class NestPath implements Comparable<NestPath>{
             }
         }
         return MaxY;
+    }
+    
+    public double getMaxX(){
+        double MaxX = Double.MIN_VALUE;
+        for(Segment s : segments){
+            if(MaxX < s.getX()){
+                MaxX = s.getX();
+            }
+        }
+        return MaxX;
     }
 
     public void translate(double x,  double y ){
@@ -310,7 +343,7 @@ public class NestPath implements Comparable<NestPath>{
 	}
 	
 	
-	public Polygon2D toPolygon2D() {
+	public Polygon2D toPolygon2D() {///TODO optimize
 		Polygon2D newp;
 		
 		List<Float> xp = new ArrayList<Float>();

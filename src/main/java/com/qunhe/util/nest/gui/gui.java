@@ -35,6 +35,7 @@ import com.qunhe.util.nest.data.NestPath;
 import com.qunhe.util.nest.data.Placement;
 import com.qunhe.util.nest.data.Result;
 import com.qunhe.util.nest.util.CommonUtil;
+import com.qunhe.util.nest.util.GeometryUtil;
 import com.qunhe.util.nest.util.Placementworker;
 import com.qunhe.util.nest.util.SvgUtil;
 
@@ -110,8 +111,11 @@ class gui {
 				guiUtil.refresh(frmGUI);
 
 				NestPath bin = new NestPath();
-				double binWidth = 500;
-				double binHeight = 339.235;
+//				double binWidth = 500;
+//				double binHeight = 339.235;
+				
+				double binWidth = 200;
+				double binHeight = 150;
 
 				bin.add(0, 0);
 				bin.add(binWidth, 0);
@@ -132,8 +136,7 @@ class gui {
 
 				try {
 					polygons = guiUtil.transferSvgIntoPolygons();
-					
-					
+//					
 					inputpolygoncanvas.getSubjects().clear();
 					inputpolygoncanvas.getClips().clear();
 
@@ -176,7 +179,7 @@ class gui {
 				config.BIN_HEIGHT=binHeight;
 				config.BIN_WIDTH=binWidth;
 				
-				nest = new Nest(bin, polygons, config, 10);
+				nest = new Nest(bin, polygons, config, 100);
 				// aggiungi un observer per osservare il cambiamento ad ogni passo
 				nest.observers.add(new ListPlacementObserver() {					
 					@Override

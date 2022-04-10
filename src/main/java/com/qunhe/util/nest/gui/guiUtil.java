@@ -9,15 +9,9 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import java.awt.Color;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.StringReader;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
 
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
-import org.apache.batik.anim.dom.SVG12OMDocument;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -25,13 +19,6 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 //import org.w3c.dom.DocumentType;
 import org.w3c.dom.svg.SVGDocument;
-import com.qunhe.util.nest.config.Config;
-import com.qunhe.util.nest.data.NestPath;
-import com.qunhe.util.nest.data.Placement;
-import com.qunhe.util.nest.data.Segment;
-import com.qunhe.util.nest.util.SvgUtil;
-
-
 import com.qunhe.util.nest.data.NestPath;
 
 public class guiUtil {
@@ -95,7 +82,7 @@ public class guiUtil {
 		 label.setForeground(Color.BLACK);
 	 }
 	 
-	 static void saveSvgFile(List<String> strings, String htmlfile, double binwidth, double binheight) throws Exception {
+	 public static void saveSvgFile(List<String> strings, String htmlfile, double binwidth, double binheight) throws Exception {
 	        File f = new File(htmlfile);
 	        
 	        if (!f.exists()) {
@@ -109,7 +96,7 @@ public class guiUtil {
 	                " \n" +
 	                //"<svg width=\"100%\" height=\"100%\" version=\"1.1\"\n" +
 	                //added for correct "AUTOZOOM"
-	                "<svg width=\"" + binwidth + 10 + "\" height=\"" + binheight + 10 + "\" viewBox=\"0 0 " + binwidth + 10 +" " +  binheight +10+"\" version=\"1.1\"\n" +
+	                "<svg width=\"" + (binwidth + 10) + "\" height=\"" + (binheight + 10 )+ "\" viewBox=\"0 0 " + binwidth + 10 +" " +  binheight +10+"\" version=\"1.1\"\n" +
 
 	                
 	                "xmlns=\"http://www.w3.org/2000/svg\">\n");
@@ -154,7 +141,7 @@ public class guiUtil {
 	        
 	        SVGDocument doc = factory.createSVGDocument(null, new StringReader(DocumentTextBuilder.toString()));
 	        
-	        doc.setTextContent(DocumentTextBuilder.toString());
+	        //doc.setTextContent(DocumentTextBuilder.toString());
 	        
 	        return doc;
 	    }
@@ -173,6 +160,26 @@ public class guiUtil {
 //		 frame.setVisible(true);
 
 	 }
+	 
+	 public static void saveSvgFile(List<String> strings, String htmlfile) throws Exception {
+	        File f = new File(htmlfile);
+	        if (!f.exists()) {
+	            f.createNewFile();
+	        }
+	        Writer writer = new FileWriter(f, false);
+	        writer.write("<?xml version=\"1.0\" standalone=\"no\"?>\n" +
+	                "\n" +
+	                "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n" +
+	                "\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n" +
+	                " \n" +
+	                "<svg width=\"100%\" height=\"100%\" version=\"1.1\"\n" +
+	                "xmlns=\"http://www.w3.org/2000/svg\">\n");
+	        for(String s : strings){
+	            writer.write(s);
+	        }
+	        writer.write("</svg>");
+	        writer.close();
+	    }
 	
 	 
 	 

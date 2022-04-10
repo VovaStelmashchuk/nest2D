@@ -18,6 +18,7 @@ import com.qunhe.util.nest.data.Segment;
 import com.qunhe.util.nest.gui.guiUtil;
 import com.qunhe.util.nest.util.CommonUtil;
 import com.qunhe.util.nest.util.GeometryUtil;
+import com.qunhe.util.nest.util.SvgUtil;
 
 import io.jenetics.*;
 import io.jenetics.engine.*;
@@ -40,7 +41,7 @@ public class Main_Jenetics {
     }
 	
 	
-	public static void main_provs(String[] args) {
+	public static void main_prova(String[] args) {
 
 		// 1.) Define the genotype (factory) suitable
         //     for the problem.
@@ -64,18 +65,11 @@ public class Main_Jenetics {
 	
 	
 	
-	public static NestPath generateRandomPositioning() {
-		
-		NestPath n=null;
-		return n;
-	}
-	
-	
 	public static void main(String[] args) {
 		
 		NestPath bin = new NestPath();
-		double binWidth = 500;
-		double binHeight = 339.235;
+		double binWidth = 400;
+		double binHeight = 400;
 
 		bin.add(0, 0);
 		bin.add(binWidth, 0);
@@ -83,20 +77,13 @@ public class Main_Jenetics {
 		bin.add(0, binHeight);
 		
 		List<NestPath> polygons=null;
-		int length=0;
-		
+	
 		try {
 			polygons = guiUtil.transferSvgIntoPolygons();
-			 length= polygons.size();
-
 		} catch (DocumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		
-		List<NestPath> tree = CommonUtil.BuildTree(polygons , Config.CURVE_TOLERANCE);
 		
 		Config config = new Config();
 		config.SPACING = 0;
@@ -104,7 +91,8 @@ public class Main_Jenetics {
 		config.BIN_HEIGHT=binHeight;
 		config.BIN_WIDTH=binWidth;
 		
-		CommonUtil.offsetTree(tree, 0.5 * config.SPACING);
+		List<NestPath> tree = CommonUtil.BuildTree(polygons , Config.CURVE_TOLERANCE);
+        CommonUtil.offsetTree(tree, 0.5 * config.SPACING);
         
 		
 		NestPath binPolygon = CommonUtil.cleanNestPath(bin);	//conversione di un eventuale binPath self intersecting in un poligono semplice
@@ -126,6 +114,36 @@ public class Main_Jenetics {
             tree = safeTree;
         }
         
+        
+        
+        /*VENGONO SETTATE LE COORDINATE MAX E MIN DEL SINGOLO BINPATH PER POI POTERLO TRASLARE NELL'ORIGINE*/
+        double xbinmax = binPolygon.get(0).x;	// get.(0) = prende il primo segmento dei 4 (coordinate del primo vertice), se si assume che la superficie sia rettangolare
+        double xbinmin = binPolygon.get(0).x;
+        double ybinmax = binPolygon.get(0).y;
+        double ybinmin = binPolygon.get(0).y;
+        // Find min max
+        for(int i = 1 ; i<binPolygon.size(); i++){
+            if(binPolygon.get(i).x > xbinmax ){
+                xbinmax = binPolygon.get(i).x;
+            }
+            else if (binPolygon.get(i).x < xbinmin ){
+                xbinmin = binPolygon.get(i) .x;
+            }
+
+            if(binPolygon.get(i).y > ybinmax ){
+                ybinmax = binPolygon.get(i).y;
+            }
+            else if (binPolygon.get(i). y <ybinmin ){
+                ybinmin = binPolygon.get(i).y;
+            }
+        }
+ 
+        /*VIENE TRASLATO IL POLIGONO BINPATH NELL'ORIGINE*/
+        for(int i=0; i<binPolygon.size(); i++){				
+            binPolygon.get(i).x -= xbinmin;
+            binPolygon.get(i).y -= ybinmin;
+        }
+        
         if(GeometryUtil.polygonArea(binPolygon) > 0 ){
             binPolygon.reverse();
         }
@@ -140,74 +158,70 @@ public class Main_Jenetics {
                 element.reverse();
             }
         }
-        
-    
 		
 		//Factory<Genotype<AnyGene<NestPath>>> gtf = Genotype.of(AnyChromosome.of(Main_Jenetics::generateRandomPositioning,length));
 		
-        NestPath binPolygon1 = new NestPath();	//Contenitore quadrato
-        double width = 400;
-        double height = 400;
-        binPolygon1.add(0, 0);
-        binPolygon1.add(0, height);
-        binPolygon1.add(width, height);
-        binPolygon1.add(width, 0);
-        NestPath outer = new NestPath();	// quadrato
-        outer.add(600, 0);
-        outer.add(600, 200);
-        outer.add(800, 200);
-        outer.add(800, 0);
-        outer.setRotation(0);
-        assert outer.getBid() == 1;
-        NestPath inner = new NestPath();	//quadrato
-        inner.add(650, 50);
-        inner.add(650, 150);
-        inner.add(750, 150);
-        inner.add(750, 50);
-        assert inner.getBid() == 2;
-        //inner.setBid(2);
-        NestPath little = new NestPath();	//triangolino
-        little.add(900, 0);
-        little.add(870, 20);
-        little.add(930, 20);
-        assert little.getBid() == 3;
-        //little.setBid(3);
-        NestPath rect = new NestPath();	//quadrato
-        rect.add(1000, 0);
-        rect.add(1000, 100);
-        rect.add(1050, 100);
-        rect.add(1050, 0);
-        assert inner.getBid() == 4;
-        NestPath squa = new NestPath();	//quadrato
-        squa.add(1100, 0);
-        squa.add(1100, 50);
-        squa.add(1150, 50);
-        squa.add(1250, 0);
-        assert inner.getBid() == 5;
-        little.setRotation(4);		// rotazione di 360/4 = 90° in senso antiorario
+//        NestPath binPolygon1 = new NestPath();	//Contenitore quadrato
+//        double width = 400;
+//        double height = 400;
+//        binPolygon1.add(0, 0);
+//        binPolygon1.add(0, height);
+//        binPolygon1.add(width, height);
+//        binPolygon1.add(width, 0);
+//        NestPath outer = new NestPath();	// quadrato
+//        outer.add(600, 0);
+//        outer.add(600, 200);
+//        outer.add(800, 200);
+//        outer.add(800, 0);
+//        outer.setRotation(0);
+//        assert outer.getBid() == 1;
+//        NestPath inner = new NestPath();	//quadrato
+//        inner.add(650, 50);
+//        inner.add(650, 150);
+//        inner.add(750, 150);
+//        inner.add(750, 50);
+//        assert inner.getBid() == 2;
+//        //inner.setBid(2);
+//        NestPath little = new NestPath();	//triangolino
+//        little.add(900, 0);
+//        little.add(870, 20);
+//        little.add(930, 20);
+//        assert little.getBid() == 3;
+//        //little.setBid(3);
+//        NestPath rect = new NestPath();	//quadrato
+//        rect.add(1000, 0);
+//        rect.add(1000, 100);
+//        rect.add(1050, 100);
+//        rect.add(1050, 0);
+//        assert inner.getBid() == 4;
+//        NestPath squa = new NestPath();	//quadrato
+//        squa.add(1100, 0);
+//        squa.add(1100, 50);
+//        squa.add(1150, 50);
+//        squa.add(1250, 0);
+//        assert inner.getBid() == 5;
+//        little.setRotation(4);		// rotazione di 360/4 = 90° in senso antiorario
+//        
+//        // Inizializzazione in una lista
+//        List<NestPath> list = new ArrayList<>();
+//        list.add(inner);
+//        list.add(outer);
+//        list.add(little);
+//        list.add(rect);
+//        //list.add(squa);
+          
         
-        // Inizializzazione in una lista
-        List<NestPath> list = new ArrayList<>();
-        list.add(inner);
-        list.add(outer);
-        list.add(little);
-        list.add(rect);
-        list.add(squa);
+        for(NestPath np:tree)
+        {
+        	np.Zerolize();
+        }
+//        
+        Fitness_Model fm = new Fitness_Model(tree,binWidth,binHeight);
         
-        // Scelta di fare il nesting all'interno delle figure
-        Config config1 = new Config();
-        config1.USE_HOLE = true;
-        
-        
-        
-        
-        
-        Fitness_Model fm = new Fitness_Model(list);
-        
-        Factory<Genotype<DoubleGene>> model = Model_Factory.of(list, 1400,1400);
+        Factory<Genotype<DoubleGene>> model = Model_Factory.of(tree, binWidth,binHeight);
 
         Engine<DoubleGene, Double> engine = Engine.builder(fm.getFitness(), model)
-                .populationSize(100)
+                .populationSize(config.POPULATION_SIZE)
                 .optimize(Optimize.MINIMUM)
                 .alterers(
                         new Mutator<>(.05),
@@ -221,16 +235,30 @@ public class Main_Jenetics {
                 .limit(bySteadyFitness(40))
                 .peek(statistics)
                 .collect(toBestPhenotype());
+
         
-        ArrayList<NestPath> rooms = (ArrayList<NestPath>) Model_Factory.convert(best.genotype(), list);
+        ArrayList<NestPath> polys = CommonUtil.cloneArrayListNestpath(tree);
+        List<List<Placement>> appliedplacement =  Model_Factory.convert(best.genotype(), tree);
        
-        SVGDocument docFinals;
-        try {
-			docFinals = guiUtil.CreateSvgFile(createsvg(rooms,binWidth,binHeight), binWidth, binHeight);
+        
+        
+        List<String> res;
+		try {
+			res = SvgUtil.svgGenerator(tree, appliedplacement, binWidth, binHeight);
+			guiUtil.saveSvgFile(res, Config.OUTPUT_DIR+"res.html",binWidth, binHeight);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+        
+//        
+//        SVGDocument docFinals;
+//        try {
+//			docFinals = guiUtil.CreateSvgFile(createsvg(polys,binWidth,binHeight), binWidth, binHeight);
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
         System.out.println(statistics);
         System.out.println(best);
 

@@ -702,7 +702,7 @@ public class GeometryUtil {
         return distance;
     }
 
-    static boolean intersect(final NestPath CA,final NestPath CB){
+    public static boolean intersect(final NestPath CA,final NestPath CB){
         double Aoffsetx = CA.offsetX ;
         double Aoffsety = CA.offsetY ;
 
