@@ -49,6 +49,7 @@ public class Fitness_Model {
     {
 		
 		double maxX=0;
+		double maxY=0;
 		double penalty=0;
 		
 		ArrayList<NestPath> polys = CommonUtil.cloneArrayListNestpath(list);
@@ -59,23 +60,24 @@ public class Fitness_Model {
 			NestPath p = polys.get(i);
 			if(p.getMaxX()>binWidth) penalty+=p.getMaxX()-binWidth;
 			if(p.getMaxY()>binHeight) penalty+=p.getMaxY()-binHeight;
-			if(p.getMinX()<0) penalty+=-p.getMinX()*Math.abs(p.area)*10;
-			if(p.getMinY()<0) penalty+=-p.getMinY()*Math.abs(p.area)*10;
+			if(p.getMinX()<0) penalty+=-p.getMinX()*Math.abs(p.area);
+			if(p.getMinY()<0) penalty+=-p.getMinY()*Math.abs(p.area);
 
+			penalty+= (p.getMinX()*2+ p.getMinY())/4;
 			
 			
 			List<Segment> ls = polys.get(i).getSegments();
 			
-//			for(int j=0; j<ls.size();j++)
-//			{
-//				if (ls.get(j).getX()>maxX) maxX = ls.get(j).getX();
-//			}
-			
-		}
+			for(int j=0; j<ls.size();j++)
+			{
+				if (ls.get(j).getX()>maxX) maxX = ls.get(j).getX();
+				if (ls.get(j).getY()>maxY) maxY = ls.get(j).getY();
+			}			
+		}		
 		
-		
-		
-		//penalty += maxX;
+		penalty += 10*maxX;
+		penalty += 5*maxY;
+
 		
 
         //double area = rectBounds.getWidth() * 2 + rectBounds.getHeight();
@@ -89,6 +91,7 @@ public class Fitness_Model {
                 {
                 	double add= overlapDouble(polys.get(i).toPolygon2D(), polys.get(j).toPolygon2D());
                     penalty += add;
+                    if(add>0) penalty+=100;
                     
 //                	NestPath p1 = polys.get(i);
 //                	NestPath p2 = polys.get(j);

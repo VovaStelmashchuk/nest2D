@@ -55,7 +55,7 @@ public class NestPath implements Comparable<NestPath>{
 
         this.id  = srcNestPath.id;
         this.rotation = srcNestPath.rotation;
-        this.rotations =  srcNestPath.rotations;//TODO not clone.
+        this.rotations =  srcNestPath.rotations;	//TODO not clone.
         this.source = srcNestPath.source;
         this.offsetX = srcNestPath.offsetX;
         this.offsetY = srcNestPath.offsetY;
@@ -327,6 +327,18 @@ public class NestPath implements Comparable<NestPath>{
 
     public void setPossibleRotations(int[] rotations) {
         this.rotations = rotations;
+    }
+    
+    public void setPossibleNumberRotations(int rots) {
+        
+    	if(rots<2) return;
+    	int[] possrots = new int[rots];
+    	for(int i=0;i<rots;i++)
+    	{
+    		possrots[i] = Math.round((360/rots)*i);
+    	}
+    	this.rotations=possrots;
+    	
     }
 
     public int[] getPossibleRotations() {

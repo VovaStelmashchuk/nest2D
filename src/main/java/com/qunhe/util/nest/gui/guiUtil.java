@@ -61,7 +61,7 @@ public class guiUtil {
 	                rect.add(x + width, y + height);
 	                rect.add(x, y + height);
 	                //rect.bid = count;
-	                rect.setRotation(4);
+	                rect.setPossibleNumberRotations(4);
 	                nestPaths.add(rect);
 	            }
 	        }

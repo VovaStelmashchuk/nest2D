@@ -2,6 +2,7 @@ package com.qunhe.util.nest.jenetics;
 
 
 import java.awt.Polygon;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -84,10 +85,12 @@ public class Main_Jenetics {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+        final int MAX_SEC_DURATION=polygons.size()*10;
+
 		
 		Config config = new Config();
 		config.SPACING = 0;
-		config.POPULATION_SIZE = 60;
+		config.POPULATION_SIZE = 150;
 		config.BIN_HEIGHT=binHeight;
 		config.BIN_WIDTH=binWidth;
 		
@@ -214,9 +217,20 @@ public class Main_Jenetics {
         for(NestPath np:tree)
         {
         	np.Zerolize();
+        	np.translate((binWidth - np.getMaxX())/2, (binHeight - np.getMaxY())/2);
+        	
+        	//rectangles are already set with 4 possible rotation
+        	np.setPossibleNumberRotations(4);
         }
-//        
+        
+        
+        NestPath p = tree.get(0);
+        p.setPossibleNumberRotations(4);
+        
         Fitness_Model fm = new Fitness_Model(tree,binWidth,binHeight);
+        
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+        
         
         Factory<Genotype<DoubleGene>> model = Model_Factory.of(tree, binWidth,binHeight);
 
@@ -225,14 +239,18 @@ public class Main_Jenetics {
                 .optimize(Optimize.MINIMUM)
                 .alterers(
                         new Mutator<>(.05),
-                        new MeanAlterer<>(.5)
+                        new MeanAlterer<>(.5),
+                        new SwapMutator<>(0.2)
                 )
+                .executor(executor)
                 .build();
+        
         
         
         final EvolutionStatistics<Double, ?> statistics = EvolutionStatistics.ofNumber();
         final Phenotype<DoubleGene, Double> best = engine.stream()
-                .limit(bySteadyFitness(40))
+                .limit(bySteadyFitness(50))
+                .limit(Limits.byExecutionTime(Duration.ofSeconds(MAX_SEC_DURATION)))
                 .peek(statistics)
                 .collect(toBestPhenotype());
 
@@ -243,9 +261,14 @@ public class Main_Jenetics {
         
         
         List<String> res;
+        //List<String> res2;
+
 		try {
-			res = SvgUtil.svgGenerator(tree, appliedplacement, binWidth, binHeight);
+			res=createsvg(tree, binWidth, binHeight);
+			//res2 = SvgUtil.svgGenerator(polys, appliedplacement, binWidth, binHeight);
 			guiUtil.saveSvgFile(res, Config.OUTPUT_DIR+"res.html",binWidth, binHeight);
+			//guiUtil.saveSvgFile(res2, Config.OUTPUT_DIR+"res2.html",binWidth, binHeight);
+
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

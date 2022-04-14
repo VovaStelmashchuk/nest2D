@@ -29,8 +29,8 @@ public class Model_Factory {
         List<DoubleChromosome> arr = new ArrayList<DoubleChromosome>();
         for(int i=0; i<list.size()*nGenes; i+=nGenes)
         {
-            arr.add(DoubleChromosome.of(-binW/5, +binW/5)); ///TODO
-            arr.add(DoubleChromosome.of(-binH/5,+binH/5));
+            arr.add(DoubleChromosome.of(-binW/2, binW/2)); ///TODO
+            arr.add(DoubleChromosome.of(-binH/2,binH/2));
             arr.add(DoubleChromosome.of(0,360.0));	//TODO GeneticAlgorithm.randomangle(nestpath)
             //GeneticAlgorithm.randomAngle(null)
         }
