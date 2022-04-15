@@ -136,11 +136,9 @@ class gui {
 
 				try {
 					polygons = guiUtil.transferSvgIntoPolygons();
-//					
 					inputpolygoncanvas.getSubjects().clear();
 					inputpolygoncanvas.getClips().clear();
 
-					
 					for (NestPath p: polygons)
 					{
 						Polygon2D newp = p.toPolygon2D();

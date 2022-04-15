@@ -30,41 +30,10 @@ import static io.jenetics.engine.EvolutionResult.toBestPhenotype;
 
 
 
-
 public class Main_Jenetics {
 
-	
-	// 2.) Definition of the fitness function.
-    private static int eval_prova(Genotype<BitGene> gt) {
-        return gt.chromosome()
-            .as(BitChromosome.class)
-            .bitCount();
-    }
-	
-	
-	public static void main_prova(String[] args) {
+	public static Phenotype<DoubleGene, Double> tmpBest = null;
 
-		// 1.) Define the genotype (factory) suitable
-        //     for the problem.
-        Factory<Genotype<BitGene>> gtf =
-            Genotype.of(BitChromosome.of(10, 0.5));
- 
-        // 3.) Create the execution environment.
-        Engine<BitGene, Integer> engine = Engine
-            .builder(Main_Jenetics::eval_prova, gtf)
-            .build();
- 
-        // 4.) Start the execution (evolution) and
-        //     collect the result.
-        Genotype<BitGene> result = engine.stream()
-            .limit(100)
-            .collect(EvolutionResult.toBestGenotype());
- 
-        System.out.println("Hello World:\n" + result);
-		
-	}
-	
-	
 	
 	public static void main(String[] args) {
 		
@@ -90,7 +59,7 @@ public class Main_Jenetics {
 		
 		Config config = new Config();
 		config.SPACING = 0;
-		config.POPULATION_SIZE = 150;
+		config.POPULATION_SIZE = polygons.size()*10;
 		config.BIN_HEIGHT=binHeight;
 		config.BIN_WIDTH=binWidth;
 		
@@ -162,71 +131,16 @@ public class Main_Jenetics {
             }
         }
 		
-		//Factory<Genotype<AnyGene<NestPath>>> gtf = Genotype.of(AnyChromosome.of(Main_Jenetics::generateRandomPositioning,length));
-		
-//        NestPath binPolygon1 = new NestPath();	//Contenitore quadrato
-//        double width = 400;
-//        double height = 400;
-//        binPolygon1.add(0, 0);
-//        binPolygon1.add(0, height);
-//        binPolygon1.add(width, height);
-//        binPolygon1.add(width, 0);
-//        NestPath outer = new NestPath();	// quadrato
-//        outer.add(600, 0);
-//        outer.add(600, 200);
-//        outer.add(800, 200);
-//        outer.add(800, 0);
-//        outer.setRotation(0);
-//        assert outer.getBid() == 1;
-//        NestPath inner = new NestPath();	//quadrato
-//        inner.add(650, 50);
-//        inner.add(650, 150);
-//        inner.add(750, 150);
-//        inner.add(750, 50);
-//        assert inner.getBid() == 2;
-//        //inner.setBid(2);
-//        NestPath little = new NestPath();	//triangolino
-//        little.add(900, 0);
-//        little.add(870, 20);
-//        little.add(930, 20);
-//        assert little.getBid() == 3;
-//        //little.setBid(3);
-//        NestPath rect = new NestPath();	//quadrato
-//        rect.add(1000, 0);
-//        rect.add(1000, 100);
-//        rect.add(1050, 100);
-//        rect.add(1050, 0);
-//        assert inner.getBid() == 4;
-//        NestPath squa = new NestPath();	//quadrato
-//        squa.add(1100, 0);
-//        squa.add(1100, 50);
-//        squa.add(1150, 50);
-//        squa.add(1250, 0);
-//        assert inner.getBid() == 5;
-//        little.setRotation(4);		// rotazione di 360/4 = 90° in senso antiorario
-//        
-//        // Inizializzazione in una lista
-//        List<NestPath> list = new ArrayList<>();
-//        list.add(inner);
-//        list.add(outer);
-//        list.add(little);
-//        list.add(rect);
-//        //list.add(squa);
-          
-        
         for(NestPath np:tree)
         {
+
         	np.Zerolize();
         	np.translate((binWidth - np.getMaxX())/2, (binHeight - np.getMaxY())/2);
         	
         	//rectangles are already set with 4 possible rotation
         	np.setPossibleNumberRotations(4);
         }
-        
-        
-        NestPath p = tree.get(0);
-        p.setPossibleNumberRotations(4);
-        
+                
         Fitness_Model fm = new Fitness_Model(tree,binWidth,binHeight);
         
         ExecutorService executor = Executors.newFixedThreadPool(10);
@@ -239,18 +153,28 @@ public class Main_Jenetics {
                 .optimize(Optimize.MINIMUM)
                 .alterers(
                         new Mutator<>(.05),
-                        new MeanAlterer<>(.5),
-                        new SwapMutator<>(0.2)
+                        new MeanAlterer<>(.2),
+                        new SwapMutator<>(0.2),
+                        new UniformCrossover<>(0.2)
+                        //partial alterer
                 )
                 .executor(executor)
                 .build();
         
         
         
-        final EvolutionStatistics<Double, ?> statistics = EvolutionStatistics.ofNumber();
+        final EvolutionStatistics<Double, ?> statistics = EvolutionStatistics.ofNumber();   
+        
+        
+        System.out.println("Starting nesting of " + polygons.size() + " polygons in " + binWidth +  " * "  + binHeight + " bin");
+        System.out.println("population size:" + config.POPULATION_SIZE + " - Max duration: " + MAX_SEC_DURATION + "s");
+        
+        
+        
         final Phenotype<DoubleGene, Double> best = engine.stream()
-                .limit(bySteadyFitness(50))
+                .limit(bySteadyFitness(75))
                 .limit(Limits.byExecutionTime(Duration.ofSeconds(MAX_SEC_DURATION)))
+                .peek(Main_Jenetics::update)
                 .peek(statistics)
                 .collect(toBestPhenotype());
 
@@ -261,13 +185,13 @@ public class Main_Jenetics {
         
         
         List<String> res;
-        //List<String> res2;
+//        List<String> res2;
 
 		try {
 			res=createsvg(tree, binWidth, binHeight);
-			//res2 = SvgUtil.svgGenerator(polys, appliedplacement, binWidth, binHeight);
+//			res2 = SvgUtil.svgGenerator(polys, appliedplacement, binWidth, binHeight);
 			guiUtil.saveSvgFile(res, Config.OUTPUT_DIR+"res.html",binWidth, binHeight);
-			//guiUtil.saveSvgFile(res2, Config.OUTPUT_DIR+"res2.html",binWidth, binHeight);
+//			guiUtil.saveSvgFile(res2, Config.OUTPUT_DIR+"res2.html",binWidth, binHeight);
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -291,6 +215,21 @@ public class Main_Jenetics {
 		
 		
 	}
+	
+	
+	private static void update(final EvolutionResult<DoubleGene, Double> result)
+    {
+		if(tmpBest == null || tmpBest.compareTo(result.bestPhenotype())>0)
+		{
+			
+			tmpBest =result.bestPhenotype();
+			System.out.println(result.generation() + " generation: ");
+			System.out.println("Found better fitness: " + tmpBest.fitness());
+			System.out.println( "-".repeat((int)Math.round(tmpBest.fitness()/50)));
+			
+		}
+    	
+    }
 	
 	public static List<String> createsvg(List<NestPath> list, double binwidth, double binheight)
 	{

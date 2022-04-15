@@ -63,7 +63,7 @@ public class Fitness_Model {
 			if(p.getMinX()<0) penalty+=-p.getMinX()*Math.abs(p.area);
 			if(p.getMinY()<0) penalty+=-p.getMinY()*Math.abs(p.area);
 
-			penalty+= (p.getMinX()*2+ p.getMinY())/4;
+			penalty+= (p.getMinX()*8+ p.getMinY())/4;
 			
 			
 			List<Segment> ls = polys.get(i).getSegments();
@@ -75,8 +75,8 @@ public class Fitness_Model {
 			}			
 		}		
 		
-		penalty += 10*maxX;
-		penalty += 5*maxY;
+		penalty += maxX*20;
+		penalty += 10*maxY;
 
 		
 

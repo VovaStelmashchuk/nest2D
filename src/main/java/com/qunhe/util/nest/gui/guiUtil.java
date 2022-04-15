@@ -48,7 +48,7 @@ public class guiUtil {
 	                    polygon.add(x, y);
 	                }
 	                //polygon.bid = count;
-	                polygon.setRotation(4);
+	                //polygon.setRotation(4);
 	                nestPaths.add(polygon);
 	            } else if ("rect".equals(element.getName())) {
 	                double width = Double.parseDouble(element.attribute("width").getValue());

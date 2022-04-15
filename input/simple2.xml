@@ -9,7 +9,22 @@
 	709.719,435.85 712.627,427.66 721.17,426.079 726.81,432.692 "/>
     <polygon fill="none" stroke="#010101" stroke-miterlimit="10" points="617.292,458.369 618.742,465.049
 	599.735,465.566 599.735,447.28 "/>
-	<polygon fill="none" stroke="#010101" stroke-miterlimit="10" points="0,0 0,50 50,50 60,30 50,0 "/>
+	<polygon fill="none" stroke="#010101" stroke-miterlimit="10" points="10,10 10,60 60,60 70,40 60,10 "/>
+	
+	<polygon fill="none" stroke="#010101" stroke-miterlimit="10" points="741.307,428.338 734.229,419.461
+	736.757,408.396 746.983,403.469 757.206,408.396 759.735,419.461 752.654,428.338 "/>
+    <polygon fill="none" stroke="#010101" stroke-miterlimit="10" points="647.399,599.509 651.749,602.988
+	629.84,606.702 629.84,588.419 "/>
+    <polygon fill="none" stroke="#010101" stroke-miterlimit="10" points="650.068,569.167 650.068,579.861
+	662.723,580.171 663.294,570.334 "/>
+    <polygon fill="none" stroke="#010101" stroke-miterlimit="10" points="758.061,626.35 800.104,626.854
+	807.438,600.447 796.468,579.694 785.065,582.478 768.195,563.04 736.104,589.264 "/>
+    <polygon fill="none" stroke="#010101" stroke-miterlimit="10" points="694.308,592.604 687.232,583.727
+	689.758,572.661 699.984,567.735 710.211,572.661 712.736,583.727 705.658,592.604 "/>
+    <polygon fill="none" stroke="#010101" stroke-miterlimit="10" points="854.273,544.551 858.625,548.03
+	836.717,551.75 836.717,533.467 "/>
+    <polygon fill="none" stroke="#010101" stroke-miterlimit="10" points="856.944,514.209 856.944,524.909
+	869.597,525.213 870.171,515.376 "/>
     
     
 </root>
