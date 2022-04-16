@@ -1,23 +1,13 @@
 package com.qunhe.util.nest.gui;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-
+import javax.swing.*;
 import java.awt.Color;
 import java.io.*;
-
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.util.XMLResourceDescriptor;
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.Element;
+import org.dom4j.*;
 import org.dom4j.io.SAXReader;
-//import org.w3c.dom.DocumentType;
 import org.w3c.dom.svg.SVGDocument;
 import com.qunhe.util.nest.data.NestPath;
 
@@ -28,7 +18,7 @@ public class guiUtil {
 	        List<NestPath> nestPaths = new ArrayList<>();
 	        SAXReader reader = new SAXReader();
 	        //Document document = reader.read("input/test.xml");
-	        Document document = reader.read("input/simple.xml");
+	        Document document = reader.read("input/simple2.xml");
 
 	        List<Element> elementList = document.getRootElement().elements();
 	        int count = 0;

@@ -51,19 +51,20 @@ public class Fitness_Model {
 		double maxX=0;
 		double maxY=0;
 		double penalty=0;
-		
+		double totArea=0;
 		ArrayList<NestPath> polys = CommonUtil.cloneArrayListNestpath(list);
 		Model_Factory.convert(model, polys);
 		
 		for(int i=0; i<polys.size();i++)
 		{
 			NestPath p = polys.get(i);
+			totArea+=GeometryUtil.polygonArea(p);
 			if(p.getMaxX()>binWidth) penalty+=p.getMaxX()-binWidth;
 			if(p.getMaxY()>binHeight) penalty+=p.getMaxY()-binHeight;
 			if(p.getMinX()<0) penalty+=-p.getMinX()*Math.abs(p.area);
 			if(p.getMinY()<0) penalty+=-p.getMinY()*Math.abs(p.area);
 
-			penalty+= (p.getMinX()*8+ p.getMinY())/4;
+			penalty+= (p.getMaxX()*4+ p.getMaxY()*2);
 			
 			
 			List<Segment> ls = polys.get(i).getSegments();
@@ -75,23 +76,24 @@ public class Fitness_Model {
 			}			
 		}		
 		
-		penalty += maxX*20;
-		penalty += 10*maxY;
-
+//		penalty += maxX*list.size()*2;
+//		penalty += maxY*list.size();
+		penalty+= maxX*maxY;
 		
 
-        //double area = rectBounds.getWidth() * 2 + rectBounds.getHeight();
-		
-		
+        //double area = rectBounds.getWidth() * 2 + rectBounds.getHeight();		
        // ArrayList<NestPath> new_list = (ArrayList<NestPath>) Model_Factory.convert(model,list);
         
+		
+		///TODO set overlapping solutions as invalid with constraints
+		///TODO penalty = (maxX*maxY)/totarea
         for (int i=0; i< polys.size(); i++){
             for (int j=0; j< polys.size(); j++){
                 if(i!=j) 
                 {
                 	double add= overlapDouble(polys.get(i).toPolygon2D(), polys.get(j).toPolygon2D());
                     penalty += add;
-                    if(add>0) penalty+=100;
+                    if(add>0) penalty+=list.size()*100;
                     
 //                	NestPath p1 = polys.get(i);
 //                	NestPath p2 = polys.get(j);

@@ -197,7 +197,7 @@ public class NestPath implements Comparable<NestPath>{
         ZeroX();ZeroY();
     }
 
-    private void ZeroX(){
+    public void ZeroX(){
         double xMin = Double.MAX_VALUE;
         for(Segment s : segments){
             if(xMin > s.getX() ){
@@ -209,7 +209,7 @@ public class NestPath implements Comparable<NestPath>{
         }
     }
 
-    private void ZeroY(){
+    public void ZeroY(){
         double yMin = Double.MAX_VALUE;
         for(Segment s : segments){
             if(yMin > s.getY() ){

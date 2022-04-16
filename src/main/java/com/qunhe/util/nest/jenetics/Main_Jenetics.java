@@ -1,16 +1,12 @@
 package com.qunhe.util.nest.jenetics;
-
-
 import java.awt.Polygon;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import org.dom4j.DocumentException;
 import org.w3c.dom.svg.SVGDocument;
-
 import com.qunhe.util.nest.Nest;
 import com.qunhe.util.nest.config.Config;
 import com.qunhe.util.nest.data.NestPath;
@@ -20,7 +16,6 @@ import com.qunhe.util.nest.gui.guiUtil;
 import com.qunhe.util.nest.util.CommonUtil;
 import com.qunhe.util.nest.util.GeometryUtil;
 import com.qunhe.util.nest.util.SvgUtil;
-
 import io.jenetics.*;
 import io.jenetics.engine.*;
 import io.jenetics.util.Factory;
@@ -54,12 +49,12 @@ public class Main_Jenetics {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        final int MAX_SEC_DURATION=polygons.size()*10;
+        final int MAX_SEC_DURATION=polygons.size()*15;
 
 		
 		Config config = new Config();
 		config.SPACING = 0;
-		config.POPULATION_SIZE = polygons.size()*10;
+		config.POPULATION_SIZE = polygons.size()*20;
 		config.BIN_HEIGHT=binHeight;
 		config.BIN_WIDTH=binWidth;
 		
@@ -151,11 +146,13 @@ public class Main_Jenetics {
         Engine<DoubleGene, Double> engine = Engine.builder(fm.getFitness(), model)
                 .populationSize(config.POPULATION_SIZE)
                 .optimize(Optimize.MINIMUM)
+                //.offspringFraction(0.75)
                 .alterers(
-                        new Mutator<>(.05),
+                        new Mutator<>(.25),
                         new MeanAlterer<>(.2),
-                        new SwapMutator<>(0.2),
-                        new UniformCrossover<>(0.2)
+                        new SwapMutator<>(0.25),
+                        new UniformCrossover<>(0.2),
+                        new MultiPointCrossover<>(0.05)
                         //partial alterer
                 )
                 .executor(executor)
@@ -167,12 +164,12 @@ public class Main_Jenetics {
         
         
         System.out.println("Starting nesting of " + polygons.size() + " polygons in " + binWidth +  " * "  + binHeight + " bin");
-        System.out.println("population size:" + config.POPULATION_SIZE + " - Max duration: " + MAX_SEC_DURATION + "s");
+        System.out.println("population size: " + config.POPULATION_SIZE + " - Max duration: " + MAX_SEC_DURATION + "s");
         
         
         
         final Phenotype<DoubleGene, Double> best = engine.stream()
-                .limit(bySteadyFitness(75))
+                .limit(bySteadyFitness(100))
                 .limit(Limits.byExecutionTime(Duration.ofSeconds(MAX_SEC_DURATION)))
                 .peek(Main_Jenetics::update)
                 .peek(statistics)
@@ -183,7 +180,7 @@ public class Main_Jenetics {
         List<List<Placement>> appliedplacement =  Model_Factory.convert(best.genotype(), tree);
        
         
-        
+        //compress(tree);
         List<String> res;
 //        List<String> res2;
 
@@ -210,12 +207,45 @@ public class Main_Jenetics {
         System.out.println(best);
 
 		
-		
-		
-		
-		
 	}
 	
+	
+	
+	private static void compress(List<NestPath> list)
+	{
+		 for(int i=0; i<list.size();i++)
+	        {
+	        	NestPath pi = list.get(i);
+	        	pi.ZeroX();
+	        	for(int j=0;j<list.size();j++)
+	        	{
+	        		NestPath pj = list.get(j);
+	        		if(i!=j)
+	        		{
+	        			while(GeometryUtil.intersect(pi, pj))        				
+	        				{pi.translate(1, 0);}
+	        				
+	        		}
+	        			
+	        	}
+	        }
+	        for(int i=0; i<list.size();i++)
+	        {
+	        	NestPath pi = list.get(i);
+	        	pi.ZeroY();
+	        	for(int j=0;j<list.size();j++)
+	        	{
+	        		NestPath pj = list.get(j);
+	        		if(i!=j)
+	        		{
+	        			while(GeometryUtil.intersect(pi, pj))        				
+	        				{pi.translate(0, 1);}
+	        				
+	        		}
+	        			
+	        	}
+	        }
+	}
 	
 	private static void update(final EvolutionResult<DoubleGene, Double> result)
     {
@@ -225,7 +255,7 @@ public class Main_Jenetics {
 			tmpBest =result.bestPhenotype();
 			System.out.println(result.generation() + " generation: ");
 			System.out.println("Found better fitness: " + tmpBest.fitness());
-			System.out.println( "-".repeat((int)Math.round(tmpBest.fitness()/50)));
+			System.out.println( "-".repeat((int)Math.round(tmpBest.fitness()/200)));
 			
 		}
     	
