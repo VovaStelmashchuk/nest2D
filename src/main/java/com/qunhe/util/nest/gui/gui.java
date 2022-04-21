@@ -114,8 +114,8 @@ class gui {
 //				double binWidth = 500;
 //				double binHeight = 339.235;
 				
-				double binWidth = 200;
-				double binHeight = 150;
+				double binWidth = 300;
+				double binHeight = 300;
 
 				bin.add(0, 0);
 				bin.add(binWidth, 0);
@@ -138,7 +138,12 @@ class gui {
 					polygons = guiUtil.transferSvgIntoPolygons();
 					inputpolygoncanvas.getSubjects().clear();
 					inputpolygoncanvas.getClips().clear();
+					
+			        Map<String, List<NestPath>> nfpCache = new HashMap<>();
+			        Placementworker placementworker = new Placementworker(bin,config,nfpCache);
+			        Result result = placementworker.placePaths(polygons);
 
+					
 					for (NestPath p: polygons)
 					{
 						Polygon2D newp = p.toPolygon2D();

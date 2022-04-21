@@ -2,19 +2,28 @@ package com.qunhe.util.nest.jenetics;
 import java.awt.Polygon;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.dom4j.DocumentException;
 import org.w3c.dom.svg.SVGDocument;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.qunhe.util.nest.Nest;
 import com.qunhe.util.nest.config.Config;
 import com.qunhe.util.nest.data.NestPath;
+import com.qunhe.util.nest.data.NfpKey;
+import com.qunhe.util.nest.data.NfpPair;
+import com.qunhe.util.nest.data.ParallelData;
 import com.qunhe.util.nest.data.Placement;
 import com.qunhe.util.nest.data.Segment;
 import com.qunhe.util.nest.gui.guiUtil;
 import com.qunhe.util.nest.util.CommonUtil;
 import com.qunhe.util.nest.util.GeometryUtil;
+import com.qunhe.util.nest.util.NfpUtil;
 import com.qunhe.util.nest.util.SvgUtil;
 import io.jenetics.*;
 import io.jenetics.engine.*;
@@ -135,14 +144,61 @@ public class Main_Jenetics {
         	//rectangles are already set with 4 possible rotation
         	np.setPossibleNumberRotations(4);
         }
+        
+        NestPath A = tree.get(1);
+        NestPath B = tree.get(0);
+        
+        NfpKey nfpKey = new NfpKey(A.getId(),B.getId(),false,0 ,0 );
+        NfpPair nfpPair = new NfpPair(A,B, nfpKey);
+        ParallelData parallelData = NfpUtil.nfpGenerator(nfpPair,config);
+        
+        Gson gson = new GsonBuilder().create();
+        Map<String,List<NestPath>> nfpCache =new HashMap<>();;	
+		List<ParallelData> generatedNfp = new ArrayList<>();
+		ParallelData data = NfpUtil.nfpGenerator(nfpPair, config);
+		generatedNfp.add(data);
+		for (ParallelData Nfp : generatedNfp) {
+			// TODO remove gson & generate a new key algorithm
+			String tkey = gson.toJson(Nfp.getKey());
+			nfpCache.put(tkey, Nfp.value);
+		}
+
+
+
+        
+        
+        
                 
         Fitness_Model fm = new Fitness_Model(tree,binWidth,binHeight);
-        
+        List<String> ress;
+		ress=createsvg(parallelData.value, binWidth, binHeight);
+
+		try {
+			guiUtil.saveSvgFile(ress, Config.OUTPUT_DIR+"ress.html",binWidth, binHeight);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		List<String> ress2;
+		ress2=createsvg(tree, binWidth, binHeight);
+
+		try {
+			guiUtil.saveSvgFile(ress2, Config.OUTPUT_DIR+"ress2.html",binWidth, binHeight);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		
+		
         ExecutorService executor = Executors.newFixedThreadPool(10);
         
         
         Factory<Genotype<DoubleGene>> model = Model_Factory.of(tree, binWidth,binHeight);
 
+        final Constraint<DoubleGene, Double> constraint= new RepairingConstraint(tree);
+        
         Engine<DoubleGene, Double> engine = Engine.builder(fm.getFitness(), model)
                 .populationSize(config.POPULATION_SIZE)
                 .optimize(Optimize.MINIMUM)
@@ -156,6 +212,7 @@ public class Main_Jenetics {
                         //partial alterer
                 )
                 .executor(executor)
+                .constraint(constraint)
                 .build();
         
         
@@ -255,7 +312,7 @@ public class Main_Jenetics {
 			tmpBest =result.bestPhenotype();
 			System.out.println(result.generation() + " generation: ");
 			System.out.println("Found better fitness: " + tmpBest.fitness());
-			System.out.println( "-".repeat((int)Math.round(tmpBest.fitness()/200)));
+			System.out.println( "-".repeat((int)Math.round(tmpBest.fitness()*10)));
 			
 		}
     	

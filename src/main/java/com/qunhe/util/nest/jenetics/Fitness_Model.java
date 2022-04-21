@@ -36,7 +36,7 @@ public class Fitness_Model {
     {		
 		Area area = new Area(p1);
 		area.intersect(new Area(p2));
-		return area.getBounds().getWidth()*area.getBounds().getHeight();		
+		return Math.abs(area.getBounds().getWidth()*area.getBounds().getHeight());		
     }
 	
 	private static boolean overlapBool(NestPath p1, NestPath p2)
@@ -58,13 +58,13 @@ public class Fitness_Model {
 		for(int i=0; i<polys.size();i++)
 		{
 			NestPath p = polys.get(i);
-			totArea+=GeometryUtil.polygonArea(p);
-			if(p.getMaxX()>binWidth) penalty+=p.getMaxX()-binWidth;
-			if(p.getMaxY()>binHeight) penalty+=p.getMaxY()-binHeight;
-			if(p.getMinX()<0) penalty+=-p.getMinX()*Math.abs(p.area);
-			if(p.getMinY()<0) penalty+=-p.getMinY()*Math.abs(p.area);
-
-			penalty+= (p.getMaxX()*4+ p.getMaxY()*2);
+			totArea+=Math.abs(GeometryUtil.polygonArea(p));
+//			if(p.getMaxX()>binWidth) penalty+=p.getMaxX()-binWidth;
+//			if(p.getMaxY()>binHeight) penalty+=p.getMaxY()-binHeight;
+//			if(p.getMinX()<0) penalty+=-p.getMinX()*Math.abs(p.area);
+//			if(p.getMinY()<0) penalty+=-p.getMinY()*Math.abs(p.area);
+//
+//			penalty+= (p.getMaxX()*4+ p.getMaxY()*2);
 			
 			
 			List<Segment> ls = polys.get(i).getSegments();
@@ -78,7 +78,7 @@ public class Fitness_Model {
 		
 //		penalty += maxX*list.size()*2;
 //		penalty += maxY*list.size();
-		penalty+= maxX*maxY;
+		//penalty+= maxX*maxY;
 		
 
         //double area = rectBounds.getWidth() * 2 + rectBounds.getHeight();		
@@ -86,23 +86,24 @@ public class Fitness_Model {
         
 		
 		///TODO set overlapping solutions as invalid with constraints
-		///TODO penalty = (maxX*maxY)/totarea
-        for (int i=0; i< polys.size(); i++){
-            for (int j=0; j< polys.size(); j++){
-                if(i!=j) 
-                {
-                	double add= overlapDouble(polys.get(i).toPolygon2D(), polys.get(j).toPolygon2D());
-                    penalty += add;
-                    if(add>0) penalty+=list.size()*100;
-                    
-//                	NestPath p1 = polys.get(i);
-//                	NestPath p2 = polys.get(j);
-//
-//                	if(GeometryUtil.intersect(p1, p2)) penalty+=50;
-                }
-                
-            }
-        }
+		///TODO 
+		penalty = (maxX*maxY)/totArea;
+//        for (int i=0; i< polys.size(); i++){
+//            for (int j=0; j< polys.size(); j++){
+//                if(i!=j) 
+//                {
+//                	double add= overlapDouble(polys.get(i).toPolygon2D(), polys.get(j).toPolygon2D());
+//                    penalty += add;
+//                    if(add>0) penalty+=list.size()*100;
+//                    
+////                	NestPath p1 = polys.get(i);
+////                	NestPath p2 = polys.get(j);
+////
+////                	if(GeometryUtil.intersect(p1, p2)) penalty+=50;
+//                }
+//                
+//            }
+//        }
         
         if(penalty<=0)
         {

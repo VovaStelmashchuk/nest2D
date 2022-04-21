@@ -19,9 +19,9 @@ import io.jenetics.util.Factory;
 
 public class Model_Factory {
 	
-	private static int nGenes =3;
-	private static double binWidth;
-	private static double binHeight;
+	public static int nGenes =3;
+	public static double binWidth;
+	public static double binHeight;
 	
 	public static Factory<Genotype<DoubleGene>> of (List<NestPath> list, double binW, double binH)
     {
