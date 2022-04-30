@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * @author yisa
  */
-public class Result {
+public class Result implements Comparable<Result>{
     public List<List<Vector>> placements;
     public double fitness;
     
@@ -18,4 +18,9 @@ public class Result {
         this.paths = paths;
         this.area = area;
     }
+
+	@Override
+	public int compareTo(Result o) {
+		return Double.valueOf(fitness).compareTo(o.fitness);
+	}
 }

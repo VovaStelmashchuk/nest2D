@@ -57,9 +57,20 @@ public class RepairingConstraint implements Constraint<DoubleGene, Double>{
         	double x = arr[i];
         	double y = arr[i+1];
         	double rotation = arr[i+2];
-        	rotation=0;//TODO
+        	//rotation=0;//TODO
         	int intRotation = (int) Math.round(rotation);        	
         	Segment s = new Segment(x,y);
+        	//p= GeometryUtil.rotatePolygon2Polygon(p, intRotation);  
+        	
+//        	double xx = p.getMinX();
+//			double yy = p.getMinY();
+//			p.Zerolize();
+//			p= GeometryUtil.rotatePolygon2Polygon(p, intRotation);
+//
+//			//p.translate(Math.abs(p.getMinX()), Math.abs(p.getMinY()));			
+//			p.translate(xx, yy); 
+        	
+        	
         	
         	Placement pl = new Placement(p.getBid(),s,intRotation);
         	
@@ -78,6 +89,11 @@ public class RepairingConstraint implements Constraint<DoubleGene, Double>{
                 {                   	
                 	NestPath p2 = polys.get(j);
                 	if(GeometryUtil.intersect(p1, p2)) return false;
+                	
+//					OPTIMAL SOLUTION BUT TOOO SLOW!
+//                	double overlapArea = Fitness_Model.overlapDouble(p1.toPolygon2D(), p2.toPolygon2D());
+//                	if(overlapArea<1) return false;
+                	
                 }
                 
             }
@@ -92,7 +108,7 @@ public class RepairingConstraint implements Constraint<DoubleGene, Double>{
 	public Phenotype<DoubleGene, Double> repair(final Phenotype<DoubleGene, Double> pt, long generation) {
 	
         Phenotype<DoubleGene, Double> res;
-        //int x=0;
+        int x=0;
 		do {
 		List<DoubleChromosome> arr = new ArrayList<DoubleChromosome>();
         for(int i=0; i<list.size()*nGenes; i+=nGenes)
@@ -105,7 +121,7 @@ public class RepairingConstraint implements Constraint<DoubleGene, Double>{
         final Genotype<DoubleGene> gt = Genotype.of(arr);
         
         	res=Phenotype.of(gt,generation);
-        	//x++;
+        	x++;
         }while(!test(res));
     	//System.out.println("iterazioni sprecate:" + x);///TODO: evitare generazione di soluzioni non valide
 

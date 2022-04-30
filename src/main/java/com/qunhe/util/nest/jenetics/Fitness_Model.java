@@ -32,14 +32,14 @@ public class Fitness_Model {
 	}
 	
 	
-	private static double overlapDouble(Polygon2D p1, Polygon2D p2)
+	public static double overlapDouble(Polygon2D p1, Polygon2D p2)
     {		
 		Area area = new Area(p1);
 		area.intersect(new Area(p2));
 		return Math.abs(area.getBounds().getWidth()*area.getBounds().getHeight());		
     }
 	
-	private static boolean overlapBool(NestPath p1, NestPath p2)
+	public static boolean overlapBool(NestPath p1, NestPath p2)
     {		
 		return  GeometryUtil.intersect(p1, p2);
     }

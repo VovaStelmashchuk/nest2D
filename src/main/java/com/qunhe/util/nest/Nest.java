@@ -283,7 +283,7 @@ public class Nest {
             placelist.get(i).setRotation(rotations.get(i));
         }
         
-        /*--------------------------------------------------------------NO FIT POLYGON-----------------------------------------------------------------*/
+        /*-------------------------------------CREATE NFP CACHE-------------------------------------*/
         if(Config.NFP_CACHE_PATH != null){
             debug("Loading nfp from file "+Config.NFP_CACHE_PATH);
             nfpCache = IOUtils.loadNfpCache(Config.NFP_CACHE_PATH);

@@ -1,6 +1,7 @@
 package com.qunhe.util.nest.jenetics;
 import java.awt.Polygon;
-import java.time.Duration;
+import java.awt.geom.Area;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,21 +15,16 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.qunhe.util.nest.Nest;
 import com.qunhe.util.nest.config.Config;
-import com.qunhe.util.nest.data.NestPath;
-import com.qunhe.util.nest.data.NfpKey;
-import com.qunhe.util.nest.data.NfpPair;
-import com.qunhe.util.nest.data.ParallelData;
-import com.qunhe.util.nest.data.Placement;
-import com.qunhe.util.nest.data.Segment;
+import com.qunhe.util.nest.contest.InputConfig;
+import com.qunhe.util.nest.data.*;
 import com.qunhe.util.nest.gui.guiUtil;
-import com.qunhe.util.nest.util.CommonUtil;
-import com.qunhe.util.nest.util.GeometryUtil;
-import com.qunhe.util.nest.util.NfpUtil;
-import com.qunhe.util.nest.util.SvgUtil;
+import com.qunhe.util.nest.util.*;
 import io.jenetics.*;
 import io.jenetics.engine.*;
 import io.jenetics.util.Factory;
 import static io.jenetics.engine.Limits.bySteadyFitness;
+import static com.qunhe.util.nest.util.IOUtils.debug;
+import static com.qunhe.util.nest.util.IOUtils.log;
 import static io.jenetics.engine.EvolutionResult.toBestPhenotype;
 
 
@@ -58,14 +54,14 @@ public class Main_Jenetics {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        final int MAX_SEC_DURATION=polygons.size()*15;
+        final int MAX_SEC_DURATION=polygons.size()*10;
 
 		
 		Config config = new Config();
 		config.SPACING = 0;
 		config.POPULATION_SIZE = polygons.size()*20;
-		config.BIN_HEIGHT=binHeight;
-		config.BIN_WIDTH=binWidth;
+		Config.BIN_HEIGHT=binHeight;
+		Config.BIN_WIDTH=binWidth;
 		
 		List<NestPath> tree = CommonUtil.BuildTree(polygons , Config.CURVE_TOLERANCE);
         CommonUtil.offsetTree(tree, 0.5 * config.SPACING);
@@ -145,56 +141,95 @@ public class Main_Jenetics {
         	np.setPossibleNumberRotations(4);
         }
         
-        NestPath A = tree.get(1);
-        NestPath B = tree.get(0);
         
-        NfpKey nfpKey = new NfpKey(A.getId(),B.getId(),false,0 ,0 );
-        NfpPair nfpPair = new NfpPair(A,B, nfpKey);
-        ParallelData parallelData = NfpUtil.nfpGenerator(nfpPair,config);
+        /*--------------------------------------------------------------CREATE NFP CACHE-----------------------------------------------------------------*/
+        Map<String,List<NestPath>> nfpCache=new HashMap<>();
         
-        Gson gson = new GsonBuilder().create();
-        Map<String,List<NestPath>> nfpCache =new HashMap<>();;	
+        if(Config.NFP_CACHE_PATH != null){
+            debug("Loading nfp from file "+Config.NFP_CACHE_PATH);
+            nfpCache = IOUtils.loadNfpCache(Config.NFP_CACHE_PATH);
+        }
+        
+        List<NfpPair> nfpPairs = new ArrayList<>();
+        NfpKey key = null;
+        
+        for(int i = 0 ; i< tree.size();i++){
+            NestPath part = tree.get(i);
+            key = new NfpKey(binPolygon.getId() , part.getId() , true , 0 , part.getRotation());
+            
+            if(!nfpCache.containsKey(key)) {
+                nfpPairs.add(new NfpPair(binPolygon, part, key));
+            }
+            for(int j = 0 ; j< i ; j ++){
+                NestPath placed = tree.get(j);
+                NfpKey keyed = new NfpKey(placed.getId() , part.getId() , false , placed.getRotation(), part.getRotation());
+                if(!nfpCache.containsKey(keyed)) {
+                    nfpPairs.add(new NfpPair(placed, part, keyed));
+                }
+            }
+        }
+        
+        
+        if (Config.IS_DEBUG) {
+			log("launchWorkers(): Generating nfp...nb of nfp pairs = " + nfpPairs.size());
+		}
+		// The first time nfpCache is empty, nfpCache stores Nfp ( List<NestPath> ) formed by two polygons corresponding to nfpKey
+
+        
+        
+//        NfpKey nfpKey = new NfpKey(A.getId(),B.getId(),false,0 ,0 );
+//        NfpPair nfpPair = new NfpPair(A,B, nfpKey);
+//        ParallelData parallelData = NfpUtil.nfpGenerator(nfpPair,config);
+//        
+        Gson gson = new GsonBuilder().create();        
 		List<ParallelData> generatedNfp = new ArrayList<>();
-		ParallelData data = NfpUtil.nfpGenerator(nfpPair, config);
-		generatedNfp.add(data);
+
+        for (NfpPair nfpPair : nfpPairs) {
+			
+			ParallelData data = NfpUtil.nfpGenerator(nfpPair, config);			
+			generatedNfp.add(data);
+		}
+        
 		for (ParallelData Nfp : generatedNfp) {
-			// TODO remove gson & generate a new key algorithm
 			String tkey = gson.toJson(Nfp.getKey());
 			nfpCache.put(tkey, Nfp.value);
 		}
 
+		log("Saving nfpCache.");
+		String lotId = InputConfig.INPUT == null ? "" : InputConfig.INPUT.get(0).lotId;
+		IOUtils.saveNfpCache(nfpCache, Config.OUTPUT_DIR + "nfp" + lotId + ".txt");
 
 
         
         
         
                 
+//        List<String> ress;
+//		ress=createsvg(parallelData.value, binWidth, binHeight);
+//
+//		try {
+//			guiUtil.saveSvgFile(ress, Config.OUTPUT_DIR+"ress.html",binWidth, binHeight);
+//		} catch (Exception e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+
+//		List<String> ress2;
+//		ress2=createsvg(tree, binWidth, binHeight);
+//
+//		try {
+//			guiUtil.saveSvgFile(ress2, Config.OUTPUT_DIR+"ress2.html",binWidth, binHeight);
+//		} catch (Exception e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+
+		
+		
+        //ExecutorService executor = Executors.newFixedThreadPool(10);
+        
         Fitness_Model fm = new Fitness_Model(tree,binWidth,binHeight);
-        List<String> ress;
-		ress=createsvg(parallelData.value, binWidth, binHeight);
 
-		try {
-			guiUtil.saveSvgFile(ress, Config.OUTPUT_DIR+"ress.html",binWidth, binHeight);
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		List<String> ress2;
-		ress2=createsvg(tree, binWidth, binHeight);
-
-		try {
-			guiUtil.saveSvgFile(ress2, Config.OUTPUT_DIR+"ress2.html",binWidth, binHeight);
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		
-		
-        ExecutorService executor = Executors.newFixedThreadPool(10);
-        
-        
         Factory<Genotype<DoubleGene>> model = Model_Factory.of(tree, binWidth,binHeight);
 
         final Constraint<DoubleGene, Double> constraint= new RepairingConstraint(tree);
@@ -205,13 +240,13 @@ public class Main_Jenetics {
                 //.offspringFraction(0.75)
                 .alterers(
                         new Mutator<>(.25),
-                        new MeanAlterer<>(.2),
+                        new MeanAlterer<>(.05),
                         new SwapMutator<>(0.25),
-                        new UniformCrossover<>(0.2),
+                        new UniformCrossover<>(0.05),
                         new MultiPointCrossover<>(0.05)
                         //partial alterer
                 )
-                .executor(executor)
+                //.executor(executor)
                 .constraint(constraint)
                 .build();
         
@@ -226,7 +261,7 @@ public class Main_Jenetics {
         
         
         final Phenotype<DoubleGene, Double> best = engine.stream()
-                .limit(bySteadyFitness(100))
+                .limit(bySteadyFitness(50))
                 .limit(Limits.byExecutionTime(Duration.ofSeconds(MAX_SEC_DURATION)))
                 .peek(Main_Jenetics::update)
                 .peek(statistics)
@@ -253,6 +288,7 @@ public class Main_Jenetics {
 		}
         
 //        
+		
 //        SVGDocument docFinals;
 //        try {
 //			docFinals = guiUtil.CreateSvgFile(createsvg(polys,binWidth,binHeight), binWidth, binHeight);
@@ -268,54 +304,47 @@ public class Main_Jenetics {
 	
 	
 	
-	private static void compress(List<NestPath> list)
-	{
-		 for(int i=0; i<list.size();i++)
-	        {
-	        	NestPath pi = list.get(i);
-	        	pi.ZeroX();
-	        	for(int j=0;j<list.size();j++)
-	        	{
-	        		NestPath pj = list.get(j);
-	        		if(i!=j)
-	        		{
-	        			while(GeometryUtil.intersect(pi, pj))        				
-	        				{pi.translate(1, 0);}
-	        				
-	        		}
-	        			
-	        	}
-	        }
-	        for(int i=0; i<list.size();i++)
-	        {
-	        	NestPath pi = list.get(i);
-	        	pi.ZeroY();
-	        	for(int j=0;j<list.size();j++)
-	        	{
-	        		NestPath pj = list.get(j);
-	        		if(i!=j)
-	        		{
-	        			while(GeometryUtil.intersect(pi, pj))        				
-	        				{pi.translate(0, 1);}
-	        				
-	        		}
-	        			
-	        	}
-	        }
-	}
+//	private static void compress(List<NestPath> list)
+//	{
+//		 for(int i=0; i<list.size();i++)
+//	        {
+//	        	NestPath pi = list.get(i);
+//	        	pi.ZeroX();
+//	        	for(int j=0;j<list.size();j++)
+//	        	{
+//	        		NestPath pj = list.get(j);
+//	        		if(i!=j)
+//	        		{
+//	        			while(GeometryUtil.intersect(pi, pj))        				
+//	        				{pi.translate(1, 0);}	        				
+//	        		}	        			
+//	        	}
+//	        }
+//	        for(int i=0; i<list.size();i++)
+//	        {
+//	        	NestPath pi = list.get(i);
+//	        	pi.ZeroY();
+//	        	for(int j=0;j<list.size();j++)
+//	        	{
+//	        		NestPath pj = list.get(j);
+//	        		if(i!=j)
+//	        		{
+//	        			while(GeometryUtil.intersect(pi, pj))        				
+//	        				{pi.translate(0, 1);}        				
+//	        		}	        			
+//	        	}
+//	        }
+//	}
 	
 	private static void update(final EvolutionResult<DoubleGene, Double> result)
     {
 		if(tmpBest == null || tmpBest.compareTo(result.bestPhenotype())>0)
-		{
-			
+		{			
 			tmpBest =result.bestPhenotype();
 			System.out.println(result.generation() + " generation: ");
 			System.out.println("Found better fitness: " + tmpBest.fitness());
-			System.out.println( "-".repeat((int)Math.round(tmpBest.fitness()*10)));
-			
-		}
-    	
+			System.out.println( "-".repeat((int)Math.round(tmpBest.fitness()*10)));			
+		}    	
     }
 	
 	public static List<String> createsvg(List<NestPath> list, double binwidth, double binheight)
@@ -331,7 +360,7 @@ public class Main_Jenetics {
 //        	double oy = placement.translate.y;
 //        	double rotate = placement.rotate;
         	//s += "<g transform=\"translate(" + ox + x + " " + oy + y + ") rotate(" + rotate + ")\"> \n";
-        	s += "<path d=\"";
+        	s += "<path id=\"" + nestPath.getBid() + "\" d=\"";
         	for (int i = 0; i < nestPath.getSegments().size(); i++) {
         		if (i == 0) {
         			s += "M";
@@ -341,7 +370,7 @@ public class Main_Jenetics {
         		Segment segment = nestPath.get(i);
         		s += segment.x + " " + segment.y + " ";
         	}
-        	s += "Z\" fill=\"#8498d1\" stroke=\"#010101\" stroke-width=\"1\" />" + " \n";
+        	s += "Z\" fill=\"#8498d1\" stroke=\"#010101\" stroke-width=\0.5\" />" + " \n";
         	//s += "</g> \n";
         }
         //y += binHeight + 50;

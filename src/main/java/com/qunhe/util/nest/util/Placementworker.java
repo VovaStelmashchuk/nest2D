@@ -245,8 +245,8 @@ public class Placementworker {
                 }
             }
             if (minwidth != Double.MAX_VALUE) {
-                //fitness += minwidth ;/// binarea;
-            	fitness = minwidth;
+                fitness += minwidth ;/// binarea;
+            	//fitness = minwidth;
             }
 	
             for (int i = 0; i < placed.size(); i++) {
@@ -276,7 +276,7 @@ public class Placementworker {
      * @param polygon
      * @return
      */
-    static Path scaleUp2ClipperCoordinates(NestPath polygon) {
+    public static Path scaleUp2ClipperCoordinates(NestPath polygon) {
         Path p = new Path();
         for (Segment s : polygon.getSegments()) {
             ClipperCoor cc = CommonUtil.toClipperCoor(s.x, s.y);
@@ -285,7 +285,7 @@ public class Placementworker {
         return p;
     }
 
-    static NestPath toNestCoordinates(Path polygon) {
+    public static NestPath toNestCoordinates(Path polygon) {
         NestPath clone = new NestPath();
         for (LongPoint element : polygon) {
             Segment s = new Segment((double) element.getX() / Config.CLIIPER_SCALE, (double) element.getY() / Config.CLIIPER_SCALE);

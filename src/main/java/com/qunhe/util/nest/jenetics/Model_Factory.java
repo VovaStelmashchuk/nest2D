@@ -57,7 +57,7 @@ public class Model_Factory {
         	double x = (double)solution.get(i).gene().allele();
         	double y = (double)solution.get(i+1).gene().allele();
         	double rotation = (double)solution.get(i+2).gene().allele();
-        	rotation=0;
+        	//rotation=0;
         	int intRotation = (int) Math.round(rotation);
         	
         	Segment s = new Segment(x,y);
@@ -80,9 +80,8 @@ public class Model_Factory {
 //			p.Zerolize();
 //			p= GeometryUtil.rotatePolygon2Polygon(p, intRotation);
 //
-//			p.translate(Math.abs(p.getMinX()), Math.abs(p.getMinY()));			
-//			p.translate(xx, yy);
-//        	
+//			//p.translate(Math.abs(p.getMinX()), Math.abs(p.getMinY()));			
+//			p.translate(xx, yy); 	
         	
         	
         	Placement pl = new Placement(p.getBid(),s,intRotation);
