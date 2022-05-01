@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
@@ -48,28 +50,19 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 	
 	private Double _binWidth,_binHeight;
 	private NestPath _binPolygon;
-    private Map<String, List<NestPath>> _nfpCache;
+   // private Map<String, List<NestPath>> _nfpCache;
 
 	
 	
 	private final ISeq<NestPath> _list;
 	//private final List<NestPath> _list_asList;
 	
-	public NFP_Nesting(ISeq<NestPath> lista, double binw, double binh, Map<String, List<NestPath>> nfpCache) 
+	public NFP_Nesting(ISeq<NestPath> lista,NestPath binpolygon ,double binw, double binh) 
 	{
 		//_list_asList = lista.asList();
 		_binWidth= binw;
 		_binHeight=binh;
-		_binPolygon = new NestPath();
-		_nfpCache = nfpCache;
-		_binPolygon.add(0, 0);
-		_binPolygon.add(_binWidth, 0);
-		_binPolygon.add(_binWidth, _binHeight);
-		_binPolygon.add(0, _binHeight);
-		
-		 if(GeometryUtil.polygonArea(_binPolygon) > 0 ){
-		        _binPolygon.reverse();
-		    }
+		_binPolygon = binpolygon;
 		_list=Objects.requireNonNull(lista);
 		
 	}
@@ -93,9 +86,73 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 
 	
 	double scalar_fitness(final ISeq<NestPath> seq_nestpath) {
-	    Gson gson = new GsonBuilder().create();
 	    
 		List<NestPath> paths = seq_nestpath.asList();
+
+		
+		
+	    /*--------------------------------------------------------------CREATE NFP CACHE-----------------------------------------------------------------*/
+
+		Map<String,List<NestPath>> nfpCache=new HashMap<>();
+	    
+	    if(Config.NFP_CACHE_PATH != null){
+	        //debug("Loading nfp from file "+Config.NFP_CACHE_PATH);
+	        nfpCache = IOUtils.loadNfpCache(Config.NFP_CACHE_PATH);
+	    }
+	    
+	    List<NfpPair> nfpPairs = new ArrayList<>();
+	    NfpKey key = null;
+	    
+	    for(int i = 0 ; i< paths.size();i++){
+	        NestPath part = paths.get(i);
+	        key = new NfpKey(_binPolygon.getId() , part.getId() , true , 0 , part.getRotation());
+	        
+	        if(!nfpCache.containsKey(key)) {
+	            nfpPairs.add(new NfpPair(_binPolygon, part, key));
+	        }
+	        for(int j = 0 ; j< i ; j ++){
+	            NestPath placed = paths.get(j);
+	            NfpKey keyed = new NfpKey(placed.getId() , part.getId() , false , placed.getRotation(), part.getRotation());
+	            if(!nfpCache.containsKey(keyed)) {
+	                nfpPairs.add(new NfpPair(placed, part, keyed));
+	            }
+	        }
+	    }
+	    
+	    
+	    if (Config.IS_DEBUG) {
+			log("launchWorkers(): Generating nfp...nb of nfp pairs = " + nfpPairs.size());
+		}
+		// The first time nfpCache is empty, nfpCache stores Nfp ( List<NestPath> ) formed by two polygons corresponding to nfpKey
+
+	   
+	    Config config = new Config();
+		
+	    
+	    
+	    
+	    Gson gson = new GsonBuilder().create();        
+		List<ParallelData> generatedNfp = new ArrayList<>();
+
+	    for (NfpPair nfpPair : nfpPairs) {
+			
+			ParallelData data = NfpUtil.nfpGenerator(nfpPair, config);			
+			generatedNfp.add(data);
+		}
+	    
+		for (ParallelData Nfp : generatedNfp) {
+			String tkey = gson.toJson(Nfp.getKey());
+			nfpCache.put(tkey, Nfp.value);
+		}
+
+		//log("Saving nfpCache.");
+		String lotId = InputConfig.INPUT == null ? "" : InputConfig.INPUT.get(0).lotId;
+		IOUtils.saveNfpCache(nfpCache, Config.OUTPUT_DIR + "nfp" + lotId + ".txt");
+		
+		
+		//Gson gson = new GsonBuilder().create();
+	    
+		//List<NestPath> paths = seq_nestpath.asList();
 		List<NestPath> rotated = new ArrayList<>();
         for (int i = 0; i < paths.size(); i++) {
             NestPath r = GeometryUtil.rotatePolygon2Polygon(paths.get(i), paths.get(i).getRotation());
@@ -111,7 +168,7 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
         double fitness = 0;
         double binarea = Math.abs(GeometryUtil.polygonArea(this._binPolygon));
         
-        String key = null;
+        String key1 = null;
         List<NestPath> nfp = null;
         
      // Loops over all the Nestpaths passed to the function
@@ -126,16 +183,16 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
                  NestPath path = paths.get(i);
                  
                //inner NFP	***************************************************************
-                 key = gson.toJson(new NfpKey(-1, path.getId(), true, 0, path.getRotation()));
-                 if (!_nfpCache.containsKey(key)) {
+                 key1 = gson.toJson(new NfpKey(-1, path.getId(), true, 0, path.getRotation()));
+                 if (!nfpCache.containsKey(key1)) {
                      continue;
                  }
-                 List<NestPath> binNfp = _nfpCache.get(key);
+                 List<NestPath> binNfp = nfpCache.get(key1);
                  // ensure exists
                  boolean error = false;
                  for (NestPath element : placed) {
-                     key = gson.toJson(new NfpKey(element.getId(), path.getId(), false, element.getRotation(), path.getRotation()));
-                     if (_nfpCache.containsKey(key)) nfp = _nfpCache.get(key);
+                     key1 = gson.toJson(new NfpKey(element.getId(), path.getId(), false, element.getRotation(), path.getRotation()));
+                     if (nfpCache.containsKey(key1)) nfp = nfpCache.get(key1);
                      else {
                          error = true;
                          break;
@@ -173,8 +230,8 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
                  Paths combinedNfp = new Paths();
 
                  for (int j = 0; j < placed.size(); j++) {
-                     key = gson.toJson(new NfpKey(placed.get(j).getId(), path.getId(), false, placed.get(j).getRotation(), path.getRotation()));
-                     nfp = _nfpCache.get(key);
+                     key1 = gson.toJson(new NfpKey(placed.get(j).getId(), path.getId(), false, placed.get(j).getRotation(), path.getRotation()));
+                     nfp = nfpCache.get(key1);
                      if (nfp == null) {
                          continue;
                      }
@@ -316,7 +373,7 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 	}
 
 	
-	private static NFP_Nesting of (List<NestPath> l, double binw, double binh, Map<String, List<NestPath>>nfpCache)
+	private static NFP_Nesting of (List<NestPath> l, NestPath binpol, double binw, double binh)
 	{
 		final MSeq<NestPath> paths = MSeq.ofLength(l.size());
 		
@@ -336,7 +393,7 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 			paths.set(j, tmp);
 		}
 		
-		return new NFP_Nesting(paths.toISeq(),binw,binh,nfpCache);
+		return new NFP_Nesting(paths.toISeq(),binpol,binw,binh);
 		
 	}
 	
@@ -460,70 +517,72 @@ public static void main(String[] args) {
     
     
     /*--------------------------------------------------------------CREATE NFP CACHE-----------------------------------------------------------------*/
-    Map<String,List<NestPath>> nfpCache=new HashMap<>();
-    
-    if(Config.NFP_CACHE_PATH != null){
-        debug("Loading nfp from file "+Config.NFP_CACHE_PATH);
-        nfpCache = IOUtils.loadNfpCache(Config.NFP_CACHE_PATH);
-    }
-    
-    List<NfpPair> nfpPairs = new ArrayList<>();
-    NfpKey key = null;
-    
-    for(int i = 0 ; i< tree.size();i++){
-        NestPath part = tree.get(i);
-        key = new NfpKey(binPolygon.getId() , part.getId() , true , 0 , part.getRotation());
-        
-        if(!nfpCache.containsKey(key)) {
-            nfpPairs.add(new NfpPair(binPolygon, part, key));
-        }
-        for(int j = 0 ; j< i ; j ++){
-            NestPath placed = tree.get(j);
-            NfpKey keyed = new NfpKey(placed.getId() , part.getId() , false , placed.getRotation(), part.getRotation());
-            if(!nfpCache.containsKey(keyed)) {
-                nfpPairs.add(new NfpPair(placed, part, keyed));
-            }
-        }
-    }
-    
-    
-    if (Config.IS_DEBUG) {
-		log("launchWorkers(): Generating nfp...nb of nfp pairs = " + nfpPairs.size());
-	}
-	// The first time nfpCache is empty, nfpCache stores Nfp ( List<NestPath> ) formed by two polygons corresponding to nfpKey
-
-    
-    
-//    NfpKey nfpKey = new NfpKey(A.getId(),B.getId(),false,0 ,0 );
-//    NfpPair nfpPair = new NfpPair(A,B, nfpKey);
-//    ParallelData parallelData = NfpUtil.nfpGenerator(nfpPair,config);
+//    Map<String,List<NestPath>> nfpCache=new HashMap<>();
 //    
-    Gson gson = new GsonBuilder().create();        
-	List<ParallelData> generatedNfp = new ArrayList<>();
-
-    for (NfpPair nfpPair : nfpPairs) {
-		
-		ParallelData data = NfpUtil.nfpGenerator(nfpPair, config);			
-		generatedNfp.add(data);
-	}
-    
-	for (ParallelData Nfp : generatedNfp) {
-		String tkey = gson.toJson(Nfp.getKey());
-		nfpCache.put(tkey, Nfp.value);
-	}
-
-	log("Saving nfpCache.");
-	String lotId = InputConfig.INPUT == null ? "" : InputConfig.INPUT.get(0).lotId;
-	IOUtils.saveNfpCache(nfpCache, Config.OUTPUT_DIR + "nfp" + lotId + ".txt");
+//    if(Config.NFP_CACHE_PATH != null){
+//        debug("Loading nfp from file "+Config.NFP_CACHE_PATH);
+//        nfpCache = IOUtils.loadNfpCache(Config.NFP_CACHE_PATH);
+//    }
+//    
+//    List<NfpPair> nfpPairs = new ArrayList<>();
+//    NfpKey key = null;
+//    
+//    for(int i = 0 ; i< tree.size();i++){
+//        NestPath part = tree.get(i);
+//        key = new NfpKey(binPolygon.getId() , part.getId() , true , 0 , part.getRotation());
+//        
+//        if(!nfpCache.containsKey(key)) {
+//            nfpPairs.add(new NfpPair(binPolygon, part, key));
+//        }
+//        for(int j = 0 ; j< i ; j ++){
+//            NestPath placed = tree.get(j);
+//            NfpKey keyed = new NfpKey(placed.getId() , part.getId() , false , placed.getRotation(), part.getRotation());
+//            if(!nfpCache.containsKey(keyed)) {
+//                nfpPairs.add(new NfpPair(placed, part, keyed));
+//            }
+//        }
+//    }
+//    
+//    
+//    if (Config.IS_DEBUG) {
+//		log("launchWorkers(): Generating nfp...nb of nfp pairs = " + nfpPairs.size());
+//	}
+//	// The first time nfpCache is empty, nfpCache stores Nfp ( List<NestPath> ) formed by two polygons corresponding to nfpKey
+//
+//    
+//    
+////    NfpKey nfpKey = new NfpKey(A.getId(),B.getId(),false,0 ,0 );
+////    NfpPair nfpPair = new NfpPair(A,B, nfpKey);
+////    ParallelData parallelData = NfpUtil.nfpGenerator(nfpPair,config);
+////    
+//    Gson gson = new GsonBuilder().create();        
+//	List<ParallelData> generatedNfp = new ArrayList<>();
+//
+//    for (NfpPair nfpPair : nfpPairs) {
+//		
+//		ParallelData data = NfpUtil.nfpGenerator(nfpPair, config);			
+//		generatedNfp.add(data);
+//	}
+//    
+//	for (ParallelData Nfp : generatedNfp) {
+//		String tkey = gson.toJson(Nfp.getKey());
+//		nfpCache.put(tkey, Nfp.value);
+//	}
+//
+//	log("Saving nfpCache.");
+//	String lotId = InputConfig.INPUT == null ? "" : InputConfig.INPUT.get(0).lotId;
+//	IOUtils.saveNfpCache(nfpCache, Config.OUTPUT_DIR + "nfp" + lotId + ".txt");
 	
 	
+    ExecutorService executor = Executors.newFixedThreadPool(1);
+
     
-    
-    NFP_Nesting nst = NFP_Nesting.of(tree,binWidth,binHeight,nfpCache);
+    NFP_Nesting nst = NFP_Nesting.of(tree,binPolygon,binWidth,binHeight);
     Engine<EnumGene<NestPath>,Double> engine = Engine
     		.builder(nst)
     		.optimize(Optimize.MINIMUM)
     		.populationSize(500)
+            .executor(executor)
     		.alterers(
     				new SwapMutator<>(0.25),
     				new PartiallyMatchedCrossover<>(0.35)
