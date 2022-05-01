@@ -44,6 +44,8 @@ import static io.jenetics.engine.EvolutionResult.toBestPhenotype;
 public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, Double>{
 
 	static Phenotype<EnumGene<NestPath>,Double> tmpBest = null;
+	static Result tmpBestResult =null;
+	
 	private Double _binWidth,_binHeight;
 	private NestPath _binPolygon;
     private Map<String, List<NestPath>> _nfpCache;
@@ -64,6 +66,10 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 		_binPolygon.add(_binWidth, 0);
 		_binPolygon.add(_binWidth, _binHeight);
 		_binPolygon.add(0, _binHeight);
+		
+		 if(GeometryUtil.polygonArea(_binPolygon) > 0 ){
+		        _binPolygon.reverse();
+		    }
 		_list=Objects.requireNonNull(lista);
 		
 	}
@@ -88,8 +94,7 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 	
 	double scalar_fitness(final ISeq<NestPath> seq_nestpath) {
 	    Gson gson = new GsonBuilder().create();
-
-		double penalty=0;
+	    
 		List<NestPath> paths = seq_nestpath.asList();
 		List<NestPath> rotated = new ArrayList<>();
         for (int i = 0; i < paths.size(); i++) {
@@ -110,7 +115,7 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
         List<NestPath> nfp = null;
         
      // Loops over all the Nestpaths passed to the function
-        while (paths.size() > 0) {
+        while (paths.size() > 0) {	//used with multiple bins
         	 List<NestPath> placed = new ArrayList<>();		// polygons (NestPath) to place
              List<Vector> placements = new ArrayList<>();
              
@@ -272,7 +277,7 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
                  }
              }
              if (minwidth != Double.MAX_VALUE) {
-                 fitness += minwidth ;/// binarea;
+                 fitness += minwidth; /// binarea;
              	//fitness = minwidth;
              }
  	
@@ -295,6 +300,7 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
          }// End of while(paths.size>0)
         
         Result res = new Result(allplacements, fitness, paths, binarea);
+        if (tmpBestResult==null || res.fitness<tmpBestResult.fitness) tmpBestResult =res;
 		return fitness;
 		
 	}
@@ -341,7 +347,7 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 			tmpBest =result.bestPhenotype();
 			System.out.println(result.generation() + " generation: ");
 			System.out.println("Found better fitness: " + tmpBest.fitness());
-			System.out.println( "-".repeat((int)Math.round(tmpBest.fitness()*10)));			
+			System.out.println( "-".repeat((int)Math.round(tmpBest.fitness())));			
 		}    	
     }
 
@@ -442,15 +448,15 @@ public static void main(String[] args) {
         }
     }
 	
-    for(NestPath np:tree)
-    {
-
-    	np.Zerolize();
-    	np.translate((binWidth - np.getMaxX())/2, (binHeight - np.getMaxY())/2);
-    	
-    	//rectangles are already set with 4 possible rotation
-    	np.setPossibleNumberRotations(4);
-    }
+//    for(NestPath np:tree)
+//    {
+//
+//    	np.Zerolize();
+//    	np.translate((binWidth - np.getMaxX())/2, (binHeight - np.getMaxY())/2);
+//    	
+//    	//rectangles are already set with 4 possible rotation
+//    	np.setPossibleNumberRotations(4);
+//    }
     
     
     /*--------------------------------------------------------------CREATE NFP CACHE-----------------------------------------------------------------*/
@@ -519,7 +525,7 @@ public static void main(String[] args) {
     		.optimize(Optimize.MINIMUM)
     		.populationSize(500)
     		.alterers(
-    				new SwapMutator<>(0.2),
+    				new SwapMutator<>(0.25),
     				new PartiallyMatchedCrossover<>(0.35)
     				)
     		.build();
@@ -528,7 +534,7 @@ public static void main(String[] args) {
 
     Phenotype<EnumGene<NestPath>,Double> best=
     		engine.stream()
-    		.limit(Limits.bySteadyFitness(50))
+    		.limit(Limits.bySteadyFitness(tree.size()*10))
     		.limit(250)
             .peek(NFP_Nesting::update)
     		.peek(statistics)
@@ -536,6 +542,13 @@ public static void main(String[] args) {
 		
     System.out.println(statistics);
     System.out.println(best);
+    
+    
+    
+
+    
+    
+    
 	}
 	
 	

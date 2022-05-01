@@ -15,7 +15,9 @@ public class guiUtil {
 	
 		
 	 public static List<NestPath> transferSvgIntoPolygons() throws DocumentException {
-	        List<NestPath> nestPaths = new ArrayList<>();
+	       
+		 	int increment_id=1;
+		 	List<NestPath> nestPaths = new ArrayList<>();
 	        SAXReader reader = new SAXReader();
 	        //Document document = reader.read("input/test.xml");
 	        Document document = reader.read("input/simple.xml");
@@ -39,6 +41,7 @@ public class guiUtil {
 	                }
 	                //polygon.bid = count;
 	                //polygon.setRotation(4);
+	                polygon.setId(increment_id++);
 	                nestPaths.add(polygon);
 	            } else if ("rect".equals(element.getName())) {
 	                double width = Double.parseDouble(element.attribute("width").getValue());
@@ -52,6 +55,8 @@ public class guiUtil {
 	                rect.add(x, y + height);
 	                //rect.bid = count;
 	                rect.setPossibleNumberRotations(4);
+	                rect.setId(increment_id++);
+
 	                nestPaths.add(rect);
 	            }
 	        }

@@ -75,7 +75,7 @@ public class Placementworker {
         List<NestPath> nfp = null;
 
         // Loops over all the Nestpaths passed to the function
-        while (paths.size() > 0) {
+        while (paths.size() > 0) {	//used with multiple bins
 
             List<NestPath> placed = new ArrayList<>();		// polygons (NestPath) to place
             List<Vector> placements = new ArrayList<>();	// coordinates
@@ -245,7 +245,7 @@ public class Placementworker {
                 }
             }
             if (minwidth != Double.MAX_VALUE) {
-                fitness += minwidth ;/// binarea;
+                fitness += minwidth; /// binarea;
             	//fitness = minwidth;
             }
 	
