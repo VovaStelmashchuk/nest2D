@@ -1,5 +1,6 @@
 package com.qunhe.util.nest.jenetics_with_NFP;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -81,7 +82,7 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 //					//if((i+1)<p.length() && p.get(i).getId() >p.get(i+1).getId()) penalty++;
 //					if((i+1)<p.length() && GeometryUtil.polygonArea(p.get(i)) > GeometryUtil.polygonArea(p.get(i+1))) penalty ++;
 //						return penalty;}).sum();
-//						
+						
 		
 	}
 
@@ -366,12 +367,31 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
              } else {
                  break; // something went wrong
              }
-
+             
+//        	 System.out.println("fitness" + fitness);
+//
+//             for(NestPath n: placed)
+//             {
+//            	 System.out.print(n.getId() + " ");
+//             }
+//
+//             System.out.println();
+             
+             
          }// End of while(paths.size>0)
         
+
         Result res = new Result(allplacements, fitness, paths, binarea);
-        if (tmpBestResult==null || res.fitness<tmpBestResult.fitness) tmpBestResult =res;
-        System.out.println("fitness trooovata: " + fitness);
+        if (tmpBestResult==null || res.fitness<tmpBestResult.fitness)
+        	{
+        	
+            System.out.println("fitness migliore trovata: " + fitness);
+           // System.out.println(pla);
+        	tmpBestResult =res;
+        	
+        	}
+        	
+        //System.out.println("fitness trooovata: " + fitness);
 		return fitness;
 		
 	}
@@ -402,23 +422,14 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 		
 	}
 	
-	private static void update(final EvolutionResult<EnumGene<NestPath>,Double> result)
-    {
-		if(tmpBest == null || tmpBest.compareTo(result.bestPhenotype())>0)
-		{			
-			tmpBest =result.bestPhenotype();
-			System.out.println(result.generation() + " generation: ");
-			System.out.println("Found better fitness: " + tmpBest.fitness());
-			System.out.println( "-".repeat((int)Math.round(tmpBest.fitness())));			
-		}    	
-    }
+	
 
 	
 public static void main(String[] args) {
 
 	NestPath bin = new NestPath();
-	double binWidth = 1000;
-	double binHeight = 1000;
+	double binWidth = 400;
+	double binHeight = 400;
 
 	bin.add(0, 0);
 	bin.add(binWidth, 0);
@@ -592,7 +603,7 @@ public static void main(String[] args) {
     		.builder(nst)
     		.optimize(Optimize.MINIMUM)
     		.populationSize(500)
-            //.executor(executor)
+            .executor(executor)
     		.alterers(
     				new SwapMutator<>(0.25),
     				new PartiallyMatchedCrossover<>(0.35)
@@ -604,14 +615,24 @@ public static void main(String[] args) {
 
     Phenotype<EnumGene<NestPath>,Double> best=
     		engine.stream()
-    		.limit(Limits.bySteadyFitness(tree.size()*10))
-    		.limit(250)
+    		.limit(Limits.bySteadyFitness(tree.size()))
+            .limit(Limits.byExecutionTime(Duration.ofSeconds(MAX_SEC_DURATION)))
+    		.limit(polygons.size())
             .peek(NFP_Nesting::update)
     		.peek(statistics)
     		.collect(toBestPhenotype());
 		
     System.out.println(statistics);
     System.out.println(best);
+    
+    List<List<Placement>>appliedPlacement=Nest.applyPlacement(tmpBestResult, tree);
+	try {
+		List<String> strings = SvgUtil.svgGenerator(tree, appliedPlacement, binWidth, binHeight);
+		guiUtil.saveSvgFile(strings, Config.OUTPUT_DIR+"res.html",binWidth,binHeight);
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
     
     
     
@@ -620,6 +641,18 @@ public static void main(String[] args) {
     
     
 	}
+
+private static void update(final EvolutionResult<EnumGene<NestPath>,Double> result)
+{
+	if(tmpBest == null || tmpBest.compareTo(result.bestPhenotype())>0)
+	{			
+		tmpBest =result.bestPhenotype();
+		//System.out.println(tmpBest);
+		System.out.println(result.generation() + " generation: ");
+		System.out.println("Found better fitness: " + tmpBest.fitness());
+		System.out.println( "-".repeat((int)Math.round(tmpBest.fitness())));			
+	}    	
+}
 	
 	
 	

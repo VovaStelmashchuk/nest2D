@@ -19,7 +19,7 @@ import io.jenetics.util.Factory;
 
 public class Model_Factory {
 	
-	public static int nGenes =3;
+	public final static int nGenes =3;
 	public static double binWidth;
 	public static double binHeight;
 	
