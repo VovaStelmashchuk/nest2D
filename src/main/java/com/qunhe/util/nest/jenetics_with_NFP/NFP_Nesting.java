@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
@@ -21,7 +20,6 @@ import com.qunhe.util.nest.config.Config;
 import com.qunhe.util.nest.contest.InputConfig;
 import com.qunhe.util.nest.data.*;
 import com.qunhe.util.nest.gui.guiUtil;
-import com.qunhe.util.nest.jenetics.Main_Jenetics;
 import com.qunhe.util.nest.util.*;
 
 import de.lighti.clipper.Clipper;
@@ -29,7 +27,6 @@ import de.lighti.clipper.DefaultClipper;
 import de.lighti.clipper.Path;
 import de.lighti.clipper.Paths;
 import de.lighti.clipper.Point.LongPoint;
-import io.jenetics.DoubleGene;
 import io.jenetics.EnumGene;
 import io.jenetics.Optimize;
 import io.jenetics.PartiallyMatchedCrossover;
@@ -38,7 +35,6 @@ import io.jenetics.SwapMutator;
 import io.jenetics.engine.*;
 import io.jenetics.util.*;
 
-import static com.qunhe.util.nest.util.IOUtils.debug;
 import static com.qunhe.util.nest.util.IOUtils.log;
 import static io.jenetics.engine.EvolutionResult.toBestPhenotype;
 
@@ -51,6 +47,7 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 	private Double _binWidth,_binHeight;
 	private NestPath _binPolygon;
    // private Map<String, List<NestPath>> _nfpCache;
+	Map<String,List<NestPath>> nfpCache=new HashMap<>();
 
 	
 	
@@ -67,10 +64,13 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 		
 	}
 	
-	
+	@Override
+	public Codec<ISeq<NestPath>, EnumGene<NestPath>> codec() {
+		return Codecs.ofPermutation(_list);
+	}
 
 	@Override
-	public Function<ISeq<NestPath>, Double> fitness() {//Calcolo fitness fittizzio
+	public Function<ISeq<NestPath>, Double> fitness() {
 
 		
 		return this::scalar_fitness;
@@ -78,22 +78,29 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 //		return p -> IntStream.range(0, p.length())
 //				.mapToDouble(i -> {
 //					double penalty=0;
-//					if((i+1)<p.length() && p.get(i).getBid() >p.get(i+1).getBid()) penalty++;
+//					//if((i+1)<p.length() && p.get(i).getId() >p.get(i+1).getId()) penalty++;
+//					if((i+1)<p.length() && GeometryUtil.polygonArea(p.get(i)) > GeometryUtil.polygonArea(p.get(i+1))) penalty ++;
 //						return penalty;}).sum();
 //						
 		
 	}
 
 	
-	double scalar_fitness(final ISeq<NestPath> seq_nestpath) {
+	Double scalar_fitness(final ISeq<NestPath> seq_nestpath) {
 	    
 		List<NestPath> paths = seq_nestpath.asList();
 
+		List<Integer> ids = new ArrayList<>();	
+        for(int i = 0 ; i < paths.size(); i ++){
+            ids.add(paths.get(i).getId());
+            //paths.get(i).setRotation(rotations.get(i));
+        }
+		
+		
 		
 		
 	    /*--------------------------------------------------------------CREATE NFP CACHE-----------------------------------------------------------------*/
 
-		Map<String,List<NestPath>> nfpCache=new HashMap<>();
 	    
 	    if(Config.NFP_CACHE_PATH != null){
 	        //debug("Loading nfp from file "+Config.NFP_CACHE_PATH);
@@ -121,17 +128,15 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 	    
 	    
 	    if (Config.IS_DEBUG) {
-			log("launchWorkers(): Generating nfp...nb of nfp pairs = " + nfpPairs.size());
+			log("Generating nfp...nb of nfp pairs = " + nfpPairs.size());
 		}
 		// The first time nfpCache is empty, nfpCache stores Nfp ( List<NestPath> ) formed by two polygons corresponding to nfpKey
 
 	   
 	    Config config = new Config();
-		
+	    Gson gson = new GsonBuilder().create();  
 	    
 	    
-	    
-	    Gson gson = new GsonBuilder().create();        
 		List<ParallelData> generatedNfp = new ArrayList<>();
 
 	    for (NfpPair nfpPair : nfpPairs) {
@@ -150,9 +155,14 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 		IOUtils.saveNfpCache(nfpCache, Config.OUTPUT_DIR + "nfp" + lotId + ".txt");
 		
 		
-		//Gson gson = new GsonBuilder().create();
-	    
-		//List<NestPath> paths = seq_nestpath.asList();
+		List<NestPath> placeListSlice = new ArrayList<>();
+
+		for (int i = 0; i < paths.size(); i++) {
+			placeListSlice.add(new NestPath(paths.get(i)));
+		}
+		
+		paths=placeListSlice;
+		
 		List<NestPath> rotated = new ArrayList<>();
         for (int i = 0; i < paths.size(); i++) {
             NestPath r = GeometryUtil.rotatePolygon2Polygon(paths.get(i), paths.get(i).getRotation());
@@ -232,7 +242,8 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
                  for (int j = 0; j < placed.size(); j++) {
                      key1 = gson.toJson(new NfpKey(placed.get(j).getId(), path.getId(), false, placed.get(j).getRotation(), path.getRotation()));
                      nfp = nfpCache.get(key1);
-                     if (nfp == null) {
+                     
+                     if (nfp == null) {                    	                    	
                          continue;
                      }
 
@@ -349,6 +360,8 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 
              if (placements != null && placements.size() > 0) {
                  // Add a new material
+            	 //System.out.println("aggiunto bin");
+            	 fitness+=1000*(allplacements.size());
                  allplacements.add(placements);
              } else {
                  break; // something went wrong
@@ -358,20 +371,12 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
         
         Result res = new Result(allplacements, fitness, paths, binarea);
         if (tmpBestResult==null || res.fitness<tmpBestResult.fitness) tmpBestResult =res;
+        System.out.println("fitness trooovata: " + fitness);
 		return fitness;
 		
 	}
 	
 	
-	
-
-
-
-	@Override
-	public Codec<ISeq<NestPath>, EnumGene<NestPath>> codec() {
-		return Codecs.ofPermutation(_list);
-	}
-
 	
 	private static NFP_Nesting of (List<NestPath> l, NestPath binpol, double binw, double binh)
 	{
@@ -412,8 +417,8 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 public static void main(String[] args) {
 
 	NestPath bin = new NestPath();
-	double binWidth = 400;
-	double binHeight = 400;
+	double binWidth = 1000;
+	double binHeight = 1000;
 
 	bin.add(0, 0);
 	bin.add(binWidth, 0);
@@ -441,6 +446,11 @@ public static void main(String[] args) {
     CommonUtil.offsetTree(tree, 0.5 * config.SPACING);
     
 	
+    bin.config = config;
+    for(NestPath nestPath: polygons){
+        nestPath.config = config;
+    }
+    
 	NestPath binPolygon = CommonUtil.cleanNestPath(bin);	//conversione di un eventuale binPath self intersecting in un poligono semplice
     // Bound binBound = GeometryUtil.getPolygonBounds(binPolygon);
     if(Config.BOUND_SPACING > 0 ){
@@ -505,15 +515,15 @@ public static void main(String[] args) {
         }
     }
 	
-//    for(NestPath np:tree)
-//    {
-//
-//    	np.Zerolize();
-//    	np.translate((binWidth - np.getMaxX())/2, (binHeight - np.getMaxY())/2);
-//    	
-//    	//rectangles are already set with 4 possible rotation
-//    	np.setPossibleNumberRotations(4);
-//    }
+    for(NestPath np:tree)
+    {
+
+    	np.Zerolize();
+    	//np.translate((binWidth - np.getMaxX())/2, (binHeight - np.getMaxY())/2);
+    	
+    	//rectangles are already set with 4 possible rotation
+    	//np.setPossibleNumberRotations(4);
+    }
     
     
     /*--------------------------------------------------------------CREATE NFP CACHE-----------------------------------------------------------------*/
@@ -582,12 +592,13 @@ public static void main(String[] args) {
     		.builder(nst)
     		.optimize(Optimize.MINIMUM)
     		.populationSize(500)
-            .executor(executor)
+            //.executor(executor)
     		.alterers(
     				new SwapMutator<>(0.25),
     				new PartiallyMatchedCrossover<>(0.35)
     				)
     		.build();
+    
     
     final EvolutionStatistics<Double, ?> statistics = EvolutionStatistics.ofNumber();   
 
