@@ -19,8 +19,8 @@ public class guiUtil {
 		 	int increment_id=1;
 		 	List<NestPath> nestPaths = new ArrayList<>();
 	        SAXReader reader = new SAXReader();
-	        //Document document = reader.read("input/test.xml");
-	        Document document = reader.read("input/simple2.xml");
+	       //Document document = reader.read("input/test.xml");
+	        Document document = reader.read("input/simple.xml");
 
 	        List<Element> elementList = document.getRootElement().elements();
 	        int count = 0;

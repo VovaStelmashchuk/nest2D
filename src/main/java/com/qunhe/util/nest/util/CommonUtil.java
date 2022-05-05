@@ -25,6 +25,10 @@ public class CommonUtil {
 	
 	
 	
+	/**
+	 * @param list
+	 * @return new Arraylist with cloned nestpath
+	 */
 	public static ArrayList<NestPath> cloneArrayListNestpath (List<NestPath> list)
 	{
 		

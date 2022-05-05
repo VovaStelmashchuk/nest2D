@@ -343,7 +343,7 @@ public class Main_Jenetics {
 			tmpBest =result.bestPhenotype();
 			System.out.println(result.generation() + " generation: ");
 			System.out.println("Found better fitness: " + tmpBest.fitness());
-			System.out.println( "-".repeat((int)Math.round(tmpBest.fitness()*10)));			
+			//System.out.println( "-".repeat((int)Math.round(tmpBest.fitness()*10)));			
 		}    	
     }
 	
