@@ -329,6 +329,9 @@ public class NestPath implements Comparable<NestPath>{
         this.rotations = rotations;
     }
     
+    /**Set the number of possible rotations for the polygon
+     * @param rots	number of rotations
+     */
     public void setPossibleNumberRotations(int rots) {
         
     	if(rots<2) return;

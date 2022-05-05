@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
+
 import java.util.function.Function;
 
 import org.dom4j.DocumentException;
@@ -22,11 +22,9 @@ import com.qunhe.util.nest.data.*;
 import com.qunhe.util.nest.gui.guiUtil;
 import com.qunhe.util.nest.util.*;
 
-import de.lighti.clipper.Clipper;
-import de.lighti.clipper.DefaultClipper;
-import de.lighti.clipper.Path;
-import de.lighti.clipper.Paths;
+import de.lighti.clipper.*;
 import de.lighti.clipper.Point.LongPoint;
+import io.jenetics.DoubleGene;
 import io.jenetics.EnumGene;
 import io.jenetics.Optimize;
 import io.jenetics.PartiallyMatchedCrossover;
@@ -84,10 +82,17 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 
 		List<NestPath> paths = seq_nestpath.asList();
 
+		final Random random = RandomRegistry.random();
+		
+		//TODO NOT RANDOM ROTATION
 		List<Integer> ids = new ArrayList<>();	
 		for(int i = 0 ; i < paths.size(); i ++){
 			ids.add(paths.get(i).getId());
-			//paths.get(i).setRotation(rotations.get(i));
+			NestPath n = paths.get(i);
+			if(n.getPossibleRotations()!= null)
+			{
+				n.setRotation(n.getPossibleRotations()[random.nextInt(n.getPossibleRotations().length)]);
+			}
 		}
 
 
@@ -347,8 +352,6 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 				}
 			}
 
-
-
 			if (placements != null && placements.size() > 0) {
 				// Add a new bin, add 1000 penalty to fitness
 				fitness+=1000*(allplacements.size());
@@ -402,8 +405,8 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 	public static void main(String[] args) {
 
 
-		double binWidth = 300;
-		double binHeight = 300;
+		double binWidth = 450;
+		double binHeight = 450;
 
 		NestPath bin = Util.createRectPolygon(binWidth, binHeight);
 		List<NestPath> polygons=null;
@@ -416,7 +419,7 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 		final int MAX_SEC_DURATION=polygons.size()*10;    
 		Config config = new Config();
 		config.SPACING = 0;
-		config.POPULATION_SIZE = 10;
+		config.POPULATION_SIZE = 5;
 		Config.BIN_HEIGHT=binHeight;
 		Config.BIN_WIDTH=binWidth;
 
@@ -444,15 +447,14 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 
 		Util.cleanTree(tree);    
 
-		//    for(NestPath np:tree)
-		//    {
-		//
-		//    	np.Zerolize();
-		//    	//np.translate((binWidth - np.getMaxX())/2, (binHeight - np.getMaxY())/2);
-		//    	
-		//    	//rectangles are already set with 4 possible rotation
-		//    	//np.setPossibleNumberRotations(4);
-		//    }
+		    for(NestPath np:tree)
+		    {
+		
+		    	//np.Zerolize();
+		    	//np.translate((binWidth - np.getMaxX())/2, (binHeight - np.getMaxY())/2);
+		    	
+		    	np.setPossibleNumberRotations(np.size()*2);
+		    }
 
 		ExecutorService executor = Executors.newFixedThreadPool(1);
 
@@ -481,7 +483,7 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 				.collect(toBestPhenotype());
 
 		System.out.println(statistics);
-		System.out.println(best);
+		//System.out.println(best);
 
 		List<List<Placement>>appliedPlacement=Nest.applyPlacement(tmpBestResult, tree);
 		try {

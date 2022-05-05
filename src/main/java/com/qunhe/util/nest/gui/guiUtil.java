@@ -19,8 +19,8 @@ public class guiUtil {
 		 	int increment_id=1;
 		 	List<NestPath> nestPaths = new ArrayList<>();
 	        SAXReader reader = new SAXReader();
-	       //Document document = reader.read("input/test.xml");
-	        Document document = reader.read("input/simple.xml");
+	       Document document = reader.read("input/test.xml");
+	        //Document document = reader.read("input/simple.xml");
 
 	        List<Element> elementList = document.getRootElement().elements();
 	        int count = 0;
@@ -54,7 +54,7 @@ public class guiUtil {
 	                rect.add(x + width, y + height);
 	                rect.add(x, y + height);
 	                //rect.bid = count;
-	                rect.setPossibleNumberRotations(4);
+	                //rect.setPossibleNumberRotations(4);
 	                rect.setId(increment_id++);
 
 	                nestPaths.add(rect);
