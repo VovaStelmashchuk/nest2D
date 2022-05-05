@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
@@ -402,7 +403,7 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 	{
 		final MSeq<NestPath> paths = MSeq.ofLength(l.size());
 		
-		final var random = RandomRegistry.random();
+		final Random random = RandomRegistry.random();
 		
 		for ( int i = 0 ; i < l.size(); ++i ) {
 			
