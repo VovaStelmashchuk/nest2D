@@ -1,21 +1,12 @@
 package com.qunhe.util.nest.jenetics;
-import java.awt.Polygon;
-import java.awt.geom.Area;
 import java.time.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.dom4j.DocumentException;
-import org.w3c.dom.svg.SVGDocument;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.qunhe.util.nest.Nest;
 import com.qunhe.util.nest.config.Config;
-import com.qunhe.util.nest.contest.InputConfig;
 import com.qunhe.util.nest.data.*;
 import com.qunhe.util.nest.gui.guiUtil;
 import com.qunhe.util.nest.util.*;
@@ -23,8 +14,6 @@ import io.jenetics.*;
 import io.jenetics.engine.*;
 import io.jenetics.util.Factory;
 import static io.jenetics.engine.Limits.bySteadyFitness;
-import static com.qunhe.util.nest.util.IOUtils.debug;
-import static com.qunhe.util.nest.util.IOUtils.log;
 import static io.jenetics.engine.EvolutionResult.toBestPhenotype;
 
 

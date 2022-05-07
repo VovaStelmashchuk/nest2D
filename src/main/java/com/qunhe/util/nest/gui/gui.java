@@ -2,18 +2,12 @@ package com.qunhe.util.nest.gui;
 
 import java.awt.Color;
 import java.awt.EventQueue;
-import java.awt.Graphics;
-import java.awt.Polygon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.AffineTransform;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
@@ -22,10 +16,8 @@ import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.apache.batik.anim.dom.SVG12OMDocument;
 import org.apache.batik.ext.awt.geom.Polygon2D;
 import org.apache.batik.swing.JSVGCanvas;
-import org.dom4j.DocumentException;
 import org.w3c.dom.svg.SVGDocument;
 
 import com.qunhe.util.nest.Nest;
@@ -34,25 +26,23 @@ import com.qunhe.util.nest.config.Config;
 import com.qunhe.util.nest.data.NestPath;
 import com.qunhe.util.nest.data.Placement;
 import com.qunhe.util.nest.data.Result;
-import com.qunhe.util.nest.util.CommonUtil;
-import com.qunhe.util.nest.util.GeometryUtil;
 import com.qunhe.util.nest.util.Placementworker;
 import com.qunhe.util.nest.util.SvgUtil;
 
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import java.awt.Dimension;
-import javax.swing.JPanel;
-
 import de.lighti.clipper.Path;
-import de.lighti.clipper.Clipper.ClipType;
 import de.lighti.clipper.Point.LongPoint;
 import de.lighti.clipper.gui.PolygonCanvas;
 import de.lighti.clipper.gui.StatusBar;
 
+
+/**
+ * @author  Alberto Gambarara
+ */
 class gui {
 
 	private JFrame frmGUI;
@@ -111,9 +101,7 @@ class gui {
 				guiUtil.refresh(frmGUI);
 
 				NestPath bin = new NestPath();
-//				double binWidth = 500;
-//				double binHeight = 339.235;
-				
+			
 				double binWidth = 420;
 				double binHeight = 420;
 
@@ -130,10 +118,7 @@ class gui {
 				Config config = null;
 				Nest nest = null;
 				List<List<Placement>> appliedPlacement = null;
-				
-				
-				//inputpolygoncanvas.generateRandomPolygon();
-
+								
 				try {
 					polygons = guiUtil.transferSvgIntoPolygons();
 					inputpolygoncanvas.getSubjects().clear();
@@ -146,10 +131,8 @@ class gui {
 					
 					for (NestPath p: polygons)
 					{
-						Polygon2D newp = p.toPolygon2D();
-												
-						final Path clip = new Path( newp.npoints );
-						
+						Polygon2D newp = p.toPolygon2D();												
+						final Path clip = new Path( newp.npoints );						
 						for (int i = 0; i < newp.npoints; ++i) {
 				            clip.add( new LongPoint( (long)newp.xpoints[i], (long)newp.ypoints[i] ) );
 				        }
@@ -213,11 +196,7 @@ class gui {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-				
-
-				
 				// svgcanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
-
 				JFileChooser fileChooser = new JFileChooser();
 
 				fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("SVG files", "svg"));
@@ -230,11 +209,6 @@ class gui {
 					svgcanvasInput.setURI(selectedFile.toURI().toString());
 				}
 				
-				
-				
-				
-				
-
 			}
 		});
 

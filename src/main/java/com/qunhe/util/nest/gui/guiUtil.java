@@ -19,13 +19,13 @@ public class guiUtil {
 		 	int increment_id=1;
 		 	List<NestPath> nestPaths = new ArrayList<>();
 	        SAXReader reader = new SAXReader();
-	        //Document document = reader.read("input/test.xml");
-	        Document document = reader.read("input/simple.xml");
+	        Document document = reader.read("input/test.xml");
+	        //Document document = reader.read("input/simple.xml");
 
 	        List<Element> elementList = document.getRootElement().elements();
-	        int count = 0;
+	        //int count = 0;
 	        for (Element element : elementList) {
-	            count++;
+	            //count++;
 	            if ("polygon".equals(element.getName())) {
 	                String datalist = element.attribute("points").getValue();
 	                NestPath polygon = new NestPath();
@@ -142,7 +142,7 @@ public class guiUtil {
 	    }
 	 
 	 
-	 static void refresh(JFrame frame)//TODO non funziona
+	 static void refresh(JFrame frame)//TODO Doesn't work
 	 {
 		 
 

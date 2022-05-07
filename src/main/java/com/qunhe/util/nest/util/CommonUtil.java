@@ -23,11 +23,10 @@ import de.lighti.clipper.Point.LongPoint;
 public class CommonUtil {
 
 	
-	
-	
 	/**
-	 * @param list
-	 * @return new Arraylist with cloned nestpath
+	 * @author Alberto Gambarara
+	 * @param list of NestPaths to be cloned
+	 * @return new Arraylist with cloned NestPaths
 	 */
 	public static ArrayList<NestPath> cloneArrayListNestpath (List<NestPath> list)
 	{

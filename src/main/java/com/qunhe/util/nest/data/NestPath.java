@@ -1,6 +1,5 @@
 package com.qunhe.util.nest.data;
 
-import java.awt.Polygon;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +10,7 @@ import com.qunhe.util.nest.config.Config;
 /**
  * @author yisa
  */
+
 public class NestPath implements Comparable<NestPath>{
     private List<Segment> segments;
     private List<NestPath> children;
@@ -276,6 +276,11 @@ public class NestPath implements Comparable<NestPath>{
     }
 
     
+    /**
+     * Get minimum Y value of all the polygon
+     * @author Alberto Gambarara	 
+     * @return
+     */
     public double getMinY(){
         double MinY = Double.MAX_VALUE;
         for(Segment s : segments){
@@ -286,6 +291,11 @@ public class NestPath implements Comparable<NestPath>{
         return MinY;
     }
     
+    /**
+     * Get minimum X value of all the polygon
+     * @author Alberto Gambarara	 
+     * @return
+     */
     public double getMinX(){
         double MinX = Double.MAX_VALUE;
         for(Segment s : segments){
@@ -308,6 +318,11 @@ public class NestPath implements Comparable<NestPath>{
         return MaxY;
     }
     
+    /**
+     * Get maximum X value of all the polygon
+     * @author Alberto Gambarara	 
+     * @return
+     */
     public double getMaxX(){
         double MaxX = Double.MIN_VALUE;
         for(Segment s : segments){
@@ -330,6 +345,7 @@ public class NestPath implements Comparable<NestPath>{
     }
     
     /**Set the number of possible rotations for the polygon
+     * @author Alberto Gambarara	 
      * @param rots	number of rotations
      */
     public void setPossibleNumberRotations(int rots) {
@@ -352,12 +368,17 @@ public class NestPath implements Comparable<NestPath>{
 	public int getBid() {
 		return bid;
 	}
-	@Deprecated
+	
 	public void setBid(int bid) {
 		this.bid = bid;
 	}
 	
 	
+	/**
+	 * Convert NestPath to Polygon2D object
+	 * @author Alberto Gambarara	 
+	 * @return
+	 */
 	public Polygon2D toPolygon2D() {///TODO optimize
 		Polygon2D newp;
 		

@@ -14,6 +14,7 @@ public class Util {
 	
 	/**
 	 * translate bin to the origin and ensure it can be used for nesting
+	 * @author Alberto Gambarara
 	 * @param bin Nespath to clean
 	 * @return Nestpath cleaned
 	 */
@@ -66,6 +67,7 @@ public class Util {
 	
 	/**
 	 * Ensure every polygon can be nested
+	 * @author Alberto Gambarara
 	 * @param tree List<NestPath> to be clean
 	 */
 	public static void cleanTree(List<NestPath> tree)
@@ -85,6 +87,7 @@ public class Util {
 	
 	/**
 	 * Return a rectangle NestPath starting in origin with width and height specified
+	 * @author Alberto Gambarara
 	 * @param width
 	 * @param height
 	 * @return NestPath
