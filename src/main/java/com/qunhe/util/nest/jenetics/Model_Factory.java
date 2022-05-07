@@ -19,7 +19,7 @@ import io.jenetics.util.Factory;
 
 public class Model_Factory {
 	
-	public final static int nGenes =3;
+	public final static int nGenes =2;
 	public static double binWidth;
 	public static double binHeight;
 	
@@ -30,9 +30,9 @@ public class Model_Factory {
         List<DoubleChromosome> arr = new ArrayList<DoubleChromosome>();
         for(int i=0; i<list.size()*nGenes; i+=nGenes)
         {
-            arr.add(DoubleChromosome.of(-binW/2, binW/2)); ///TODO
+            arr.add(DoubleChromosome.of(-binW/2, binW/2));
             arr.add(DoubleChromosome.of(-binH/2,binH/2));
-            arr.add(DoubleChromosome.of(0,360));	//TODO GeneticAlgorithm.randomangle(nestpath)
+            //arr.add(DoubleChromosome.of(0,360));	//TODO GeneticAlgorithm.randomangle(nestpath)
             //GeneticAlgorithm.randomAngle(null)
         }
         return Genotype.of(arr);
@@ -56,15 +56,14 @@ public class Model_Factory {
         	
         	double x = (double)solution.get(i).gene().allele();
         	double y = (double)solution.get(i+1).gene().allele();
-        	double rotation = (double)solution.get(i+2).gene().allele();
-        	//rotation=0;
+        	//double rotation = (double)solution.get(i+2).gene().allele();
+        	double rotation=0.0;
         	int intRotation = (int) Math.round(rotation);
         	
         	Segment s = new Segment(x,y);
         	
-        	//p= GeometryUtil.rotatePolygon2Polygon(p, intRotation);    	
-        	
-        	
+        	//p= GeometryUtil.rotatePolygon2Polygon(p, intRotation);  
+        	        	
         	//Bound rotateBound = GeometryUtil.rotatePolygon(p,intRotation);		// assegna nuovi Bound ad ogni NestPath, di conseguenza lo ruota
 //        	if(rotateBound.width < binWidth && rotateBound.height < binHeight){	// se larghezza e altezza del poligono ruotato sono minori della posizione originale
 //        		continue;
@@ -74,21 +73,18 @@ public class Model_Factory {
 //        		intRotation = safeAngle;
 //        	}
         	
- 
 //			double xx = p.getMinX();
 //			double yy = p.getMinY();
 //			p.Zerolize();
 //			p= GeometryUtil.rotatePolygon2Polygon(p, intRotation);
 //
 //			//p.translate(Math.abs(p.getMinX()), Math.abs(p.getMinY()));			
-//			p.translate(xx, yy); 	
-        	
+//			p.translate(xx, yy); 	        	
         	
         	Placement pl = new Placement(p.getBid(),s,intRotation);
         	
         	p.translate(pl.translate.x, pl.translate.y);
-        	p.setRotation(intRotation);
-        	
+        	p.setRotation(intRotation);        	
         	places.add(pl);
         	
         	//list.get(i/2).translate((double)solution.get(i).gene().allele(), (double)solution.get(i+1).gene().allele());
@@ -116,12 +112,10 @@ public class Model_Factory {
 //        		places.get(i).translate.y -=minY;
 //        		i++;
 //        	}        	
-//        }
-        
+//        }        
         
         res.add(places);
         return res;
     }
-	
 
 }

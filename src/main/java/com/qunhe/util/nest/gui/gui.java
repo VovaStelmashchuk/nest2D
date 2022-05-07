@@ -114,8 +114,8 @@ class gui {
 //				double binWidth = 500;
 //				double binHeight = 339.235;
 				
-				double binWidth = 300;
-				double binHeight = 300;
+				double binWidth = 420;
+				double binHeight = 420;
 
 				bin.add(0, 0);
 				bin.add(binWidth, 0);

@@ -23,6 +23,11 @@ public class Fitness_Model {
 	public List<NestPath> list;
 	Double binWidth,binHeight;
 	
+	/**
+	 * @param l		List of polygons
+	 * @param binW	Width of bin polygon
+	 * @param binH	Height of bin polygon
+	 */
 	public Fitness_Model(List<NestPath> l, double binW, double binH) {
 		
 		this.list = l;
@@ -32,6 +37,11 @@ public class Fitness_Model {
 	}
 	
 	
+	/**
+	 * @param p1	1st polygon
+	 * @param p2	2nd	polygon
+	 * @return		value of the area of the rectangle that contains the polygon where p1 and p2 overlap
+	 */
 	public static double overlapDouble(Polygon2D p1, Polygon2D p2)
     {		
 		Area area = new Area(p1);
@@ -39,15 +49,23 @@ public class Fitness_Model {
 		return Math.abs(area.getBounds().getWidth()*area.getBounds().getHeight());		
     }
 	
+	/**
+	 * @param p1	1st NestPath
+	 * @param p2	2nd	NestPath
+	 * @return		true if p1 and p2 overlap USES GeometryUtil.intersect THAT SEEMS TO NOT WORK CORRECTLY ALL THE TIME
+	 */
 	public static boolean overlapBool(NestPath p1, NestPath p2)
     {		
 		return  GeometryUtil.intersect(p1, p2);
     }
 	
 	
+	/**
+	 * @param model
+	 * @return double value of the fitness, in this case the area that contains all the polygons divided by the sum of the areas of all the polygons
+	 */
 	public double scalarFitness(final Genotype model)
-    {
-		
+    {		
 		double maxX=0;
 		double maxY=0;
 		double penalty=0;
