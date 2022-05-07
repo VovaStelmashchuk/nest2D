@@ -22,6 +22,16 @@ public class Config {
     public static int LIMIT=0;
     public static String OUTPUT_DIR ="output/";
     public static String NFP_CACHE_PATH;
+    
+    /**
+	 * @author Alberto Gambarara
+	 */
+    public static int MAX_SEC_DURATION;
+    public static int MAX_STEADY_FITNESS;
+	public static int NUMBER_OF_ROTATIONS;
+	public static String OUTPUT_FILENAME;
+	public static int N_THREAD;
+
 
 
     public Config() {
@@ -32,6 +42,17 @@ public class Config {
         MUTATION_RATE = 10;
         CONCAVE = false;
         USE_HOLE = false;
+        
+        /**
+    	 * @author Alberto Gambarara
+    	 */
+        OUTPUT_FILENAME="res.html";
+		NUMBER_OF_ROTATIONS=4;
+		MAX_SEC_DURATION=60;
+		MAX_STEADY_FITNESS=20;
+		N_THREAD=1;
+		
+		
     }
 
     public boolean isCONCAVE() {
