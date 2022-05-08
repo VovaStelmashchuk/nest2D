@@ -33,7 +33,8 @@ public class SvgUtil {
                     Segment segment = nestPath.get(i);
                     s += segment.x + " " + segment.y + " ";
                 }
-                s += "Z\" fill=\"#7bafd1\" stroke=\"#010101\" stroke-width=\"0.5\" />" + " \n";
+                String color =(rotate==0.0)?"7bafd1":"fc8d8d";
+                s += "Z\" fill=\"#" +color  + "\" stroke=\"#010101\" stroke-width=\"0.5\" />" + " \n";
                 s += "</g> \n";
             }
             s += "</g> \n";

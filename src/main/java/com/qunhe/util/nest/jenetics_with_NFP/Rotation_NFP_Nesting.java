@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
@@ -39,6 +40,7 @@ import static io.jenetics.engine.EvolutionResult.toBestPhenotype;
 
 
 
+//Adapted from Franz Wilhelmstötter, Jenetics' Project owner - stackoverflow.com/questions/72127848/custom-genotype-in-jenetics-for-nesting
 
 public class Rotation_NFP_Nesting implements Problem<Solution,DoubleGene, Double>{
 
@@ -46,17 +48,24 @@ public class Rotation_NFP_Nesting implements Problem<Solution,DoubleGene, Double
 	
 	static Phenotype<DoubleGene,Double> tmpBest = null;
 	static Result tmpBestResult =null;
+	static ReentrantLock tmpBestLock;
+	static ReentrantLock tmpBestResultLock;
 
 	private NestPath _binPolygon;
 	Map<String,List<NestPath>> nfpCache=new HashMap<>();
+	static ReentrantLock nfpCacheLock;
 
-	private final ISeq<NestPath> _list;
-	//static ReentrantLock lock = new ReentrantLock();
+
+	//private final ISeq<NestPath> _list;
 
 	public Rotation_NFP_Nesting(ISeq<NestPath> lista,NestPath binpolygon ,double binw, double binh, int n_rot) 
 	{
 		_binPolygon = binpolygon;
-		_list=Objects.requireNonNull(lista);
+		//_list=Objects.requireNonNull(lista);
+		tmpBestLock = new ReentrantLock(true);
+		tmpBestResultLock = new ReentrantLock(true);
+		nfpCacheLock = new ReentrantLock(true);
+
 		
 		code = Codec.of(
 	            Genotype.of(
@@ -142,16 +151,23 @@ public class Rotation_NFP_Nesting implements Problem<Solution,DoubleGene, Double
 		for(int i = 0 ; i< paths.size();i++){
 			NestPath part = paths.get(i);
 			key = new NfpKey(_binPolygon.getId() , part.getId() , true , 0 , part.getRotation());
+			nfpCacheLock.lock();
 
 			if(!nfpCache.containsKey(key)) {
 				nfpPairs.add(new NfpPair(_binPolygon, part, key));
 			}
+			nfpCacheLock.unlock();
+
 			for(int j = 0 ; j< i ; j ++){
 				NestPath placed = paths.get(j);
 				NfpKey keyed = new NfpKey(placed.getId() , part.getId() , false , placed.getRotation(), part.getRotation());
+				nfpCacheLock.lock();
+
 				if(!nfpCache.containsKey(keyed)) {
 					nfpPairs.add(new NfpPair(placed, part, keyed));
 				}
+				nfpCacheLock.unlock();
+
 			}
 		}
 
@@ -170,12 +186,11 @@ public class Rotation_NFP_Nesting implements Problem<Solution,DoubleGene, Double
 
 		for (ParallelData Nfp : generatedNfp) {
 			String tkey = gson.toJson(Nfp.getKey());
-			try
-			{
+			nfpCacheLock.lock();
 			nfpCache.put(tkey, Nfp.value);
-			}catch (Exception e) {
-			System.out.println("errore");
-			}
+			nfpCacheLock.unlock();
+
+			
 		}
 
 		//String lotId = InputConfig.INPUT == null ? "" : InputConfig.INPUT.get(0).lotId;
@@ -224,21 +239,32 @@ public class Rotation_NFP_Nesting implements Problem<Solution,DoubleGene, Double
 
 				//inner NFP	***************************************************************
 				key1 = gson.toJson(new NfpKey(-1, path.getId(), true, 0, path.getRotation()));
+				nfpCacheLock.lock();
+
 				if (!nfpCache.containsKey(key1)) {
+					nfpCacheLock.unlock();
 					continue;
 				}
 				List<NestPath> binNfp = nfpCache.get(key1);
+				nfpCacheLock.unlock();
+
 				// ensure exists
 				boolean error = false;
 				for (NestPath element : placed) {
 					key1 = gson.toJson(new NfpKey(element.getId(), path.getId(), false, element.getRotation(), path.getRotation()));
+					nfpCacheLock.lock();
+
 					if (nfpCache.containsKey(key1)) nfp = nfpCache.get(key1);
 					else {
 						error = true;
 						break;
 					}
+					nfpCacheLock.unlock();
+
 				}
 				if (error) {
+					nfpCacheLock.unlock();
+
 					continue;
 				}//***************************************************************
 
@@ -271,7 +297,11 @@ public class Rotation_NFP_Nesting implements Problem<Solution,DoubleGene, Double
 
 				for (int j = 0; j < placed.size(); j++) {
 					key1 = gson.toJson(new NfpKey(placed.get(j).getId(), path.getId(), false, placed.get(j).getRotation(), path.getRotation()));
+					nfpCacheLock.lock();
+
 					nfp = nfpCache.get(key1);
+					nfpCacheLock.unlock();
+
 
 					if (nfp == null) {                    	                    	
 						continue;
@@ -405,10 +435,12 @@ public class Rotation_NFP_Nesting implements Problem<Solution,DoubleGene, Double
 		}// End of while(paths.size>0)
 
 		Result res = new Result(allplacements, fitness, paths, binarea);
+		tmpBestResultLock.lock();
 		if (tmpBestResult==null || res.fitness<tmpBestResult.fitness)
 		{
 			tmpBestResult =res;
 		}
+		tmpBestResultLock.unlock();
 		return fitness;
 
 	}
@@ -426,6 +458,7 @@ public class Rotation_NFP_Nesting implements Problem<Solution,DoubleGene, Double
 			polygons = guiUtil.transferSvgIntoPolygons();
 		} catch (DocumentException e) {
 			e.printStackTrace();
+			return;
 		}
 		   
 		Config config = new Config();
@@ -435,7 +468,7 @@ public class Rotation_NFP_Nesting implements Problem<Solution,DoubleGene, Double
 		Config.BIN_WIDTH=binWidth;
 		Config.LIMIT=15;
 		Config.NUMBER_OF_ROTATIONS=12;
-		Config.MAX_SEC_DURATION=polygons.size()*10;
+		Config.MAX_SEC_DURATION=polygons.size()*1;
 		Config.MAX_STEADY_FITNESS=15;
 		Config.N_THREAD=10;
 
@@ -508,7 +541,7 @@ public class Rotation_NFP_Nesting implements Problem<Solution,DoubleGene, Double
 			e.printStackTrace();
 		}
 		finally {
-			System.out.println("Best Solution saved at " + Config.OUTPUT_DIR+"res.html");
+			System.out.println("Best Solution saved at " + Config.OUTPUT_DIR+Config.OUTPUT_FILENAME);
 		}
 		executor.shutdownNow();
 	}
@@ -521,6 +554,7 @@ public class Rotation_NFP_Nesting implements Problem<Solution,DoubleGene, Double
 	private static void update(final EvolutionResult<DoubleGene,Double> result)
 	{
 		System.out.println(result.generation() + " generation: ");
+		tmpBestLock.lock();
 		if(tmpBest == null || tmpBest.compareTo(result.bestPhenotype())>0)
 		{			
 			tmpBest =result.bestPhenotype();			
@@ -528,8 +562,9 @@ public class Rotation_NFP_Nesting implements Problem<Solution,DoubleGene, Double
 		}
 		else
 		{
-			System.out.println("Better fitness is still: " + result.bestFitness());
+			System.out.println("Better fitness is still: " + tmpBest.fitness());
 		}
+		tmpBestLock.unlock();
 	}
 
 

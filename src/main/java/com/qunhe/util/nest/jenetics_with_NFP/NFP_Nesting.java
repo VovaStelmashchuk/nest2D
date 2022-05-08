@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
 import org.dom4j.DocumentException;
@@ -31,22 +32,32 @@ import io.jenetics.engine.*;
 import io.jenetics.util.*;
 import static io.jenetics.engine.EvolutionResult.toBestPhenotype;
 
+//Adapted from Franz Wilhelmstötter, Jenetics' Project owner - JENETICS LIBRARY USER’S MANUAL 7.0 - jenetics.io/manual/manual-7.0.0.pdf
 
 public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, Double>{
 
 	static Phenotype<EnumGene<NestPath>,Double> tmpBest = null;
+	static ReentrantLock tmpBestLock;
+	static ReentrantLock tmpBestResultLock;
+
+
 	static Result tmpBestResult =null;
 
 	private NestPath _binPolygon;
 	Map<String,List<NestPath>> nfpCache=new HashMap<>();
+	static ReentrantLock nfpCacheLock;
+
 
 	private final ISeq<NestPath> _list;
-	//static ReentrantLock lock = new ReentrantLock();
+	
 
 	public NFP_Nesting(ISeq<NestPath> lista,NestPath binpolygon ,double binw, double binh) 
 	{
 		_binPolygon = binpolygon;
 		_list=Objects.requireNonNull(lista);
+		tmpBestLock = new ReentrantLock(true);
+		tmpBestResultLock = new ReentrantLock(true);
+		nfpCacheLock = new ReentrantLock(true);
 
 	}
 
@@ -80,18 +91,19 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 
 		List<NestPath> paths = seq_nestpath.asList();
 
+		
+		//USELESS WITHOUT ROTATION
 		//final Random random = RandomRegistry.random();
 		
-		//TODO NOT RANDOM ROTATION
-		List<Integer> ids = new ArrayList<>();	
-		for(int i = 0 ; i < paths.size(); i ++){
-			ids.add(paths.get(i).getId());
-//			NestPath n = paths.get(i);
-//			if(n.getPossibleRotations()!= null)
-//			{
-//				n.setRotation(n.getPossibleRotations()[random.nextInt(n.getPossibleRotations().length)]);
-//			}
-		}
+//		List<Integer> ids = new ArrayList<>();	
+//		for(int i = 0 ; i < paths.size(); i ++){
+//			ids.add(paths.get(i).getId());
+////			NestPath n = paths.get(i);
+////			if(n.getPossibleRotations()!= null)
+////			{
+////				n.setRotation(n.getPossibleRotations()[random.nextInt(n.getPossibleRotations().length)]);
+////			}
+//		}
 
 		/*--------------------------------------------------------------CREATE NFP CACHE-----------------------------------------------------------------*/
 
@@ -107,16 +119,20 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 		for(int i = 0 ; i< paths.size();i++){
 			NestPath part = paths.get(i);
 			key = new NfpKey(_binPolygon.getId() , part.getId() , true , 0 , part.getRotation());
-
+			nfpCacheLock.lock();
 			if(!nfpCache.containsKey(key)) {
 				nfpPairs.add(new NfpPair(_binPolygon, part, key));
 			}
+			nfpCacheLock.unlock();
+
 			for(int j = 0 ; j< i ; j ++){
 				NestPath placed = paths.get(j);
 				NfpKey keyed = new NfpKey(placed.getId() , part.getId() , false , placed.getRotation(), part.getRotation());
+				nfpCacheLock.lock();
 				if(!nfpCache.containsKey(keyed)) {
 					nfpPairs.add(new NfpPair(placed, part, keyed));
 				}
+				nfpCacheLock.unlock();
 			}
 		}
 
@@ -135,7 +151,9 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 
 		for (ParallelData Nfp : generatedNfp) {
 			String tkey = gson.toJson(Nfp.getKey());
+			nfpCacheLock.lock();
 			nfpCache.put(tkey, Nfp.value);
+			nfpCacheLock.unlock();
 		}
 
 		//String lotId = InputConfig.INPUT == null ? "" : InputConfig.INPUT.get(0).lotId;
@@ -149,19 +167,20 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 		}
 
 		paths=placeListSlice;
+//		//USELESS WITHOUT ROTATION
 
-		//ROTATE ANY NESTPATH
-		List<NestPath> rotated = new ArrayList<>();
-		for (int i = 0; i < paths.size(); i++) {
-			NestPath r = GeometryUtil.rotatePolygon2Polygon(paths.get(i), paths.get(i).getRotation());
-			r.setRotation(paths.get(i).getRotation());
-			r.setPossibleRotations(paths.get(i).getPossibleRotations());
-			r.setSource(paths.get(i).getSource());
-			r.setId(paths.get(i).getId());
-			r.area=paths.get(i).area;
-			rotated.add(r);
-		}
-		paths = rotated;
+//		//ROTATE ANY NESTPATH
+//		List<NestPath> rotated = new ArrayList<>();
+//		for (int i = 0; i < paths.size(); i++) {
+//			NestPath r = GeometryUtil.rotatePolygon2Polygon(paths.get(i), paths.get(i).getRotation());
+//			r.setRotation(paths.get(i).getRotation());
+//			r.setPossibleRotations(paths.get(i).getPossibleRotations());
+//			r.setSource(paths.get(i).getSource());
+//			r.setId(paths.get(i).getId());
+//			r.area=paths.get(i).area;
+//			rotated.add(r);
+//		}
+//		paths = rotated;
 		List<List<Vector>> allplacements = new ArrayList<>();
 		// Now the fitness is defined as the width of material used.
 		double fitness = 0;
@@ -184,23 +203,36 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 
 				//inner NFP	***************************************************************
 				key1 = gson.toJson(new NfpKey(-1, path.getId(), true, 0, path.getRotation()));
+				nfpCacheLock.lock();
+
 				if (!nfpCache.containsKey(key1)) {
+					nfpCacheLock.unlock();
 					continue;
 				}
+
 				List<NestPath> binNfp = nfpCache.get(key1);
+				nfpCacheLock.unlock();
+
 				// ensure exists
 				boolean error = false;
 				for (NestPath element : placed) {
 					key1 = gson.toJson(new NfpKey(element.getId(), path.getId(), false, element.getRotation(), path.getRotation()));
+					nfpCacheLock.lock();
+
 					if (nfpCache.containsKey(key1)) nfp = nfpCache.get(key1);
 					else {
+
 						error = true;
 						break;
 					}
+					nfpCacheLock.unlock();
 				}
 				if (error) {
+					nfpCacheLock.unlock();
+
 					continue;
 				}//***************************************************************
+
 
 				Vector position = null;
 				if (placed.size() == 0) {
@@ -231,7 +263,11 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 
 				for (int j = 0; j < placed.size(); j++) {
 					key1 = gson.toJson(new NfpKey(placed.get(j).getId(), path.getId(), false, placed.get(j).getRotation(), path.getRotation()));
+					nfpCacheLock.lock();
+
 					nfp = nfpCache.get(key1);
+					nfpCacheLock.unlock();
+
 
 					if (nfp == null) {                    	                    	
 						continue;
@@ -365,11 +401,13 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 		}// End of while(paths.size>0)
 
 		Result res = new Result(allplacements, fitness, paths, binarea);
+		tmpBestResultLock.lock();
 		if (tmpBestResult==null || res.fitness<tmpBestResult.fitness)
 		{
 			//System.out.println("fitness migliore trovata: " + fitness);
 			tmpBestResult =res;
 		}
+		tmpBestResultLock.unlock();
 		return fitness;
 
 	}
@@ -410,13 +448,15 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 		} catch (DocumentException e) {
 			e.printStackTrace();
 		}
-		final int MAX_SEC_DURATION=polygons.size()*10;    
 		Config config = new Config();
 		config.SPACING = 0;
 		config.POPULATION_SIZE = 10;
 		Config.BIN_HEIGHT=binHeight;
 		Config.BIN_WIDTH=binWidth;
 		Config.LIMIT=10;
+		Config.MAX_SEC_DURATION=polygons.size()*10;
+		Config.MAX_STEADY_FITNESS=15;
+		Config.N_THREAD=10;
 
 		List<NestPath> tree = CommonUtil.BuildTree(polygons , Config.CURVE_TOLERANCE);
 		CommonUtil.offsetTree(tree, 0.5 * config.SPACING);    
@@ -428,29 +468,21 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 
 		NestPath binPolygon=Util.CleanBin(bin);
 
-
-		// A part may become not positionable after a rotation. TODO this can also be removed if we know that all parts are legal
-		if(!Config.ASSUME_ALL_PARTS_PLACABLE) {
-			List<Integer> integers = Nest.checkIfCanBePlaced(binPolygon, tree);
-			List<NestPath> safeTree = new ArrayList<>();
-			for (Integer i : integers) {
-				safeTree.add(tree.get(i));
-			}
-			if(integers.size()<tree.size()) System.out.println(tree.size() - integers.size() +  "polygons can't be placed");
-			tree = safeTree;
-		}
+//		USELESS WITHOUT ROTATION
+//		// A part may become not positionable after a rotation. TODO this can also be removed if we know that all parts are legal
+//		if(!Config.ASSUME_ALL_PARTS_PLACABLE) {
+//			List<Integer> integers = Nest.checkIfCanBePlaced(binPolygon, tree);
+//			List<NestPath> safeTree = new ArrayList<>();
+//			for (Integer i : integers) {
+//				safeTree.add(tree.get(i));
+//			}
+//			if(integers.size()<tree.size()) System.out.println(tree.size() - integers.size() +  "polygons can't be placed");
+//			tree = safeTree;
+//		}
 
 		Util.cleanTree(tree);    
 
-		    for(NestPath np:tree)
-		    {		
-		    	//np.Zerolize();
-		    	//np.translate((binWidth - np.getMaxX())/2, (binHeight - np.getMaxY())/2);
-		    	//np.area=GeometryUtil.polygonArea(np);
-		    	np.setPossibleNumberRotations(np.size()*2);
-		    }
-		    
-		ExecutorService executor = Executors.newFixedThreadPool(10);
+		ExecutorService executor = Executors.newFixedThreadPool(Config.N_THREAD);
 
 		NFP_Nesting nst = NFP_Nesting.of(tree,binPolygon,binWidth,binHeight);
 		Engine<EnumGene<NestPath>,Double> engine = Engine
@@ -471,8 +503,8 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 		
 		Phenotype<EnumGene<NestPath>,Double> best=
 				engine.stream()
-				.limit(Limits.bySteadyFitness(10))
-				.limit(Limits.byExecutionTime(Duration.ofSeconds(MAX_SEC_DURATION)))
+				.limit(Limits.bySteadyFitness(Config.MAX_STEADY_FITNESS))
+				.limit(Limits.byExecutionTime(Duration.ofSeconds(Config.MAX_SEC_DURATION)))
 				//.limit(Config.LIMIT)
 				.peek(NFP_Nesting::update)
 				.peek(statistics)
@@ -484,12 +516,12 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 		List<List<Placement>>appliedPlacement=Nest.applyPlacement(tmpBestResult, tree);
 		try {
 			List<String> strings = SvgUtil.svgGenerator(tree, appliedPlacement, binWidth, binHeight);
-			guiUtil.saveSvgFile(strings, Config.OUTPUT_DIR+"res.html",binWidth,binHeight);
+			guiUtil.saveSvgFile(strings, Config.OUTPUT_DIR+Config.OUTPUT_FILENAME,binWidth,binHeight);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		finally {
-			System.out.println("Best Solution saved at " + Config.OUTPUT_DIR+"res.html");
+			System.out.println("Best Solution saved at " + Config.OUTPUT_DIR+Config.OUTPUT_FILENAME);
 		}
 		executor.shutdownNow();
 	}
@@ -502,6 +534,7 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 	private static void update(final EvolutionResult<EnumGene<NestPath>,Double> result)
 	{
 		System.out.println(result.generation() + " generation: ");
+		tmpBestLock.lock();
 		if(tmpBest == null || tmpBest.compareTo(result.bestPhenotype())>0)
 		{			
 			tmpBest =result.bestPhenotype();			
@@ -509,8 +542,9 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 		}
 		else
 		{
-			System.out.println("Better fitness is still: " + result.bestFitness());
+			System.out.println("Better fitness is still: " + tmpBest.fitness());
 		}
+		tmpBestLock.unlock();
 	}
 
 
