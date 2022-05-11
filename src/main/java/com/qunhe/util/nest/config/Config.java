@@ -26,11 +26,11 @@ public class Config {
     /**
 	 * @author Alberto Gambarara
 	 */
-    public static int MAX_SEC_DURATION;
-    public static int MAX_STEADY_FITNESS;
-	public static int NUMBER_OF_ROTATIONS;
-	public static String OUTPUT_FILENAME;
-	public static int N_THREAD;
+    public int MAX_SEC_DURATION;
+    public int MAX_STEADY_FITNESS;
+	public int NUMBER_OF_ROTATIONS;
+	public String OUTPUT_FILENAME;
+	public int N_THREAD;
 
 
 
