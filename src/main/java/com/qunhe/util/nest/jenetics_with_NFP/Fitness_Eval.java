@@ -18,14 +18,18 @@ import de.lighti.clipper.*;
 import de.lighti.clipper.Point.LongPoint;
 import io.jenetics.util.ISeq;
 
+/**
+ * @author Alberto Gambarara
+ *
+ */
 public class Fitness_Eval {
-	
+
 	ReentrantLock nfpCacheLock;
 	Map<String,List<NestPath>> nfpCache;
 	Result tmpBestResult;
 	ReentrantLock tmpBestResultLock;
 	NestPath binPolygon;
-	
+
 	public Fitness_Eval(NestPath bin)
 	{
 		binPolygon=bin;
@@ -39,12 +43,11 @@ public class Fitness_Eval {
 	 * @return Fitness of the model with no rotation
 	 */
 	Double scalar_fitness(final ISeq<NestPath> seq_nestpath) {
-	
+
 		return scalar_fitness(seq_nestpath,null,false);
-		
+
 	}
-	
-	
+
 	/**
 	 * @param seq_nestpath
 	 * @param rotations array of that contains the step of rotation to use for each polygon 
@@ -55,42 +58,38 @@ public class Fitness_Eval {
 
 		if(binPolygon==null)
 			throw new NullPointerException("bin is null");
-		
-		
+
+
 		List<NestPath> paths = seq_nestpath.asList();
-		
+
 		if(useRot) {
-		//convert double value to integer value
-		final int[] intRotations = new int[rotations.length];
-		for (int i=0; i<intRotations.length; ++i)
-			intRotations[i] = (int) rotations[i];
-		
-		
-		List<Integer> ids = new ArrayList<>();	
-		for(int i = 0 ; i < paths.size(); i ++){
-			ids.add(paths.get(i).getId());
-			NestPath n = paths.get(i);
-			if(n.getPossibleRotations()!= null)
-			{
-				n.setRotation(n.getPossibleRotations()[intRotations[i]]);
+			//convert double value to integer value
+			final int[] intRotations = new int[rotations.length];
+			for (int i=0; i<intRotations.length; ++i)
+				intRotations[i] = (int) rotations[i];
+
+			List<Integer> ids = new ArrayList<>();	
+			for(int i = 0 ; i < paths.size(); i ++){
+				ids.add(paths.get(i).getId());
+				NestPath n = paths.get(i);
+				if(n.getPossibleRotations()!= null)
+					n.setRotation(n.getPossibleRotations()[intRotations[i]]);
 			}
-		}
 
 		}
 		/*--------------------------------------------------------------CREATE NFP CACHE-----------------------------------------------------------------*/
 		List<NfpPair> nfpPairs = new ArrayList<>();
 		NfpKey key = null;
 
-		
 		//FOR EACH POLYGON CREATE NFP CACHE WITH BIN AND WITH PREVIOUS POLYGONS IN THE LIST
 		for(int i = 0 ; i< paths.size();i++){
 			NestPath part = paths.get(i);
 			key = new NfpKey(binPolygon.getId() , part.getId() , true , 0 , part.getRotation());
 			nfpCacheLock.lock();
 
-			if(!nfpCache.containsKey(key)) {
+			if(!nfpCache.containsKey(key))
 				nfpPairs.add(new NfpPair(binPolygon, part, key));
-			}
+			
 			nfpCacheLock.unlock();
 
 			for(int j = 0 ; j< i ; j ++){
@@ -98,11 +97,10 @@ public class Fitness_Eval {
 				NfpKey keyed = new NfpKey(placed.getId() , part.getId() , false , placed.getRotation(), part.getRotation());
 				nfpCacheLock.lock();
 
-				if(!nfpCache.containsKey(keyed)) {
+				if(!nfpCache.containsKey(keyed))
 					nfpPairs.add(new NfpPair(placed, part, keyed));
-				}
+				
 				nfpCacheLock.unlock();
-
 			}
 		}
 
@@ -114,7 +112,6 @@ public class Fitness_Eval {
 		List<ParallelData> generatedNfp = new ArrayList<>();
 
 		for (NfpPair nfpPair : nfpPairs) {
-
 			ParallelData data = NfpUtil.nfpGenerator(nfpPair, config);			
 			generatedNfp.add(data);
 		}
@@ -124,8 +121,6 @@ public class Fitness_Eval {
 			nfpCacheLock.lock();
 			nfpCache.put(tkey, Nfp.value);
 			nfpCacheLock.unlock();
-
-			
 		}
 
 		//String lotId = InputConfig.INPUT == null ? "" : InputConfig.INPUT.get(0).lotId;
@@ -134,25 +129,25 @@ public class Fitness_Eval {
 
 		List<NestPath> placeListSlice = new ArrayList<>();
 
-		for (int i = 0; i < paths.size(); i++) {
+		for (int i = 0; i < paths.size(); i++)
 			placeListSlice.add(new NestPath(paths.get(i)));
-		}
 
 		paths=placeListSlice;
 
 		if(useRot) {
-		//ROTATE ANY NESTPATH
-		List<NestPath> rotated = new ArrayList<>();
-		for (int i = 0; i < paths.size(); i++) {
-			NestPath r = GeometryUtil.rotatePolygon2Polygon(paths.get(i), paths.get(i).getRotation());
-			r.setRotation(paths.get(i).getRotation());
-			r.setPossibleRotations(paths.get(i).getPossibleRotations());
-			r.setSource(paths.get(i).getSource());
-			r.setId(paths.get(i).getId());
-			r.area=paths.get(i).area;
-			rotated.add(r);
-		}
-		paths = rotated;
+			//ROTATE ANY NESTPATH
+			List<NestPath> rotated = new ArrayList<>();
+			for (int i = 0; i < paths.size(); i++) {
+				NestPath p = paths.get(i);
+				NestPath r = GeometryUtil.rotatePolygon2Polygon(p, p.getRotation());
+				r.setRotation(p.getRotation());
+				r.setPossibleRotations(p.getPossibleRotations());
+				r.setSource(p.getSource());
+				r.setId(p.getId());
+				r.area=p.area;
+				rotated.add(r);
+			}
+			paths = rotated;
 		}
 		List<List<Vector>> allplacements = new ArrayList<>();
 		// Now the fitness is defined as the width of material used.
@@ -191,7 +186,8 @@ public class Fitness_Eval {
 					key1 = gson.toJson(new NfpKey(element.getId(), path.getId(), false, element.getRotation(), path.getRotation()));
 					nfpCacheLock.lock();
 
-					if (nfpCache.containsKey(key1)) nfp = nfpCache.get(key1);
+					if (nfpCache.containsKey(key1))
+						nfp = nfpCache.get(key1);
 					else {
 						error = true;
 						break;
@@ -226,23 +222,21 @@ public class Fitness_Eval {
 				}
 				Paths clipperBinNfp = new Paths();
 
-				for (NestPath binNfpj : binNfp) {                	 
+				for (NestPath binNfpj : binNfp)                	 
 					clipperBinNfp.add(Placementworker.scaleUp2ClipperCoordinates(binNfpj));
-				}
+				
 				DefaultClipper clipper = new DefaultClipper();
 				Paths combinedNfp = new Paths();
 
 				for (int j = 0; j < placed.size(); j++) {
 					key1 = gson.toJson(new NfpKey(placed.get(j).getId(), path.getId(), false, placed.get(j).getRotation(), path.getRotation()));
-					nfpCacheLock.lock();
+					nfpCacheLock.lock();					
 
 					nfp = nfpCache.get(key1);
 					nfpCacheLock.unlock();
 
-
-					if (nfp == null) {                    	                    	
+					if (nfp == null)                  	                    	
 						continue;
-					}
 
 					for (NestPath element : nfp) {
 						Path clone = Placementworker.scaleUp2ClipperCoordinates(element);
@@ -260,9 +254,8 @@ public class Fitness_Eval {
 						}
 					}
 				}
-				if (!clipper.execute(Clipper.ClipType.UNION, combinedNfp, Clipper.PolyFillType.NON_ZERO, Clipper.PolyFillType.NON_ZERO)) {
+				if (!clipper.execute(Clipper.ClipType.UNION, combinedNfp, Clipper.PolyFillType.NON_ZERO, Clipper.PolyFillType.NON_ZERO))
 					continue;
-				}
 
 				//difference with bin polygon
 				Paths finalNfp = new Paths();
@@ -270,9 +263,8 @@ public class Fitness_Eval {
 
 				clipper.addPaths(combinedNfp, Clipper.PolyType.CLIP, true);
 				clipper.addPaths(clipperBinNfp, Clipper.PolyType.SUBJECT, true);
-				if (!clipper.execute(Clipper.ClipType.DIFFERENCE, finalNfp, Clipper.PolyFillType.NON_ZERO, Clipper.PolyFillType.NON_ZERO)) {
+				if (!clipper.execute(Clipper.ClipType.DIFFERENCE, finalNfp, Clipper.PolyFillType.NON_ZERO, Clipper.PolyFillType.NON_ZERO))
 					continue;
-				}
 
 				finalNfp = finalNfp.cleanPolygons(0.0001 * Config.CLIIPER_SCALE);
 				for (int j = 0; j < finalNfp.size(); j++) {
@@ -282,36 +274,26 @@ public class Fitness_Eval {
 						j--;
 					}
 				}
-				
-//				Iterator<Path> iter = finalNfp.iterator();
-//				while (iter.hasNext()) {
-//					Path p = iter.next();
-//					double area = Math.abs(p.area());
-//					if (p.size() < 3 || area < 0.1 * Config.CLIIPER_SCALE * Config.CLIIPER_SCALE) {
-//						iter.remove();
-//					}
-//				}
 
-				if (finalNfp == null || finalNfp.size() == 0) {
+				if (finalNfp == null || finalNfp.size() == 0)
 					continue;
-				}
 
 				List<NestPath> f = new ArrayList<>();
-				for (Path element : finalNfp) {
+				for (Path element : finalNfp)
 					f.add(Placementworker.toNestCoordinates(element));
-				}
 
 				List<NestPath> finalNfpf = f;
 				double minarea = Double.MIN_VALUE;
+
 				double minX = Double.MAX_VALUE;
 				NestPath nf = null;
 				double area = Double.MIN_VALUE;
 				Vector shifvector = null;
 				for (NestPath element : finalNfpf) {
 					nf = element;
-					if (Math.abs(GeometryUtil.polygonArea(nf)) < 2) {	
+					if (Math.abs(GeometryUtil.polygonArea(nf)) < 2)	
 						continue;
-					}
+					
 					for (int k = 0; k < nf.size(); k++) {
 						NestPath allpoints = new NestPath();
 						for (int m = 0; m < placed.size(); m++) {
@@ -327,9 +309,9 @@ public class Fitness_Eval {
 								path.getRotation(),
 								combinedNfp
 								);
-						for (int m = 0; m < path.size(); m++) {
+						for (int m = 0; m < path.size(); m++) 
 							allpoints.add(new Segment(path.get(m).x + shifvector.x, path.get(m).y + shifvector.y));
-						}
+						
 						Bound rectBounds = GeometryUtil.getPolygonBounds(allpoints);
 
 						area = rectBounds.getWidth() * 2 + rectBounds.getHeight();
@@ -345,42 +327,37 @@ public class Fitness_Eval {
 					}
 				}
 				if (position != null) {
-
 					placed.add(path);				// polygon placed
 					placements.add(position);		
 				}
 			}
-			if (minwidth != Double.MAX_VALUE) {
+			if (minwidth != Double.MAX_VALUE)
 				fitness += minwidth;				
-			}
 
 			for (int i = 0; i < placed.size(); i++) {
 				int index = paths.indexOf(placed.get(i));
-				if (index >= 0) {
+				if (index >= 0) 
 					paths.remove(index);
-				}
+				
 			}
 
 			if (placements != null && placements.size() > 0) {
 				// Added a new bin, add 1000 penalty to fitness
 				fitness+=1000*(allplacements.size());
 				allplacements.add(placements);
-			} else {
+			} else 
 				break; // something went wrong
-			}
+			
 
 		}// End of while(paths.size>0)
 
 		Result res = new Result(allplacements, fitness, paths, binarea);
 		tmpBestResultLock.lock();
 		if (tmpBestResult==null || res.fitness<tmpBestResult.fitness)
-		{
 			tmpBestResult =res;
-		}
+
 		tmpBestResultLock.unlock();
 		return fitness;
-
 	}
-	
 
 }

@@ -9,17 +9,22 @@ import io.jenetics.Gene;
 import io.jenetics.Phenotype;
 import io.jenetics.engine.EvolutionResult;
 
+/**
+ * @author Alberto Gambarara
+ *
+ * @param <G> Type of Gene the genotype is built on
+ */
 public class Updater<G extends Gene<?,G>> {
-	
+
 	Phenotype<G, Double> tmpBest=null;
 	ReentrantLock tmpBestLock;
-	
-	
+
+
 	public Updater()
 	{
 		tmpBestLock = new ReentrantLock(true);
 	}
-	
+
 	/**
 	 * Function to be executed at every generation
 	 * If the result is the best up to now show a message
@@ -35,12 +40,11 @@ public class Updater<G extends Gene<?,G>> {
 			System.out.println("Found better fitness: " + tmpBest.fitness());
 		}
 		else
-		{
-			System.out.println("Better fitness is still: " + tmpBest.fitness());
-		}
+			System.out.println("Best fitness is still: " + tmpBest.fitness());
+
 		tmpBestLock.unlock();
 	}
-	
-	
+
+
 
 }
