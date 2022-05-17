@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.google.gson.Gson;
@@ -24,8 +26,7 @@ import io.jenetics.util.ISeq;
  */
 public class Fitness_Eval {
 
-	ReentrantLock nfpCacheLock;
-	Map<String,List<NestPath>> nfpCache;
+	ConcurrentMap<String,List<NestPath>>nfpCache;
 	Result tmpBestResult;
 	ReentrantLock tmpBestResultLock;
 	NestPath binPolygon;
@@ -33,8 +34,7 @@ public class Fitness_Eval {
 	public Fitness_Eval(NestPath bin)
 	{
 		binPolygon=bin;
-		nfpCacheLock = new ReentrantLock(true);
-		nfpCache = new HashMap<>();
+		nfpCache = new ConcurrentHashMap<>();
 		tmpBestResultLock = new ReentrantLock(true);
 	}
 
@@ -85,22 +85,16 @@ public class Fitness_Eval {
 		for(int i = 0 ; i< paths.size();i++){
 			NestPath part = paths.get(i);
 			key = new NfpKey(binPolygon.getId() , part.getId() , true , 0 , part.getRotation());
-			nfpCacheLock.lock();
 
 			if(!nfpCache.containsKey(key))
 				nfpPairs.add(new NfpPair(binPolygon, part, key));
 			
-			nfpCacheLock.unlock();
-
 			for(int j = 0 ; j< i ; j ++){
 				NestPath placed = paths.get(j);
 				NfpKey keyed = new NfpKey(placed.getId() , part.getId() , false , placed.getRotation(), part.getRotation());
-				nfpCacheLock.lock();
 
 				if(!nfpCache.containsKey(keyed))
 					nfpPairs.add(new NfpPair(placed, part, keyed));
-				
-				nfpCacheLock.unlock();
 			}
 		}
 
@@ -118,9 +112,7 @@ public class Fitness_Eval {
 
 		for (ParallelData Nfp : generatedNfp) {
 			String tkey = gson.toJson(Nfp.getKey());
-			nfpCacheLock.lock();
 			nfpCache.put(tkey, Nfp.value);
-			nfpCacheLock.unlock();
 		}
 
 		//String lotId = InputConfig.INPUT == null ? "" : InputConfig.INPUT.get(0).lotId;
@@ -171,20 +163,16 @@ public class Fitness_Eval {
 
 				//inner NFP	***************************************************************
 				key1 = gson.toJson(new NfpKey(-1, path.getId(), true, 0, path.getRotation()));
-				nfpCacheLock.lock();
 
-				if (!nfpCache.containsKey(key1)) {
-					nfpCacheLock.unlock();
+				if (!nfpCache.containsKey(key1)) 
 					continue;
-				}
+				
 				List<NestPath> binNfp = nfpCache.get(key1);
-				nfpCacheLock.unlock();
 
 				// ensure exists
 				boolean error = false;
 				for (NestPath element : placed) {
 					key1 = gson.toJson(new NfpKey(element.getId(), path.getId(), false, element.getRotation(), path.getRotation()));
-					nfpCacheLock.lock();
 
 					if (nfpCache.containsKey(key1))
 						nfp = nfpCache.get(key1);
@@ -192,14 +180,11 @@ public class Fitness_Eval {
 						error = true;
 						break;
 					}
-					nfpCacheLock.unlock();
-
 				}
-				if (error) {
-					nfpCacheLock.unlock();
-
+				if (error) 
 					continue;
-				}//***************************************************************
+				
+				//***************************************************************
 
 				Vector position = null;
 				if (placed.size() == 0) {
@@ -230,10 +215,8 @@ public class Fitness_Eval {
 
 				for (int j = 0; j < placed.size(); j++) {
 					key1 = gson.toJson(new NfpKey(placed.get(j).getId(), path.getId(), false, placed.get(j).getRotation(), path.getRotation()));
-					nfpCacheLock.lock();					
 
 					nfp = nfpCache.get(key1);
-					nfpCacheLock.unlock();
 
 					if (nfp == null)                  	                    	
 						continue;
