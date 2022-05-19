@@ -60,8 +60,8 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 
 	public static void main(String[] args) {
 
-		double binWidth = 390;
-		double binHeight = 390;
+		double binWidth = 420;
+		double binHeight = 420;
 
 		NestPath bin = Util.createRectPolygon(binWidth, binHeight);
 		List<NestPath> polygons=null;

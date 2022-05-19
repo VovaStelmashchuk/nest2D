@@ -86,8 +86,8 @@ public class Rotation_NFP_Nesting implements Problem<Solution,DoubleGene, Double
 
 	public static void main(String[] args) {
 
-		double binWidth = 400;
-		double binHeight = 400;
+		double binWidth = 420;
+		double binHeight = 420;
 
 		NestPath bin = Util.createRectPolygon(binWidth, binHeight);
 		List<NestPath> polygons=null;
@@ -105,7 +105,7 @@ public class Rotation_NFP_Nesting implements Problem<Solution,DoubleGene, Double
 		config.BIN_HEIGHT=binHeight;
 		config.BIN_WIDTH=binWidth;
 		config.LIMIT=Integer.MAX_VALUE;
-		config.NUMBER_OF_ROTATIONS=12;
+		config.NUMBER_OF_ROTATIONS=4;
 		config.MAX_SEC_DURATION=polygons.size()*1;
 		config.MAX_STEADY_FITNESS=25;
 		config.N_THREAD=10;

@@ -38,6 +38,7 @@ import de.lighti.clipper.Path;
 import de.lighti.clipper.Point.LongPoint;
 import de.lighti.clipper.gui.PolygonCanvas;
 import de.lighti.clipper.gui.StatusBar;
+import java.awt.SystemColor;
 
 
 /**
@@ -46,13 +47,12 @@ import de.lighti.clipper.gui.StatusBar;
 class gui {
 
 	private JFrame frmGUI;
-	private JButton btnLoadSVG;
-	private JSVGCanvas svgcanvasInput;
+	private JButton btnLoad;
 	private JLabel lblNewLabel;
 	private JSVGCanvas svgcanvasFinal;
 	private JLabel lblFinalSolution;
 	private JLabel lblMessage;
-	private PolygonCanvas inputpolygoncanvas;
+	private PolygonCanvas inputPolygonCanvas;
 
 	/**
 	 * Launch the application.
@@ -87,11 +87,11 @@ class gui {
 		frmGUI = new JFrame();
 		frmGUI.setMinimumSize(new Dimension(850, 600));
 		frmGUI.setTitle("GUI TEST");
-		frmGUI.getContentPane().setBackground(new Color(245, 245, 245));
-		frmGUI.setBounds(100, 100, 984, 674);
+		frmGUI.getContentPane().setBackground(SystemColor.menu);
+		frmGUI.setBounds(100, 100, 984, 900);
 		frmGUI.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-		JButton btnStart = new JButton("Start");
+		JButton btnStart = new JButton("START");
 		btnStart.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -110,44 +110,37 @@ class gui {
 				bin.add(binWidth, binHeight);
 				bin.add(0, binHeight);
 
-				List<String> strings = null;
-				SVGDocument docFirst = null;
-				SVGDocument docFinal = null;
-				SVGDocument docInput = null;
-
-				Config config = null;
-				Nest nest = null;
 				List<List<Placement>> appliedPlacement = null;
 								
 				try {
 					polygons = guiUtil.transferSvgIntoPolygons();
-					inputpolygoncanvas.getSubjects().clear();
-					inputpolygoncanvas.getClips().clear();
+//					inputpolygoncanvas.getSubjects().clear();
+//					inputpolygoncanvas.getClips().clear();
 					
-			        Map<String, List<NestPath>> nfpCache = new HashMap<>();
-			        Placementworker placementworker = new Placementworker(bin,config,nfpCache);
-			        Result result = placementworker.placePaths(polygons);
+			       /// Map<String, List<NestPath>> nfpCache = new HashMap<>();
+//			        Placementworker placementworker = new Placementworker(bin,config,nfpCache);
+//			        Result result = placementworker.placePaths(polygons);
 
 					
-					for (NestPath p: polygons)
-					{
-						Polygon2D newp = p.toPolygon2D();												
-						final Path clip = new Path( newp.npoints );						
-						for (int i = 0; i < newp.npoints; ++i) {
-				            clip.add( new LongPoint( (long)newp.xpoints[i], (long)newp.ypoints[i] ) );
-				        }
-						
-						inputpolygoncanvas.getClips().add( clip );
-					}
+//					for (NestPath p: polygons)
+//					{
+//						Polygon2D newp = p.toPolygon2D();												
+//						final Path clip = new Path( newp.npoints );						
+//						for (int i = 0; i < newp.npoints; ++i) {
+//				            clip.add( new LongPoint( (long)newp.xpoints[i], (long)newp.ypoints[i] ) );
+//				        }
+//						
+//						inputpolygoncanvas.getClips().add( clip );
+//					}
 					
 					
-					inputpolygoncanvas.updateSolution();
+					//inputPolygonCanvas.updateSolution();
 				} catch (Exception e1) {
 					guiUtil.showError("error during import", frmGUI, lblMessage);
 					return;
 				} finally {			
 					
-					svgcanvasInput.setSVGDocument(docInput);
+					//svgcanvasInput.setSVGDocument(docInput);
 					guiUtil.setMessageLabel("Input File loaded", lblMessage);
 					guiUtil.refresh(frmGUI);
 					// JOptionPane.showMessageDialog(frmGUI, "Input File loaded");
@@ -158,26 +151,26 @@ class gui {
 				JOptionPane.showMessageDialog(frmGUI, "Starting Nesting");
 				guiUtil.refresh(frmGUI);
 				
-				config = new Config();
+				Config config = new Config();
 				// config.IS_DEBUG=false;
 				config.SPACING = 0;
 				config.POPULATION_SIZE = 60;
 				config.BIN_HEIGHT=binHeight;
 				config.BIN_WIDTH=binWidth;
 				
-				nest = new Nest(bin, polygons, config, 100);
+				Nest nest = new Nest(bin, polygons, config, 10);
 				// aggiungi un observer per osservare il cambiamento ad ogni passo
 				nest.observers.add(new ListPlacementObserver() {					
 					@Override
 					public void populationUpdate(List<List<Placement>> appliedPlacement) {
-						System.out.println("best solution cambiata");
+						System.out.println("best solution changed");
 						try {
 							List<String> strings = SvgUtil.svgGenerator(polygons, appliedPlacement, binWidth, binHeight);
 							SVGDocument docFinals = guiUtil.CreateSvgFile(strings, binWidth, binHeight);
 							//if(svgcanvasFirst.getSVGDocument()==null) svgcanvasFirst.setSVGDocument(docFinals);
 							svgcanvasFinal.setSVGDocument(docFinals);
 							guiUtil.refresh(frmGUI);
-							JOptionPane.showMessageDialog(frmGUI, "best solution cambiata");
+							JOptionPane.showMessageDialog(frmGUI, "best solution changed");
 						} catch (Exception e) {
 							guiUtil.showError("error showing solution: " + e.getMessage(), frmGUI, lblMessage);
 							return;							
@@ -186,33 +179,67 @@ class gui {
 				});
 
 				appliedPlacement = nest.startNest();
+				try {
+					List<String> strings = SvgUtil.svgGenerator(polygons, appliedPlacement, binWidth, binHeight);
+					guiUtil.saveSvgFile(strings,Config.OUTPUT_DIR+"solution.html");
+				}catch (Exception ex) {
+					// TODO: handle exception
+				}
 				guiUtil.setMessageLabel("Nesting finished", lblMessage);
 				guiUtil.refresh(frmGUI);
 			}
 		});
 
-		btnLoadSVG = new JButton("LOAD SVG");
-		btnLoadSVG.addActionListener(new ActionListener() {
+		btnLoad = new JButton("LOAD XML");
+		btnLoad.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-				// svgcanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
-				JFileChooser fileChooser = new JFileChooser();
+//				// svgcanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
+//				JFileChooser fileChooser = new JFileChooser();
+//
+//				fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("SVG files", "svg"));
+//				// fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+//				fileChooser.setCurrentDirectory(new File("./samples"));
+//				int result = fileChooser.showOpenDialog(fileChooser);
+//				if (result == JFileChooser.APPROVE_OPTION) {
+//					File selectedFile = fileChooser.getSelectedFile();
+//					System.out.println("Selected file: " + selectedFile.getAbsolutePath());
+//					svgcanvasInput.setURI(selectedFile.toURI().toString());
+//				}
+				//List<NestPath> polygons;
+				
+				try {
+					List<NestPath> polygons = guiUtil.transferSvgIntoPolygons();
+					inputPolygonCanvas.getSubjects().clear();
+					inputPolygonCanvas.getClips().clear();
+					
+			        //Map<String, List<NestPath>> nfpCache = new HashMap<>();
+			        //Placementworker placementworker = new Placementworker(bin,config,nfpCache);
+			        //Result result = placementworker.placePaths(polygons);
 
-				fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("SVG files", "svg"));
-				// fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-				fileChooser.setCurrentDirectory(new File("./samples"));
-				int result = fileChooser.showOpenDialog(fileChooser);
-				if (result == JFileChooser.APPROVE_OPTION) {
-					File selectedFile = fileChooser.getSelectedFile();
-					System.out.println("Selected file: " + selectedFile.getAbsolutePath());
-					svgcanvasInput.setURI(selectedFile.toURI().toString());
+					
+					for (NestPath p: polygons)
+					{
+						Polygon2D newp = p.toPolygon2D();												
+						final Path clip = new Path( newp.npoints );						
+						for (int i = 0; i < newp.npoints; ++i) {
+				            clip.add( new LongPoint( (long)newp.xpoints[i], (long)newp.ypoints[i] ) );
+				        }
+						
+						inputPolygonCanvas.getClips().add( clip );
+					}
+					
+					
+					inputPolygonCanvas.updateSolution();
+				}
+				catch (Exception exc) {
+					guiUtil.showError("error during import", frmGUI, lblMessage);
+					return;
 				}
 				
 			}
 		});
-
-		svgcanvasInput = new JSVGCanvas();
 
 		lblNewLabel = new JLabel("Input polygons");
 
@@ -220,9 +247,9 @@ class gui {
 
 		lblFinalSolution = new JLabel("Best solution");
 
-		lblMessage = new JLabel("Nesting Tool");
+		lblMessage = new JLabel("Nesting tool output");
 		
-		inputpolygoncanvas = new PolygonCanvas(new StatusBar());
+		inputPolygonCanvas = new PolygonCanvas(new StatusBar());
 		GroupLayout groupLayout = new GroupLayout(frmGUI.getContentPane());
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
@@ -230,21 +257,17 @@ class gui {
 					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
 						.addGroup(groupLayout.createSequentialGroup()
 							.addGap(35)
-							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING, false)
-								.addComponent(btnLoadSVG, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+								.addComponent(btnLoad, GroupLayout.DEFAULT_SIZE, 92, Short.MAX_VALUE)
 								.addComponent(btnStart, GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE))
-							.addGap(28)
+							.addPreferredGap(ComponentPlacement.UNRELATED)
 							.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
-								.addGroup(groupLayout.createSequentialGroup()
-									.addComponent(inputpolygoncanvas, GroupLayout.DEFAULT_SIZE, 460, Short.MAX_VALUE)
-									.addGap(28)
-									.addComponent(svgcanvasInput, GroupLayout.PREFERRED_SIZE, 287, GroupLayout.PREFERRED_SIZE)
-									.addGap(7))
 								.addGroup(groupLayout.createSequentialGroup()
 									.addComponent(svgcanvasFinal, GroupLayout.DEFAULT_SIZE, 777, Short.MAX_VALUE)
 									.addGap(5))
 								.addComponent(lblFinalSolution, GroupLayout.DEFAULT_SIZE, 782, Short.MAX_VALUE)
-								.addComponent(lblNewLabel, Alignment.LEADING)))
+								.addComponent(lblNewLabel, Alignment.LEADING)
+								.addComponent(inputPolygonCanvas, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 787, Short.MAX_VALUE)))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addContainerGap()
 							.addComponent(lblMessage)))
@@ -253,26 +276,23 @@ class gui {
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
 				.addGroup(groupLayout.createSequentialGroup()
-					.addGap(10)
+					.addGap(19)
 					.addComponent(lblNewLabel)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addComponent(svgcanvasInput, GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE)
-						.addGroup(groupLayout.createSequentialGroup()
-							.addGap(9)
-							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-								.addComponent(inputpolygoncanvas, GroupLayout.DEFAULT_SIZE, 246, Short.MAX_VALUE)
-								.addComponent(btnLoadSVG))))
-					.addPreferredGap(ComponentPlacement.RELATED)
+						.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
+							.addComponent(inputPolygonCanvas, GroupLayout.DEFAULT_SIZE, 359, Short.MAX_VALUE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(lblFinalSolution))
+						.addComponent(btnLoad, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
 						.addGroup(groupLayout.createSequentialGroup()
-							.addGap(18)
-							.addComponent(btnStart))
+							.addComponent(svgcanvasFinal, GroupLayout.DEFAULT_SIZE, 367, Short.MAX_VALUE)
+							.addGap(35))
 						.addGroup(groupLayout.createSequentialGroup()
-							.addComponent(lblFinalSolution)
-							.addPreferredGap(ComponentPlacement.UNRELATED)
-							.addComponent(svgcanvasFinal, GroupLayout.DEFAULT_SIZE, 254, Short.MAX_VALUE)
-							.addGap(35)))
+							.addComponent(btnStart, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED)))
 					.addComponent(lblMessage)
 					.addContainerGap())
 		);
