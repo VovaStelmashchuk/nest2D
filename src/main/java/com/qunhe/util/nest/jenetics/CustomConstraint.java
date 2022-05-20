@@ -7,23 +7,24 @@ import com.qunhe.util.nest.data.NestPath;
 import com.qunhe.util.nest.data.Placement;
 import com.qunhe.util.nest.data.Segment;
 import com.qunhe.util.nest.util.CommonUtil;
-import com.qunhe.util.nest.util.GeometryUtil;
-
 import io.jenetics.DoubleChromosome;
 import io.jenetics.DoubleGene;
 import io.jenetics.Genotype;
 import io.jenetics.Phenotype;
 import io.jenetics.engine.Constraint;
 
-public class RepairingConstraint implements Constraint<DoubleGene, Double>{
+public class CustomConstraint implements Constraint<DoubleGene, Double>{
 	
 	static List<NestPath> list;
-	static int nGenes = Model_Factory.nGenes;
-	static double binW = Model_Factory.binWidth;
-	static double binH = Model_Factory.binHeight;
+	static int nGenes;
+	static double binW;
+	static double binH ;
 	
-	public RepairingConstraint(List<NestPath>l) {
+	public CustomConstraint(List<NestPath>l) {
 		list=l;
+		nGenes = ModelFactory.nGenes;
+		binW = ModelFactory.binWidth;
+		binH = ModelFactory.binHeight;
 	}
 	
 	/**
@@ -32,12 +33,11 @@ public class RepairingConstraint implements Constraint<DoubleGene, Double>{
 	@Override
 	public boolean test(Phenotype<DoubleGene, Double> pt) {
 		
-		double[] l = new double[pt.genotype().length()];
+		double[] lGenes = new double[pt.genotype().length()];
 		for(int i=0; i < pt.genotype().length(); i++)
-        {
-        l[i]=pt.genotype().get(i).gene().allele();     
-        }
-		return isValid(l);		
+			lGenes[i]=pt.genotype().get(i).gene().allele();
+		
+		return isValid(lGenes);		
 	}
 	
 	
@@ -60,15 +60,6 @@ public class RepairingConstraint implements Constraint<DoubleGene, Double>{
         	double rotation=0.0;//TODO
         	int intRotation = (int) Math.round(rotation);        	
         	Segment s = new Segment(x,y);
-        	//p= GeometryUtil.rotatePolygon2Polygon(p, intRotation);  
-        	
-//        	double xx = p.getMinX();
-//			double yy = p.getMinY();
-//			p.Zerolize();
-//			p= GeometryUtil.rotatePolygon2Polygon(p, intRotation);
-//
-//			//p.translate(Math.abs(p.getMinX()), Math.abs(p.getMinY()));			
-//			p.translate(xx, yy); 
         	Placement pl = new Placement(p.getBid(),s,intRotation);
         	
         	p.translate(pl.translate.x, pl.translate.y);
@@ -85,15 +76,11 @@ public class RepairingConstraint implements Constraint<DoubleGene, Double>{
                 if(i!=j) 
                 {                   	
                 	NestPath p2 = polys.get(j);
-                	if(GeometryUtil.intersect(p1, p2)) return false;                	
-//					OPTIMAL SOLUTION BUT TOOO SLOW!
-//                	double overlapArea = Fitness_Model.overlapDouble(p1.toPolygon2D(), p2.toPolygon2D());
-//                	if(overlapArea<1) return false;                	
+                	if(CommonUtil.overlapBool(p1, p2)) return false;      	
                 }
                 
             }
         }
-        	
         	return true;		
 	}
 

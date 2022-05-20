@@ -40,19 +40,60 @@ public class Main_Jenetics {
 		} catch (DocumentException e) {
 			e.printStackTrace();
 		}
-        final int MAX_SEC_DURATION=polygons.size()*5;
+        final int MAX_SEC_DURAT=polygons.size()*10;
 		
 		Config config = new Config();
 		config.SPACING = 0;
-		config.POPULATION_SIZE = polygons.size()*20;
+		config.POPULATION_SIZE = polygons.size();
 		Config.BIN_HEIGHT=binHeight;
 		Config.BIN_WIDTH=binWidth;
 		
 		List<NestPath> tree = CommonUtil.BuildTree(polygons , Config.CURVE_TOLERANCE);
         CommonUtil.offsetTree(tree, 0.5 * config.SPACING);        
 		
+        bin.config=config;
+        for(NestPath nestPath: polygons){
+			nestPath.config = config;
+		}
+
+        
 		NestPath binPolygon = CommonUtil.cleanNestPath(bin);	//conversione di un eventuale binPath self intersecting in un poligono semplice
-        // Bound binBound = GeometryUtil.getPolygonBounds(binPolygon);
+       
+		
+//		/*VENGONO SETTATE LE COORDINATE MAX E MIN DEL SINGOLO BINPATH PER POI POTERLO TRASLARE NELL'ORIGINE*/
+//        double xbinmax = binPolygon.get(0).x;	// get.(0) = prende il primo segmento dei 4 (coordinate del primo vertice), se si assume che la superficie sia rettangolare
+//        double xbinmin = binPolygon.get(0).x;
+//        double ybinmax = binPolygon.get(0).y;
+//        double ybinmin = binPolygon.get(0).y;
+//        // Find min max
+//        for(int i = 1 ; i<binPolygon.size(); i++){
+//            if(binPolygon.get(i).x > xbinmax ){
+//                xbinmax = binPolygon.get(i).x;
+//            }
+//            else if (binPolygon.get(i).x < xbinmin ){
+//                xbinmin = binPolygon.get(i) .x;
+//            }
+//
+//            if(binPolygon.get(i).y > ybinmax ){
+//                ybinmax = binPolygon.get(i).y;
+//            }
+//            else if (binPolygon.get(i). y <ybinmin ){
+//                ybinmin = binPolygon.get(i).y;
+//            }
+//        }
+// 
+//        /*VIENE TRASLATO IL POLIGONO BINPATH NELL'ORIGINE*/
+//        for(int i=0; i<binPolygon.size(); i++){				
+//            binPolygon.get(i).x -= xbinmin;
+//            binPolygon.get(i).y -= ybinmin;
+//        }
+//        
+//        if(GeometryUtil.polygonArea(binPolygon) > 0 ){
+//            binPolygon.reverse();
+//        }
+		
+
+
         if(Config.BOUND_SPACING > 0 ){
             List<NestPath> offsetBin = CommonUtil.polygonOffset(binPolygon , - Config.BOUND_SPACING);
             if(offsetBin.size() == 1 ){
@@ -71,37 +112,7 @@ public class Main_Jenetics {
         }
                 
         
-        /*VENGONO SETTATE LE COORDINATE MAX E MIN DEL SINGOLO BINPATH PER POI POTERLO TRASLARE NELL'ORIGINE*/
-        double xbinmax = binPolygon.get(0).x;	// get.(0) = prende il primo segmento dei 4 (coordinate del primo vertice), se si assume che la superficie sia rettangolare
-        double xbinmin = binPolygon.get(0).x;
-        double ybinmax = binPolygon.get(0).y;
-        double ybinmin = binPolygon.get(0).y;
-        // Find min max
-        for(int i = 1 ; i<binPolygon.size(); i++){
-            if(binPolygon.get(i).x > xbinmax ){
-                xbinmax = binPolygon.get(i).x;
-            }
-            else if (binPolygon.get(i).x < xbinmin ){
-                xbinmin = binPolygon.get(i) .x;
-            }
-
-            if(binPolygon.get(i).y > ybinmax ){
-                ybinmax = binPolygon.get(i).y;
-            }
-            else if (binPolygon.get(i). y <ybinmin ){
-                ybinmin = binPolygon.get(i).y;
-            }
-        }
- 
-        /*VIENE TRASLATO IL POLIGONO BINPATH NELL'ORIGINE*/
-        for(int i=0; i<binPolygon.size(); i++){				
-            binPolygon.get(i).x -= xbinmin;
-            binPolygon.get(i).y -= ybinmin;
-        }
         
-        if(GeometryUtil.polygonArea(binPolygon) > 0 ){
-            binPolygon.reverse();
-        }
         
         for (NestPath element : tree) {
             Segment start = element.get(0);
@@ -118,19 +129,19 @@ public class Main_Jenetics {
         {
         	np.Zerolize();
         	np.translate((binWidth - np.getMaxX())/2, (binHeight - np.getMaxY())/2);
-        	np.setPossibleNumberRotations(4);
+        	//np.setPossibleNumberRotations(4);
         }
           
 		
-        ExecutorService executor = Executors.newFixedThreadPool(10);
-        
-        Fitness_Model fm = new Fitness_Model(tree,binWidth,binHeight);
+        //ExecutorService executor = Executors.newFixedThreadPool(10);
+        FitnessModel fm = new FitnessModel(tree,binWidth,binHeight);
+        Factory<Genotype<DoubleGene>> model = ModelFactory.of(tree, binWidth,binHeight);
+        final Constraint<DoubleGene, Double> constraint= new CustomConstraint(tree);
+        final EvolutionStatistics<Double, ?> statistics = EvolutionStatistics.ofNumber();   
 
-        Factory<Genotype<DoubleGene>> model = Model_Factory.of(tree, binWidth,binHeight);
-
-        final Constraint<DoubleGene, Double> constraint= new RepairingConstraint(tree);
         
-        Engine<DoubleGene, Double> engine = Engine.builder(fm.getFitness(), model)
+        
+        Engine<DoubleGene, Double> engine = Engine.builder(fm::scalarFitness, model)
                 .populationSize(config.POPULATION_SIZE)
                 .optimize(Optimize.MINIMUM)
                 //.offspringFraction(0.75)
@@ -140,37 +151,33 @@ public class Main_Jenetics {
                         new SwapMutator<>(0.25),
                         new UniformCrossover<>(0.05),
                         new MultiPointCrossover<>(0.05)
-                        //partial alterer
                 )
-                .executor(executor)
+               // .executor(executor)
                 .constraint(constraint)
                 .build();
         
         
         
-        final EvolutionStatistics<Double, ?> statistics = EvolutionStatistics.ofNumber();   
-        
         
         System.out.println("Starting nesting of " + polygons.size() + " polygons in " + binWidth +  " * "  + binHeight + " bin");
-        System.out.println("population size: " + config.POPULATION_SIZE + " - Max duration: " + MAX_SEC_DURATION + "s");
-        
+        System.out.println("population size: " + config.POPULATION_SIZE + " - Max duration: " + MAX_SEC_DURAT + "s");
         
         final Phenotype<DoubleGene, Double> best = engine.stream()
-                .limit(bySteadyFitness(50))
-                .limit(Limits.byExecutionTime(Duration.ofSeconds(MAX_SEC_DURATION)))
+                .limit(bySteadyFitness(polygons.size()*10))
+                .limit(Limits.byExecutionTime(Duration.ofSeconds(MAX_SEC_DURAT)))
                 .peek(Main_Jenetics::update)
                 .peek(statistics)
                 .collect(toBestPhenotype());
 
         
-        ArrayList<NestPath> polys = CommonUtil.cloneArrayListNestpath(tree);
-        List<List<Placement>> appliedplacement =  Model_Factory.convert(best.genotype(), tree);
+       // ArrayList<NestPath> polys = CommonUtil.cloneArrayListNestpath(tree);
+        List<List<Placement>> appliedplacement =  ModelFactory.convert(best.genotype(), tree);
                
         //compress(tree);
-        List<String> res;
+        
 
 		try {
-			res=createsvg(tree, binWidth, binHeight);
+			List<String> res=createsvg(tree, binWidth, binHeight);
 			guiUtil.saveSvgFile(res, Config.OUTPUT_DIR+"res.html",binWidth, binHeight);
 
 		} catch (Exception e) {

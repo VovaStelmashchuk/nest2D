@@ -1,7 +1,10 @@
 package com.qunhe.util.nest.util;
 
+import java.awt.geom.Area;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.batik.ext.awt.geom.Polygon2D;
 
 import com.qunhe.util.nest.config.Config;
 import com.qunhe.util.nest.data.NestPath;
@@ -22,6 +25,43 @@ import de.lighti.clipper.Point.LongPoint;
  */
 public class CommonUtil {
 
+	
+	
+	/**
+	 * @param p1	1st polygon
+	 * @param p2	2nd	polygon
+	 * @return		value of the area of the rectangle that contains the polygon where p1 and p2 overlap
+	 */
+	public static double overlapDouble(Polygon2D p1, Polygon2D p2)
+    {	
+		Area area = new Area(p1);
+		area.intersect(new Area(p2));
+		return Math.abs(area.getBounds().getWidth()*area.getBounds().getHeight());		
+    }
+	
+	/**
+	 * @param p1	1st NestPath
+	 * @param p2	2nd	NestPath
+	 * @return		true if p1 and p2 overlap using GeometryUtil.pointInPolygon()
+	 */
+	public static boolean overlapBool(NestPath p1, NestPath p2)
+    {		
+		for(Segment s1 : p1.getSegments())
+		{
+			Boolean res=GeometryUtil.pointInPolygon(s1, p2);
+			if(res!= null && res==true) return true;
+		}
+		
+		for(Segment s2 : p2.getSegments())
+		{
+			Boolean res=GeometryUtil.pointInPolygon(s2, p1);
+			if(res!= null && res==true) return true;
+		}
+		
+		return false;
+    }
+	
+	
 
 	/**
 	 * @author Alberto Gambarara
@@ -35,11 +75,8 @@ public class CommonUtil {
 		for (NestPath nestPath : list) {
 			NestPath clone = new NestPath(nestPath);
 			clonedList.add(clone);
+			clone.area=GeometryUtil.polygonArea(clone);
 		}
-		for (NestPath nestPath : clonedList) {
-			nestPath.area = GeometryUtil.polygonArea(nestPath);
-		}
-
 		return clonedList;
 
 	}

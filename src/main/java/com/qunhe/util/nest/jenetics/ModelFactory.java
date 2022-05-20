@@ -3,21 +3,15 @@ package com.qunhe.util.nest.jenetics;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.qunhe.util.nest.Nest;
-import com.qunhe.util.nest.algorithm.GeneticAlgorithm;
-import com.qunhe.util.nest.data.Bound;
 import com.qunhe.util.nest.data.NestPath;
 import com.qunhe.util.nest.data.Placement;
 import com.qunhe.util.nest.data.Segment;
-import com.qunhe.util.nest.util.GeometryUtil;
-
 import io.jenetics.DoubleChromosome;
 import io.jenetics.DoubleGene;
 import io.jenetics.Genotype;
-import io.jenetics.IntegerChromosome;
 import io.jenetics.util.Factory;
 
-public class Model_Factory {
+public class ModelFactory {
 	
 	public final static int nGenes =2;
 	public static double binWidth;

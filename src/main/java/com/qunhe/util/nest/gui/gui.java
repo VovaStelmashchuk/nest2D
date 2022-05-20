@@ -1,21 +1,14 @@
 package com.qunhe.util.nest.gui;
 
-import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
 import org.apache.batik.ext.awt.geom.Polygon2D;
 import org.apache.batik.swing.JSVGCanvas;
 import org.w3c.dom.svg.SVGDocument;
@@ -25,8 +18,6 @@ import com.qunhe.util.nest.Nest.ListPlacementObserver;
 import com.qunhe.util.nest.config.Config;
 import com.qunhe.util.nest.data.NestPath;
 import com.qunhe.util.nest.data.Placement;
-import com.qunhe.util.nest.data.Result;
-import com.qunhe.util.nest.util.Placementworker;
 import com.qunhe.util.nest.util.SvgUtil;
 
 
