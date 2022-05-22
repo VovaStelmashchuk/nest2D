@@ -13,7 +13,7 @@ public class Solution {
 
 		this.paths=paths;
 		this.rotations=rotations;
-
+		
 	}
 
 }

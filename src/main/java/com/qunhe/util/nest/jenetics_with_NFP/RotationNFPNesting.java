@@ -28,14 +28,14 @@ import static io.jenetics.engine.EvolutionResult.toBestPhenotype;
 
 //Adapted from Franz Wilhelmstötter, Jenetics' Project owner - stackoverflow.com/questions/72127848/custom-genotype-in-jenetics-for-nesting
 
-public class Rotation_NFP_Nesting implements Problem<Solution,DoubleGene, Double>{
+public class RotationNFPNesting implements Problem<Solution,DoubleGene, Double>{
 
 	private final Codec<Solution,DoubleGene> code;
-	Fitness_Eval evaluator;
+	FitnessEval evaluator;
 
-	public Rotation_NFP_Nesting(ISeq<NestPath> lista,NestPath binpolygon ,double binw, double binh, int n_rot) 
+	public RotationNFPNesting(ISeq<NestPath> lista,NestPath binpolygon, int n_rot) 
 	{
-		evaluator = new Fitness_Eval(binpolygon);
+		evaluator = new FitnessEval(binpolygon);
 
 		code = Codec.of(
 				Genotype.of(
@@ -80,14 +80,14 @@ public class Rotation_NFP_Nesting implements Problem<Solution,DoubleGene, Double
 		return solution -> {
 			final ISeq<NestPath> paths = solution.paths;
 			final double[] rotations = solution.rotations;
-			return evaluator.scalar_fitness(paths,rotations,true);
+			return evaluator.scalarFitness(paths,rotations,true);
 		};
 	}
 
 	public static void main(String[] args) {
 
-		double binWidth = 420;
-		double binHeight = 420;
+		double binWidth = 400;
+		double binHeight = 400;
 
 		NestPath bin = Util.createRectPolygon(binWidth, binHeight);
 		List<NestPath> polygons=null;
@@ -102,12 +102,12 @@ public class Rotation_NFP_Nesting implements Problem<Solution,DoubleGene, Double
 		Config config = new Config();
 		config.SPACING = 0;
 		config.POPULATION_SIZE = 10;
-		config.BIN_HEIGHT=binHeight;
-		config.BIN_WIDTH=binWidth;
-		config.LIMIT=Integer.MAX_VALUE;
+		Config.BIN_HEIGHT=binHeight;
+		Config.BIN_WIDTH=binWidth;
+		Config.LIMIT=200;
 		config.NUMBER_OF_ROTATIONS=4;
 		config.MAX_SEC_DURATION=polygons.size()*1;
-		config.MAX_STEADY_FITNESS=25;
+		config.MAX_STEADY_FITNESS=20;
 		config.N_THREAD=10;
 
 		List<NestPath> tree = CommonUtil.BuildTree(polygons , Config.CURVE_TOLERANCE);
@@ -117,7 +117,7 @@ public class Rotation_NFP_Nesting implements Problem<Solution,DoubleGene, Double
 		for(NestPath nestPath: polygons)
 			nestPath.config = config;
 
-		NestPath binPolygon=Util.CleanBin(bin);
+		NestPath binPolygon=Util.cleanBin(bin);
 
 
 		// A part may become not positionable after a rotation. TODO this can also be removed if we know that all parts are legal
@@ -128,7 +128,7 @@ public class Rotation_NFP_Nesting implements Problem<Solution,DoubleGene, Double
 				safeTree.add(tree.get(i));
 			
 			if(integers.size()<tree.size()) System.out.println(tree.size() - integers.size() +  "polygons can't be placed");
-			tree = safeTree;
+				tree = safeTree;
 		}
 
 		Util.cleanTree(tree);    
@@ -139,21 +139,20 @@ public class Rotation_NFP_Nesting implements Problem<Solution,DoubleGene, Double
 		ExecutorService executor = Executors.newFixedThreadPool(config.N_THREAD);
 		final ISeq<NestPath> paths = ISeq.<NestPath>of(tree);
 
-		Rotation_NFP_Nesting nst = new Rotation_NFP_Nesting(paths, binPolygon, binWidth, binHeight, config.NUMBER_OF_ROTATIONS);
+		RotationNFPNesting nst = new RotationNFPNesting(paths, binPolygon, config.NUMBER_OF_ROTATIONS);
 		Engine<DoubleGene,Double> engine = Engine
 				.builder(nst)
 				.optimize(Optimize.MINIMUM)
 				.populationSize(config.POPULATION_SIZE)
 				.executor(executor)
 				.alterers(
-						new MeanAlterer<>(0.35),
-						new SwapMutator<>(0.35))
-
+						new MeanAlterer<>(0.45),
+						new SwapMutator<>(0.45))
 				.build();
 
 
 		final EvolutionStatistics<Double, ?> statistics = EvolutionStatistics.ofNumber(); 
-		final Updater<DoubleGene> up = new Updater<>();
+		final Updater<DoubleGene,Double> up = new Updater<>();
 
 		System.out.println("Starting nesting with " + config.NUMBER_OF_ROTATIONS  +  " rotation steps of " + polygons.size() + " polygons on " + binWidth + " * " + binHeight +  " bin with Population: " + config.POPULATION_SIZE + " and threads: " + config.N_THREAD);
 

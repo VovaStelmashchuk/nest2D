@@ -1,9 +1,7 @@
 package com.qunhe.util.nest.jenetics_with_NFP;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -24,14 +22,14 @@ import io.jenetics.util.ISeq;
  * @author Alberto Gambarara
  *
  */
-public class Fitness_Eval {
+public class FitnessEval {
 
 	ConcurrentMap<String,List<NestPath>>nfpCache;
 	Result tmpBestResult;
 	ReentrantLock tmpBestResultLock;
 	NestPath binPolygon;
 
-	public Fitness_Eval(NestPath bin)
+	public FitnessEval(NestPath bin)
 	{
 		binPolygon=bin;
 		nfpCache = new ConcurrentHashMap<>();
@@ -39,38 +37,40 @@ public class Fitness_Eval {
 	}
 
 	/**
-	 * @param seq_nestpath
+	 * @param seqNestpath
 	 * @return Fitness of the model with no rotation
 	 */
-	Double scalar_fitness(final ISeq<NestPath> seq_nestpath) {
+	Double scalarFitness(final ISeq<NestPath> seqNestpath) {
 
-		return scalar_fitness(seq_nestpath,null,false);
+		return scalarFitness(seqNestpath,null,false);
 
 	}
 
 	/**
-	 * @param seq_nestpath
-	 * @param rotations array of that contains the step of rotation to use for each polygon 
+	 * @param seqNestpath
+	 * @param rots array of that contains the step of rotation to use for each polygon 
 	 * @param useRot	allow to use rotation or not
 	 * @return
 	 */
-	Double scalar_fitness(final ISeq<NestPath> seq_nestpath, double[] rotations, boolean useRot) {
+	Double scalarFitness(final ISeq<NestPath> seqNestpath, double[] rots, boolean useRot) {
 
 		if(binPolygon==null)
 			throw new NullPointerException("bin is null");
+		if(useRot && rots==null)
+			throw new NullPointerException("rotations is null");
 
 
-		List<NestPath> paths = seq_nestpath.asList();
+		List<NestPath> paths = seqNestpath.asList();
 
 		if(useRot) {
 			//convert double value to integer value
-			final int[] intRotations = new int[rotations.length];
+			final int[] intRotations = new int[rots.length];
 			for (int i=0; i<intRotations.length; ++i)
-				intRotations[i] = (int) rotations[i];
+				intRotations[i] = (int) rots[i];
 
-			List<Integer> ids = new ArrayList<>();	
+			//List<Integer> ids = new ArrayList<>();	
 			for(int i = 0 ; i < paths.size(); i ++){
-				ids.add(paths.get(i).getId());
+				//ids.add(paths.get(i).getId());
 				NestPath n = paths.get(i);
 				if(n.getPossibleRotations()!= null)
 					n.setRotation(n.getPossibleRotations()[intRotations[i]]);

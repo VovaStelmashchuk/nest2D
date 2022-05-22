@@ -2,9 +2,6 @@ package com.qunhe.util.nest.jenetics_with_NFP;
 
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.qunhe.util.nest.data.NestPath;
-
-import io.jenetics.EnumGene;
 import io.jenetics.Gene;
 import io.jenetics.Phenotype;
 import io.jenetics.engine.EvolutionResult;
@@ -13,10 +10,11 @@ import io.jenetics.engine.EvolutionResult;
  * @author Alberto Gambarara
  *
  * @param <G> Type of Gene the genotype is built on
+ * @param <T> Type of fitness
  */
-public class Updater<G extends Gene<?,G>> {
+public class Updater<G extends Gene<?,G>, F extends Comparable<F>> {
 
-	Phenotype<G, Double> tmpBest=null;
+	Phenotype<G, F> tmpBest=null;
 	ReentrantLock tmpBestLock;
 
 
@@ -30,7 +28,7 @@ public class Updater<G extends Gene<?,G>> {
 	 * If the result is the best up to now show a message
 	 * @param result result of current evaluation
 	 */
-	void update(final EvolutionResult<G, Double> result)
+	void update(final EvolutionResult<G, F> result)
 	{
 		System.out.println(result.generation() + " generation: ");
 		tmpBestLock.lock();
@@ -44,7 +42,5 @@ public class Updater<G extends Gene<?,G>> {
 
 		tmpBestLock.unlock();
 	}
-
-
 
 }

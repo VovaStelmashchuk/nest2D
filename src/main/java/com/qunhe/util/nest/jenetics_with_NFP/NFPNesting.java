@@ -25,16 +25,16 @@ import static io.jenetics.engine.EvolutionResult.toBestPhenotype;
 
 //Adapted from Franz Wilhelmstötter, Jenetics' Project owner - JENETICS LIBRARY USER’S MANUAL 7.0 - jenetics.io/manual/manual-7.0.0.pdf
 
-public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, Double>{
+public class NFPNesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, Double>{
 
-	Fitness_Eval evaluator;
+	FitnessEval evaluator;
 	private final ISeq<NestPath> _list;
 
 
-	public NFP_Nesting(ISeq<NestPath> lista,NestPath binpolygon ,double binw, double binh) 
+	public NFPNesting(ISeq<NestPath> lista,NestPath binPolygon) 
 	{
 		_list=Objects.requireNonNull(lista);
-		evaluator = new Fitness_Eval(binpolygon);
+		evaluator = new FitnessEval(binPolygon);
 	}
 
 	@Override
@@ -44,25 +44,24 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 
 	@Override
 	public Function<ISeq<NestPath>, Double> fitness() {
-		return evaluator::scalar_fitness;
+		return evaluator::scalarFitness;
 	}
 
-	private static NFP_Nesting of (List<NestPath> l, NestPath binpol, double binw, double binh)
+	private static NFPNesting of (List<NestPath> l, NestPath binPol)
 	{
 		final MSeq<NestPath> paths = MSeq.ofLength(l.size());
 
 		for ( int i = 0 ; i < l.size(); ++i ) 		
 			paths.set(i, l.get(i));
 		
-		return new NFP_Nesting(paths.toISeq(),binpol,binw,binh);
+		return new NFPNesting(paths.toISeq(),binPol);
 	}
 
 
 	public static void main(String[] args) {
 
-		double binWidth = 420;
-		double binHeight = 420;
-
+		double binWidth = 400;
+		double binHeight = 400;
 		NestPath bin = Util.createRectPolygon(binWidth, binHeight);
 		List<NestPath> polygons=null;
 
@@ -85,29 +84,29 @@ public class NFP_Nesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, 
 		CommonUtil.offsetTree(tree, 0.5 * config.SPACING);    
 
 		bin.config = config;
-		for(NestPath nestPath: polygons){
+		for(NestPath nestPath: polygons)
 			nestPath.config = config;
-		}
+		
 
-		NestPath binPolygon=Util.CleanBin(bin);
+		NestPath binPolygon=Util.cleanBin(bin);
 		Util.cleanTree(tree);    
 
 		ExecutorService executor = Executors.newFixedThreadPool(config.N_THREAD);
 
-		NFP_Nesting nst = NFP_Nesting.of(tree,binPolygon,binWidth,binHeight);
+		NFPNesting nst = NFPNesting.of(tree,binPolygon);
 		Engine<EnumGene<NestPath>,Double> engine = Engine
 				.builder(nst)
 				.optimize(Optimize.MINIMUM)
 				.populationSize(config.POPULATION_SIZE)
 				.executor(executor)
 				.alterers(
-						new SwapMutator<>(0.35),
-						new PartiallyMatchedCrossover<>(0.45)
+						new SwapMutator<>(0.2),
+						new PartiallyMatchedCrossover<>(0.35)
 						)
 				.build();
 
 		final EvolutionStatistics<Double, ?> statistics = EvolutionStatistics.ofNumber(); 
-		final Updater<EnumGene<NestPath>> up = new Updater<>();
+		final Updater<EnumGene<NestPath>,Double> up = new Updater<>();
 
 		System.out.println("Starting nesting without rotation of " + polygons.size() + " polygons on " + binWidth + " * " + binHeight +  " bin with Population: " + config.POPULATION_SIZE + " and threads: " + config.N_THREAD);
 

@@ -10,24 +10,19 @@ import com.qunhe.util.nest.util.GeometryUtil;
 
 public class Util {
 	
-	
-	
 	/**
 	 * translate bin to the origin and ensure it can be used for nesting
-	 * @author Alberto Gambarara
 	 * @param bin Nespath to clean
 	 * @return Nestpath cleaned
 	 */
-	public static NestPath CleanBin(NestPath bin)
+	public static NestPath cleanBin(NestPath bin)
 	{
 		
-		NestPath binPolygon = CommonUtil.cleanNestPath(bin);	//conversione di un eventuale binPath self intersecting in un poligono semplice
-	    // Bound binBound = GeometryUtil.getPolygonBounds(binPolygon);
+		NestPath binPolygon = CommonUtil.cleanNestPath(bin);
 	    if(Config.BOUND_SPACING > 0 ){
 	        List<NestPath> offsetBin = CommonUtil.polygonOffset(binPolygon , - Config.BOUND_SPACING);
-	        if(offsetBin.size() == 1 ){
+	        if(offsetBin.size() == 1 )
 	            binPolygon = offsetBin.get(0);
-	        }
 	    }
 		
 		binPolygon.setId(-1);
@@ -58,16 +53,14 @@ public class Util {
 	        binPolygon.get(i).y -= ybinmin;
 	    }
 	    
-	    if(GeometryUtil.polygonArea(binPolygon) > 0 ){
+	    if(GeometryUtil.polygonArea(binPolygon) > 0 )
 	        binPolygon.reverse();
-	    }
 	    
 	    return binPolygon;
 	}
 	
 	/**
 	 * Ensure every polygon can be nested
-	 * @author Alberto Gambarara
 	 * @param tree List<NestPath> to be clean
 	 */
 	public static void cleanTree(List<NestPath> tree)
@@ -78,9 +71,8 @@ public class Util {
 	        if(start == end || GeometryUtil.almostEqual(start.x , end.x) && GeometryUtil.almostEqual(start.y , end.y)){
 	            element.pop();
 	        }
-	        if(GeometryUtil.polygonArea(element) > 0 ){
+	        if(GeometryUtil.polygonArea(element) > 0 )
 	            element.reverse();
-	        }
 	    }
 		
 	}
