@@ -12,7 +12,7 @@ import com.qunhe.util.nest.data.NestPath;
 import com.qunhe.util.nest.data.NfpKey;
 import com.qunhe.util.nest.data.Result;
 import com.qunhe.util.nest.data.Segment;
-import com.qunhe.util.nest.data.Vector;
+import com.qunhe.util.nest.data.PathPlacement;
 import com.qunhe.util.nest.util.coor.ClipperCoor;
 
 import de.lighti.clipper.Clipper;
@@ -67,7 +67,7 @@ public class Placementworker {
         paths = rotated;	
         
         
-        List<List<Vector>> allplacements = new ArrayList<>();
+        List<List<PathPlacement>> allplacements = new ArrayList<>();
         // Now the fitness is defined as the width of material used.
         double fitness = 0;
         double binarea = Math.abs(GeometryUtil.polygonArea(this.binPolygon));
@@ -78,7 +78,7 @@ public class Placementworker {
         while (paths.size() > 0) {	//used with multiple bins
 
             List<NestPath> placed = new ArrayList<>();		// polygons (NestPath) to place
-            List<Vector> placements = new ArrayList<>();	// coordinates
+            List<PathPlacement> placements = new ArrayList<>();	// coordinates
 
             //fitness += 1;
             double minwidth = Double.MAX_VALUE;				// valore che verrà assegnato alla fitness
@@ -109,13 +109,13 @@ public class Placementworker {
                 }//***************************************************************
 
                 
-                Vector position = null;
+                PathPlacement position = null;
                 if (placed.size() == 0) {
                     // first placement , put it on the left
                    for (NestPath element : binNfp) {
                         for (int k = 0; k < element.size(); k++) {
                             if (position == null || element.get(k).x - path.get(0).x < position.x) {
-                                position = new Vector(
+                                position = new PathPlacement(
                                         element.get(k).x - path.get(0).x,
                                         element.get(k).y - path.get(0).y,
                                         path.getId(),
@@ -197,7 +197,7 @@ public class Placementworker {
                 double minX = Double.MAX_VALUE;
                 NestPath nf = null;
                 double area = Double.MIN_VALUE;
-                Vector shifvector = null;
+                PathPlacement shifvector = null;
 //                System.out.println("UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
                 for (NestPath element : finalNfpf) {
                     nf = element;
@@ -212,7 +212,7 @@ public class Placementworker {
                                         placed.get(m).get(n).y + placements.get(m).y));
                             }
                         }
-                        shifvector = new Vector(
+                        shifvector = new PathPlacement(
                                 nf.get(k).x - path.get(0).x,
                                 nf.get(k).y - path.get(0).y,
                                 path.getId(),

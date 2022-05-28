@@ -86,8 +86,8 @@ public class RotationNFPNesting implements Problem<Solution,DoubleGene, Double>{
 
 	public static void main(String[] args) {
 
-		double binWidth = 400;
-		double binHeight = 400;
+		double binWidth = 200;
+		double binHeight = 200;
 
 		NestPath bin = Util.createRectPolygon(binWidth, binHeight);
 		List<NestPath> polygons=null;
@@ -105,10 +105,10 @@ public class RotationNFPNesting implements Problem<Solution,DoubleGene, Double>{
 		Config.BIN_HEIGHT=binHeight;
 		Config.BIN_WIDTH=binWidth;
 		Config.LIMIT=200;
-		config.NUMBER_OF_ROTATIONS=4;
+		config.NUMBER_OF_ROTATIONS=8;
 		config.MAX_SEC_DURATION=polygons.size()*1;
-		config.MAX_STEADY_FITNESS=20;
-		config.N_THREAD=10;
+		config.MAX_STEADY_FITNESS=35;
+		config.N_THREAD=5;
 
 		List<NestPath> tree = CommonUtil.BuildTree(polygons , Config.CURVE_TOLERANCE);
 		CommonUtil.offsetTree(tree, 0.5 * config.SPACING);    

@@ -86,15 +86,18 @@ class gui {
 		btnStart.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				
+		        long startTime = System.nanoTime();
 
+				
 				List<NestPath> polygons;
 				guiUtil.setMessageLabel("Starting Loading Input File", lblMessage);
 				guiUtil.refresh(frmGUI);
 
 				NestPath bin = new NestPath();
 			
-				double binWidth = 420;
-				double binHeight = 420;
+				double binWidth = 200;
+				double binHeight = 200;
 
 				bin.add(0, 0);
 				bin.add(binWidth, 0);
@@ -145,23 +148,26 @@ class gui {
 				Config config = new Config();
 				// config.IS_DEBUG=false;
 				config.SPACING = 0;
-				config.POPULATION_SIZE = 60;
-				config.BIN_HEIGHT=binHeight;
-				config.BIN_WIDTH=binWidth;
+				config.POPULATION_SIZE = 10;
+				Config.BIN_HEIGHT=binHeight;
+				Config.BIN_WIDTH=binWidth;
 				
-				Nest nest = new Nest(bin, polygons, config, 10);
+				for(NestPath np:polygons)		
+					np.setPossibleNumberRotations(4);
+		
+				Nest nest = new Nest(bin, polygons, config, 25);
 				// aggiungi un observer per osservare il cambiamento ad ogni passo
 				nest.observers.add(new ListPlacementObserver() {					
 					@Override
 					public void populationUpdate(List<List<Placement>> appliedPlacement) {
-						System.out.println("best solution changed");
+						//System.out.println("best solution changed");
 						try {
 							List<String> strings = SvgUtil.svgGenerator(polygons, appliedPlacement, binWidth, binHeight);
 							SVGDocument docFinals = guiUtil.CreateSvgFile(strings, binWidth, binHeight);
 							//if(svgcanvasFirst.getSVGDocument()==null) svgcanvasFirst.setSVGDocument(docFinals);
 							svgcanvasFinal.setSVGDocument(docFinals);
 							guiUtil.refresh(frmGUI);
-							JOptionPane.showMessageDialog(frmGUI, "best solution changed");
+							//JOptionPane.showMessageDialog(frmGUI, "best solution changed");
 						} catch (Exception e) {
 							guiUtil.showError("error showing solution: " + e.getMessage(), frmGUI, lblMessage);
 							return;							
@@ -174,10 +180,16 @@ class gui {
 					List<String> strings = SvgUtil.svgGenerator(polygons, appliedPlacement, binWidth, binHeight);
 					guiUtil.saveSvgFile(strings,Config.OUTPUT_DIR+"solution.html");
 				}catch (Exception ex) {
-					// TODO: handle exception
+					guiUtil.showError("error saving solution: " + ex.getMessage(), frmGUI, lblMessage);
+					return;
 				}
 				guiUtil.setMessageLabel("Nesting finished", lblMessage);
 				guiUtil.refresh(frmGUI);
+				
+				 long elapsedTime = System.nanoTime() - startTime;
+			     
+			        System.out.println("Total execution in millis: "
+			                + elapsedTime/1000000);
 			}
 		});
 

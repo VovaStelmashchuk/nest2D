@@ -50,18 +50,17 @@ public class NFPNesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, D
 	private static NFPNesting of (List<NestPath> l, NestPath binPol)
 	{
 		final MSeq<NestPath> paths = MSeq.ofLength(l.size());
-
+		
 		for ( int i = 0 ; i < l.size(); ++i ) 		
 			paths.set(i, l.get(i));
-		
 		return new NFPNesting(paths.toISeq(),binPol);
 	}
 
 
 	public static void main(String[] args) {
 
-		double binWidth = 400;
-		double binHeight = 400;
+		double binWidth = 200;
+		double binHeight = 200;
 		NestPath bin = Util.createRectPolygon(binWidth, binHeight);
 		List<NestPath> polygons=null;
 
@@ -72,12 +71,12 @@ public class NFPNesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, D
 		}
 		Config config = new Config();
 		config.SPACING = 0;
-		config.POPULATION_SIZE = 5;
+		config.POPULATION_SIZE = 10;
 		Config.BIN_HEIGHT=binHeight;
 		Config.BIN_WIDTH=binWidth;
 		Config.LIMIT=Integer.MAX_VALUE;
-		config.MAX_SEC_DURATION=polygons.size()*10;
-		config.MAX_STEADY_FITNESS=20;
+		config.MAX_SEC_DURATION=polygons.size()*1;
+		config.MAX_STEADY_FITNESS=30;
 		config.N_THREAD=5;
 
 		List<NestPath> tree = CommonUtil.BuildTree(polygons , Config.CURVE_TOLERANCE);

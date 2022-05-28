@@ -40,13 +40,14 @@ public class Main_Jenetics {
 		} catch (DocumentException e) {
 			e.printStackTrace();
 		}
-        final int MAX_SEC_DURAT=polygons.size()*10;
+        final int MAX_SEC_DURAT=60;
 		
 		Config config = new Config();
 		config.SPACING = 0;
 		config.POPULATION_SIZE = polygons.size();
 		Config.BIN_HEIGHT=binHeight;
 		Config.BIN_WIDTH=binWidth;
+		config.N_THREAD=5;
 		
 		List<NestPath> tree = CommonUtil.BuildTree(polygons , Config.CURVE_TOLERANCE);
         CommonUtil.offsetTree(tree, 0.5 * config.SPACING);        
@@ -139,12 +140,13 @@ public class Main_Jenetics {
         final Constraint<DoubleGene, Double> constraint= new CustomConstraint(tree);
         final EvolutionStatistics<Double, ?> statistics = EvolutionStatistics.ofNumber();   
 
-        
+		ExecutorService executor = Executors.newFixedThreadPool(config.N_THREAD);
+
         
         Engine<DoubleGene, Double> engine = Engine.builder(fm::scalarFitness, model)
                 .populationSize(config.POPULATION_SIZE)
                 .optimize(Optimize.MINIMUM)
-                //.offspringFraction(0.75)
+                .executor(executor)
                 .alterers(
                         new Mutator<>(.25),
                         new MeanAlterer<>(.05),

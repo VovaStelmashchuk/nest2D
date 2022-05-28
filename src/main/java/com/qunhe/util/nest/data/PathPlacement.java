@@ -5,7 +5,8 @@ import de.lighti.clipper.Paths;
 /**
  * @author yisa
  */
-public class Vector {
+//before Vector, renamed to set apart from Java.util.Vector
+public class PathPlacement {
     public double x;
     public double y;
     public int id;
@@ -13,7 +14,7 @@ public class Vector {
     
     public Paths nfp;
 
-    public Vector(double x, double y, int id, int rotation) {
+    public PathPlacement(double x, double y, int id, int rotation) {
         this.x = x;
         this.y = y;
         this.id = id;
@@ -21,7 +22,7 @@ public class Vector {
         this.nfp = new Paths();
     }
 
-    public Vector(double x, double y, int id, int rotation, Paths nfp) {
+    public PathPlacement(double x, double y, int id, int rotation, Paths nfp) {
         this.x = x;
         this.y = y;
         this.id = id;
@@ -29,7 +30,7 @@ public class Vector {
         this.nfp = nfp;
     }
 
-    public Vector() {
+    public PathPlacement() {
         nfp = new Paths();
     }
 

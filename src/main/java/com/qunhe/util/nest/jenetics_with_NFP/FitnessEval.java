@@ -141,7 +141,7 @@ public class FitnessEval {
 			}
 			paths = rotated;
 		}
-		List<List<Vector>> allplacements = new ArrayList<>();
+		List<List<PathPlacement>> allplacements = new ArrayList<>();
 		// Now the fitness is defined as the width of material used.
 		double fitness = 0;
 		double binarea = Math.abs(GeometryUtil.polygonArea(binPolygon));
@@ -153,7 +153,7 @@ public class FitnessEval {
 		//If polygons can't fit on one bin, a new one is added, and so on until path.size() is zero
 		while (paths.size() > 0) {	
 			List<NestPath> placed = new ArrayList<>();		// polygons (NestPath) to place
-			List<Vector> placements = new ArrayList<>();
+			List<PathPlacement> placements = new ArrayList<>();
 
 			double minwidth = Double.MAX_VALUE;				//temporary fitness value
 
@@ -186,13 +186,13 @@ public class FitnessEval {
 				
 				//***************************************************************
 
-				Vector position = null;
+				PathPlacement position = null;
 				if (placed.size() == 0) {
 					// first placement , put it on the top-left
 					for (NestPath element : binNfp) {
 						for (int k = 0; k < element.size(); k++) {
 							if (position == null || element.get(k).x - path.get(0).x < position.x) {
-								position = new Vector(
+								position = new PathPlacement(
 										element.get(k).x - path.get(0).x,
 										element.get(k).y - path.get(0).y,
 										path.getId(),
@@ -271,7 +271,7 @@ public class FitnessEval {
 				double minX = Double.MAX_VALUE;
 				NestPath nf = null;
 				double area = Double.MIN_VALUE;
-				Vector shifvector = null;
+				PathPlacement shifvector = null;
 				for (NestPath element : finalNfpf) {
 					nf = element;
 					if (Math.abs(GeometryUtil.polygonArea(nf)) < 2)	
@@ -285,7 +285,7 @@ public class FitnessEval {
 										placed.get(m).get(n).y + placements.get(m).y));
 							}
 						}
-						shifvector = new Vector(
+						shifvector = new PathPlacement(
 								nf.get(k).x - path.get(0).x,
 								nf.get(k).y - path.get(0).y,
 								path.getId(),

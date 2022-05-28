@@ -26,7 +26,7 @@ import com.qunhe.util.nest.data.ParallelData;
 import com.qunhe.util.nest.data.Placement;
 import com.qunhe.util.nest.data.Result;
 import com.qunhe.util.nest.data.Segment;
-import com.qunhe.util.nest.data.Vector;
+import com.qunhe.util.nest.data.PathPlacement;
 import com.qunhe.util.nest.util.CommonUtil;
 import com.qunhe.util.nest.util.GeometryUtil;
 import com.qunhe.util.nest.util.IOUtils;
@@ -155,12 +155,12 @@ public class Nest {
         
         for(int i = 0 ; i<loopCount ; i++) {
             Result result = launchWorkers(tree, binPolygon, config);
-            
+            if(best!=null)log(best.fitness);
             // se result ottiene valore minore della fitness, sarÃ  il nuovo vaolre di best fitness
             if(i == 0 ||  best.fitness > result.fitness){
                 best = result;
                 double rate = computeUseRate(best, tree);
-                log("Loop "+i+" width = "+best.fitness+"; use rate = " + rate);
+                //log("Loop "+i+" width = "+best.fitness+"; use rate = " + rate);
                 appliedPlacement = applyPlacement(best,tree);
                 try {
                 	String lotId = InputConfig.INPUT == null ? "" : InputConfig.INPUT.get(0).lotId;
@@ -213,9 +213,9 @@ public class Nest {
 		// Log new result
 		double sumarea = 0;
 		double totalarea = Config.BIN_HEIGHT * best.fitness;
-		for (List<Vector> element : best.placements) {
+		for (List<PathPlacement> element : best.placements) {
 			// totalarea += Math.abs(GeometryUtil.polygonArea(binPolygon));
-			for (Vector element2 : element) {
+			for (PathPlacement element2 : element) {
 				sumarea += Math.abs(GeometryUtil.polygonArea(tree.get(element2.id)));
 			}
 		}
@@ -332,7 +332,7 @@ public class Nest {
 			String tkey = gson.toJson(Nfp.getKey());
 			nfpCache.put(tkey, Nfp.value);
 		}
-		log("Saving nfpCache.");
+		//log("Saving nfpCache.");
 		String lotId = InputConfig.INPUT == null ? "" : InputConfig.INPUT.get(0).lotId;
 		IOUtils.saveNfpCache(nfpCache, Config.OUTPUT_DIR + "nfp" + lotId + ".txt");
 
@@ -382,7 +382,7 @@ public class Nest {
         for(int i = 0; i<best.placements.size();i++){
             List<Placement> binTranslate = new ArrayList<>();
             for(int j = 0 ; j <best.placements.get(i).size(); j ++){
-                Vector v = best.placements.get(i).get(j);
+                PathPlacement v = best.placements.get(i).get(j);
                 NestPath nestPath = tree.get(v.id);
                 for(NestPath child : nestPath.getChildren()){
                     Placement chPlacement = new Placement(child.getBid() , new Segment(v.x,v.y) , v.rotation);

@@ -6,13 +6,13 @@ import java.util.List;
  * @author yisa
  */
 public class Result implements Comparable<Result>{
-    public List<List<Vector>> placements;
+    public List<List<PathPlacement>> placements;
     public double fitness;
     
     public List<NestPath> paths;
     public double area;
 
-    public Result(List<List<Vector>> placements, double fitness, List<NestPath> paths, double area) {
+    public Result(List<List<PathPlacement>> placements, double fitness, List<NestPath> paths, double area) {
         this.placements = placements;
         this.fitness = fitness;
         this.paths = paths;
