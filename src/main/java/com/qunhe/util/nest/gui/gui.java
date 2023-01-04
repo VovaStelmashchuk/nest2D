@@ -20,9 +20,7 @@ import com.qunhe.util.nest.data.NestPath;
 import com.qunhe.util.nest.data.Placement;
 import com.qunhe.util.nest.util.SvgUtil;
 
-
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import java.awt.Dimension;
 import de.lighti.clipper.Path;
@@ -49,17 +47,14 @@ class gui {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				try {
+		System.setProperty("sun.java2d.uiScale", "1"); // disable high-dpi
 
-					gui window = new gui();
-
-					window.frmGUI.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+		EventQueue.invokeLater(() -> {
+			try {
+				gui window = new gui();
+				window.frmGUI.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		});
 	}
@@ -81,14 +76,12 @@ class gui {
 		frmGUI.getContentPane().setBackground(SystemColor.menu);
 		frmGUI.setBounds(100, 100, 984, 900);
 		frmGUI.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-
+		frmGUI.setLocationRelativeTo(null); // center in screen
+		
 		JButton btnStart = new JButton("START");
 		btnStart.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
-		        long startTime = System.nanoTime();
-
 				
 				List<NestPath> polygons;
 				guiUtil.setMessageLabel("Starting Loading Input File", lblMessage);
@@ -141,8 +134,8 @@ class gui {
 				}
 								
 				// find solution
-				guiUtil.setMessageLabel("Starting Nesting", lblMessage);
-				JOptionPane.showMessageDialog(frmGUI, "Starting Nesting");
+//				guiUtil.setMessageLabel("Starting Nesting", lblMessage);
+//				JOptionPane.showMessageDialog(frmGUI, "Starting Nesting");
 				guiUtil.refresh(frmGUI);
 				
 				Config config = new Config();
@@ -152,9 +145,10 @@ class gui {
 				Config.BIN_HEIGHT=binHeight;
 				Config.BIN_WIDTH=binWidth;
 				
-				for(NestPath np:polygons)		
+				for (NestPath np : polygons) {
 					np.setPossibleNumberRotations(4);
-		
+				}
+				
 				Nest nest = new Nest(bin, polygons, config, 25);
 				// aggiungi un observer per osservare il cambiamento ad ogni passo
 				nest.observers.add(new ListPlacementObserver() {					
@@ -175,7 +169,10 @@ class gui {
 					}
 				});
 
+				long startTime = System.nanoTime();
 				appliedPlacement = nest.startNest();
+				long elapsedTime = System.nanoTime() - startTime;
+				
 				try {
 					List<String> strings = SvgUtil.svgGenerator(polygons, appliedPlacement, binWidth, binHeight);
 					guiUtil.saveSvgFile(strings,Config.OUTPUT_DIR+"solution.html");
@@ -183,13 +180,10 @@ class gui {
 					guiUtil.showError("error saving solution: " + ex.getMessage(), frmGUI, lblMessage);
 					return;
 				}
-				guiUtil.setMessageLabel("Nesting finished", lblMessage);
+				guiUtil.setMessageLabel("Nesting finished in " + elapsedTime / 1000000 + "ms", lblMessage);
 				guiUtil.refresh(frmGUI);
-				
-				 long elapsedTime = System.nanoTime() - startTime;
-			     
-			        System.out.println("Total execution in millis: "
-			                + elapsedTime/1000000);
+
+				System.out.println("Total execution in millis: " + elapsedTime / 1000000);
 			}
 		});
 
