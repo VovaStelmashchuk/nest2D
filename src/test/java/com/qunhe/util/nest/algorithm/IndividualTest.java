@@ -4,7 +4,7 @@ package com.qunhe.util.nest.algorithm;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.qunhe.util.nest.data.NestPath;
 import com.qunhe.util.nest.data.Segment;

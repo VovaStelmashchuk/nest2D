@@ -3,8 +3,6 @@ package com.qunhe.util.nest.watchmaker;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
-
 import com.qunhe.util.nest.Nest;
 import com.qunhe.util.nest.config.Config;
 import com.qunhe.util.nest.data.NestPath;
