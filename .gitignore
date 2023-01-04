@@ -31,3 +31,7 @@ output/problem.html
 output/solution.html
 output/solution.html
 *.log
+
+### Eclipse ###
+.project
+.classpath
