@@ -18,12 +18,12 @@ public class IndividualFitness implements FitnessEvaluator<Individual> {
 	
 	@Override
 	public double getFitness(Individual individuo, List<? extends Individual> listIndiv) {
-		/* Valore standard della fitness (appena si crea un Individuo (Individual) = -1 ; nel nesting il BestFitness sar‡ quello con la fitness minore (Nest.launchWorkers()) */
+		/* Valore standard della fitness (appena si crea un Individuo (Individual) = -1 ; nel nesting il BestFitness sar√† quello con la fitness minore (Nest.launchWorkers()) */
 		
 		// Creazione Mappa (Map(chiave, valore))
 		Map<String, List<NestPath>> nfpCache = new HashMap<>();
 		
-		// Creazione Placementworker che restituir‡ la fitness dell'Individuo
+		// Creazione Placementworker che restituir√† la fitness dell'Individuo
 		Placementworker placePoly = new Placementworker(new CandidateFactoryNest4j().getRandomNestPath(9000), new Config(), nfpCache);
 		Result result = placePoly.placePaths(individuo.getPlacement());
         System.out.println("Area = " + result.area + "	, 	Fitness = " + result.fitness);

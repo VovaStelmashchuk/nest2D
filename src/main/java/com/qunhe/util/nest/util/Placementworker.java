@@ -81,7 +81,7 @@ public class Placementworker {
             List<PathPlacement> placements = new ArrayList<>();	// coordinates
 
             //fitness += 1;
-            double minwidth = Double.MAX_VALUE;				// valore che verr‡ assegnato alla fitness
+            double minwidth = Double.MAX_VALUE;				// valore che verr√† assegnato alla fitness
             
             // Loops over all the polygons (paths)
             for (int i = 0; i < paths.size(); i++) {

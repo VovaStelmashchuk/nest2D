@@ -93,7 +93,7 @@ public class IOUtils {
 		try {
 			Gson g = new Gson();
 			String res = g.toJson(nfpCache);
-			Path p = Path.of(filename);
+			Path p = Paths.get(filename);
 			if (Files.notExists(p, LinkOption.NOFOLLOW_LINKS)) {
 				Path directory = p.getParent();
 				if (Files.notExists(directory, LinkOption.NOFOLLOW_LINKS)) {
@@ -142,7 +142,8 @@ public class IOUtils {
 
     public static void saveSvgFile(List<String> strings, String file) throws Exception {
         debug(file);
-        Path p = Path.of(file);
+        Path p = Paths.get(file);
+        
         if (Files.notExists(p, LinkOption.NOFOLLOW_LINKS)) {
         	Path directory = p.getParent();
         	if (Files.notExists(directory, LinkOption.NOFOLLOW_LINKS)) {

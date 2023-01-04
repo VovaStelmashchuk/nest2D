@@ -26,7 +26,7 @@ import io.jenetics.engine.*;
 import io.jenetics.util.*;
 import static io.jenetics.engine.EvolutionResult.toBestPhenotype;
 
-//Adapted from Franz Wilhelmstötter, Jenetics' Project owner - stackoverflow.com/questions/72127848/custom-genotype-in-jenetics-for-nesting
+//Adapted from Franz WilhelmstÃ¶tter, Jenetics' Project owner - stackoverflow.com/questions/72127848/custom-genotype-in-jenetics-for-nesting
 
 public class RotationNFPNesting implements Problem<Solution,DoubleGene, Double>{
 

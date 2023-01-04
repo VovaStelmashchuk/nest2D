@@ -39,7 +39,7 @@ public class IndividualMutation implements EvolutionaryOperator<Individual> {
 		
 		
 		// CROSSOVER
-		ga.generation();	// generazione dei figli - PERÚ MI PRENDE SEMPRE E SOLO IL PRIMO, perchË, dato che vengono ordinati (sort) verrr‡ sempre selezionato l'individuo avente AREA MINORE, quindi il "the best fit"
+		ga.generation();	// generazione dei figli - PER√≤ MI PRENDE SEMPRE E SOLO IL PRIMO, perch√®, dato che vengono ordinati (sort) verrr√† sempre selezionato l'individuo avente AREA MINORE, quindi il "the best fit"
 		
 		
 		return ga.population;	// verranno restituiti sempre 10 individui (POPULATION_SIZE = 10 by default)

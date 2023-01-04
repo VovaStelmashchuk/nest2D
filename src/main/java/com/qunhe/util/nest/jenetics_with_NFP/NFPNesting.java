@@ -23,7 +23,7 @@ import io.jenetics.engine.*;
 import io.jenetics.util.*;
 import static io.jenetics.engine.EvolutionResult.toBestPhenotype;
 
-//Adapted from Franz Wilhelmstötter, Jenetics' Project owner - JENETICS LIBRARY USER’S MANUAL 7.0 - jenetics.io/manual/manual-7.0.0.pdf
+//Adapted from Franz WilhelmstÃ¶tter, Jenetics' Project owner - JENETICS LIBRARY USERâ€™S MANUAL 7.0 - jenetics.io/manual/manual-7.0.0.pdf
 
 public class NFPNesting implements Problem<ISeq<NestPath>, EnumGene<NestPath>, Double>{
 
