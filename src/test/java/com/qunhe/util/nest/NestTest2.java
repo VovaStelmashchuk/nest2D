@@ -1,8 +1,5 @@
 package com.qunhe.util.nest;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +15,7 @@ import com.qunhe.util.nest.config.Config;
 import com.qunhe.util.nest.data.NestPath;
 import com.qunhe.util.nest.data.Placement;
 import com.qunhe.util.nest.data.Result;
+import com.qunhe.util.nest.util.IOUtils;
 import com.qunhe.util.nest.util.SvgUtil;
 
 public class NestTest2 {
@@ -110,7 +108,7 @@ public class NestTest2 {
 	        
 	        List<List<Placement>> appliedPlacement = nest.startNest();
 	        List<String> strings = SvgUtil.svgGenerator(polygons, appliedPlacement, binWidth, binHeight);
-	        saveSvgFile(strings,Config.OUTPUT_DIR+"problem.html");
+	        IOUtils.saveSvgFile(strings,Config.OUTPUT_DIR+"problem.html");
 	        
 	        // find solution
 	        nest = new Nest(bin, polygons, config, 20);	// 10 iterazioni -> loopcount = 10
@@ -128,7 +126,7 @@ public class NestTest2 {
 			});        
 	        appliedPlacement = nest.startNest();
 	        strings = SvgUtil.svgGenerator(polygons, appliedPlacement, binWidth, binHeight);
-	        saveSvgFile(strings,Config.OUTPUT_DIR+"solution.html");
+	        IOUtils.saveSvgFile(strings,Config.OUTPUT_DIR+"solution.html");
 	    }
 
 	    private static List<NestPath> transferSvgIntoPolygons() throws DocumentException {
@@ -171,26 +169,6 @@ public class NestTest2 {
 	            }
 	        }
 	        return nestPaths;
-	    }
-
-	    private void saveSvgFile(List<String> strings, String htmlfile) throws Exception {
-	        File f = new File(htmlfile);
-	        if (!f.exists()) {
-	            f.createNewFile();
-	        }
-	        Writer writer = new FileWriter(f, false);
-	        writer.write("<?xml version=\"1.0\" standalone=\"no\"?>\n" +
-	                "\n" +
-	                "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n" +
-	                "\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n" +
-	                " \n" +
-	                "<svg width=\"100%\" height=\"100%\" version=\"1.1\"\n" +
-	                "xmlns=\"http://www.w3.org/2000/svg\">\n");
-	        for(String s : strings){
-	            writer.write(s);
-	        }
-	        writer.write("</svg>");
-	        writer.close();
 	    }
 
 }

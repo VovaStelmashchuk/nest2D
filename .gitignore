@@ -1,4 +1,6 @@
 target/
+output/
+data/
 !.mvn/wrapper/maven-wrapper.jar
 
 ### STS ###
