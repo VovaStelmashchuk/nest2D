@@ -1,9 +1,6 @@
 package com.qunhe.util.nest.watchmaker;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 import org.uncommons.watchmaker.framework.EvolutionEngine;
@@ -12,17 +9,7 @@ import org.uncommons.watchmaker.framework.GenerationalEvolutionEngine;
 import org.uncommons.watchmaker.framework.PopulationData;
 import org.uncommons.watchmaker.framework.SelectionStrategy;
 import org.uncommons.watchmaker.framework.selection.RankSelection;
-import org.uncommons.watchmaker.framework.termination.GenerationCount;
-
-import org.uncommons.watchmaker.*;
-
-import com.qunhe.util.nest.Nest;
 import com.qunhe.util.nest.algorithm.Individual;
-import com.qunhe.util.nest.config.Config;
-import com.qunhe.util.nest.data.NestPath;
-import com.qunhe.util.nest.data.Result;
-import com.qunhe.util.nest.data.Segment;
-import com.qunhe.util.nest.util.Placementworker;
 
 public class Main {
 
@@ -54,7 +41,7 @@ public class Main {
 		// TARGET
 //		private static final int NUMBER_GENERATIONS = 20;
 //		// Target = numero di generazioni
-//		GenerationCount stop = new GenerationCount(NUMBER_GENERATIONS);	//->> NON SERVEEEE, è SOLO LA FITNESS CHE DEVO FARE
+//		GenerationCount stop = new GenerationCount(NUMBER_GENERATIONS);	//->> NON SERVEEEE, ï¿½ SOLO LA FITNESS CHE DEVO FARE
 		
 		
 		EvolutionEngine<Individual> engine = new GenerationalEvolutionEngine<>(candidateFactory, mutation, fitnessEvaluator, selectionStrategy, new Random());
