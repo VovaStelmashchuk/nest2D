@@ -76,3 +76,5 @@ out/
 .vscode/
 
 .fleet
+
+.DS_Store
