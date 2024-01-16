@@ -6,7 +6,7 @@ import com.qunhe.util.nest.config.Config;
  * @author yisa
  */
 public class Segment {
-    public double x ;
+    public double x;
     public double y;
 
     public boolean marked = false;
@@ -17,7 +17,7 @@ public class Segment {
     @Override
     public boolean equals(Object obj) {
         Segment s = (Segment) obj;
-        if(x == s.x && y == s.y ){
+        if (x == s.x && y == s.y) {
             return true;
         }
         return false;
@@ -27,27 +27,22 @@ public class Segment {
     }
 
 
-    public Segment(Segment srcSeg){
+    public Segment(Segment srcSeg) {
         this.x = srcSeg.x;
         this.y = srcSeg.y;
     }
 
-    public Segment(int x , int y ){
-        this.x = x ;
+    public Segment(int x, int y) {
+        this.x = x;
         this.y = y;
     }
 
     public Segment(double x, double y) {
-        int Ix =(int) (x * Config.CLIIPER_SCALE);
-        int Iy =(int) (y * Config.CLIIPER_SCALE);
+        int Ix = (int) (x * Config.CLIIPER_SCALE);
+        int Iy = (int) (y * Config.CLIIPER_SCALE);
 
-        this.x = Ix*1.0/Config.CLIIPER_SCALE;
-        this.y = Iy *1.0/ Config.CLIIPER_SCALE;
-    }
-
-    @Override
-    public String toString() {
-        return "x = "+ x+", y = "+y;
+        this.x = Ix * 1.0 / Config.CLIIPER_SCALE;
+        this.y = Iy * 1.0 / Config.CLIIPER_SCALE;
     }
 
     public boolean isMarked() {
@@ -79,8 +74,8 @@ public class Segment {
     }
 
     public void setX(double x) {
-        int lx =  (int)(x * Config.CLIIPER_SCALE);
-        this.x = lx*1.0/Config.CLIIPER_SCALE;
+        int lx = (int) (x * Config.CLIIPER_SCALE);
+        this.x = lx * 1.0 / Config.CLIIPER_SCALE;
     }
 
     public double getY() {
@@ -88,7 +83,18 @@ public class Segment {
     }
 
     public void setY(double y) {
-        int ly = (int)(y * Config.CLIIPER_SCALE);
-        this.y =  ly*1.0/Config.CLIIPER_SCALE;
+        int ly = (int) (y * Config.CLIIPER_SCALE);
+        this.y = ly * 1.0 / Config.CLIIPER_SCALE;
+    }
+
+    @Override
+    public String toString() {
+        return "Segment{" +
+                "x=" + x +
+                ", y=" + y +
+                ", marked=" + marked +
+                ", start=" + start +
+                ", end=" + end +
+                '}';
     }
 }

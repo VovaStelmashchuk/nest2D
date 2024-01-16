@@ -68,6 +68,11 @@
 	</repositories>
 	<dependencies>
 		<dependency>
+			<groupId>com.xhiteam.dxf</groupId>
+			<artifactId>dxf</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
 			<groupId>com.github.jchamlin</groupId>
 			<artifactId>clipper-java</artifactId>
 			<version>b4dcd50c51</version>

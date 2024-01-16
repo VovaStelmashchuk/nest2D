@@ -17,4 +17,13 @@ public class Placement {
 
     public Placement() {
     }
+
+    @Override
+    public String toString() {
+        return "Placement{" +
+                "bid=" + bid +
+                ", translate=" + translate +
+                ", rotate=" + rotate +
+                '}';
+    }
 }

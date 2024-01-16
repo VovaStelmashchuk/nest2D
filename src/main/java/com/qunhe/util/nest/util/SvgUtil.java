@@ -16,11 +16,15 @@ public class SvgUtil {
 	 * @param binwidth	width of the bins
 	 * @param binHeight	height of the bins
 	 * @return			List<String> corresponding to the SVG elements
-	 * @throws Exception
-	 */
-	public static List<String> svgGenerator(List<NestPath> list, List<List<Placement>> applied, double binwidth, double binHeight) throws Exception {
+     */
+	public static List<String> svgGenerator(
+			List<NestPath> list,
+			List<List<Placement>> applied,
+			double binwidth,
+			double binHeight
+	) {
 		List<String> strings = new ArrayList<>();
-		int x = 0;
+		final int x = 0;
 		int y = 0;
 		for (List<Placement> binlist : applied) {
 			String s = " <g transform=\"translate(" + x + "  " + y + ")\">" + "\n";

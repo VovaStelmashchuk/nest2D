@@ -35,7 +35,6 @@ public class NestPath implements Comparable<NestPath>{
     	this(new Config());
     }
 
-
     public NestPath(Config config) {
         offsetX = 0;
         offsetY = 0;
