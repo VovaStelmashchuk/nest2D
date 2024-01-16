@@ -3,9 +3,6 @@ package com.app;
 import com.qunhe.util.DXFReader;
 import com.qunhe.util.nest.data.NestPath;
 
-import java.awt.geom.Point2D;
-import java.util.List;
-
 public class DxfPart {
 
     public NestPath nestPath;
@@ -17,8 +14,15 @@ public class DxfPart {
         this.nestPath = nestPath;
     }
 
-    public int getId() {
-        return nestPath.getId();
+    public int getBid() {
+        return nestPath.getBid();
     }
 
+    @Override
+    public String toString() {
+        return "DxfPart{" +
+                "nestPath=" + nestPath +
+                ", entity=" + entity +
+                '}';
+    }
 }

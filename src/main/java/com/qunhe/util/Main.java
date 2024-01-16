@@ -1,6 +1,9 @@
 package com.qunhe.util;
 
 import com.app.DxfPart;
+import com.jsevy.jdxf.DXFDocument;
+import com.jsevy.jdxf.parts.DXFLWPolyline;
+import com.jsevy.jdxf.parts.RealPoint;
 import com.qunhe.util.nest.Nest;
 import com.qunhe.util.nest.config.Config;
 import com.qunhe.util.nest.data.NestPath;
@@ -9,26 +12,59 @@ import com.qunhe.util.nest.util.SvgUtil;
 
 import java.awt.*;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import static com.qunhe.util.nest.util.IOUtils.saveSvgFile;
+
+/*Path2D.Double path = (Path2D.Double) part.getShape();
+
+            //Translate the path by 5 pixels in the x direction and 10 pixels in the y direction
+            AffineTransform translate = AffineTransform.getTranslateInstance(5, 10);
+            path.transform(translate);
+
+            // get the Vector<RealPoint> vertices from transform path
+            PathIterator pathIterator = path.getPathIterator(null);
+            Vector<RealPoint> vertices = new Vector<>();
+
+            //fill the vector
+            while (!pathIterator.isDone()) {
+                double[] coords = new double[6];
+                int type = pathIterator.currentSegment(coords);
+                switch (type) {
+                    case PathIterator.SEG_MOVETO:
+                    case PathIterator.SEG_LINETO:
+                        vertices.add(new RealPoint(coords[0], coords[1], 0));
+                        break;
+                    case PathIterator.SEG_QUADTO:
+                        vertices.add(new RealPoint(coords[0], coords[1], 0));
+                        vertices.add(new RealPoint(coords[2], coords[3], 0));
+                        break;
+                    case PathIterator.SEG_CUBICTO:
+                        vertices.add(new RealPoint(coords[0], coords[1], 0));
+                        vertices.add(new RealPoint(coords[2], coords[3], 0));
+                        vertices.add(new RealPoint(coords[4], coords[5], 0));
+                        break;
+                    case PathIterator.SEG_CLOSE:
+                        break;
+                }
+                pathIterator.next();
+}*/
 
 class Main {
 
     private List<List<Point>> points = new ArrayList<>();
 
-
     public static void main(String[] args) throws Exception {
-        List<DxfPart> listOfListOfPoints = new ArrayList<>();
-        listOfListOfPoints.addAll(
+        List<DxfPart> listOfDxfParts = new ArrayList<>();
+        listOfDxfParts.addAll(
                 getEntitiesFromFile("/Users/vovastelmashchuk/Desktop/dxf_app/Nest4J/input/1x1.dxf")
         );
-        listOfListOfPoints.addAll(
-                getEntitiesFromFile("/Users/vovastelmashchuk/Desktop/dxf_app/Nest4J/input/1x1.dxf")
-        );
-        listOfListOfPoints.addAll(
+
+        listOfDxfParts.addAll(
                 getEntitiesFromFile("/Users/vovastelmashchuk/Desktop/dxf_app/Nest4J/input/1x4.dxf")
         );
 
@@ -36,22 +72,69 @@ class Main {
 
         List<NestPath> list = new ArrayList<>();
 
-        listOfListOfPoints.forEach(dxfPart -> {
+        listOfDxfParts.forEach(dxfPart -> {
             list.add(dxfPart.nestPath);
         });
 
         Config config = new Config();
         config.USE_HOLE = false;
         config.SPACING = 1.5;
-        config.CONCAVE = false;
 
         Nest nest = new Nest(binPolygon, list, config, 10);
         List<List<Placement>> appliedPlacement = nest.startNest();
+
+        writeToDxf(appliedPlacement, listOfDxfParts, "test.dxf");
+
         List<String> strings = SvgUtil.svgGenerator(list, appliedPlacement, 300, 300);
+        saveSvgFile(strings, Config.OUTPUT_DIR + "test.svg");
+    }
 
-        System.out.println(appliedPlacement);
+    private static void writeToDxf(
+            List<List<Placement>> appliedPlacement,
+            List<DxfPart> listOfDxfParts,
+            String fileName
+    ) throws IOException {
+        DXFDocument document = new DXFDocument();
+        final List<Placement> firstPlacement = appliedPlacement.get(0);
 
-        saveSvgFile(strings, Config.OUTPUT_DIR + "test5.svg");
+        firstPlacement.forEach(placement -> {
+            final DxfPart dxfPart = getNestPathByBid(placement.bid, listOfDxfParts);
+
+            assert dxfPart != null;
+            DXFReader.LwPolyline part = (DXFReader.LwPolyline) dxfPart.entity;
+
+            Vector<RealPoint> vertices = new Vector<>();
+
+            System.out.println("id: " + placement.bid + " translate: " + placement.translate + "rotation " + placement.rotate);
+
+            part.segments.forEach(segment -> {
+                vertices.add(
+                        new RealPoint(
+                                segment.dx + (placement.translate.x * 0.039370078740157),
+                                segment.dy + (placement.translate.y * 0.039370078740157),
+                                0.0)
+                );
+            });
+
+            DXFLWPolyline translated = new DXFLWPolyline(vertices.size(), vertices, true);
+            document.addEntity(translated);
+        });
+
+        String dxfText = document.toDXFString();
+        String filePath = Config.OUTPUT_DIR + fileName;
+        FileWriter fileWriter = new FileWriter(filePath);
+        fileWriter.write(dxfText);
+        fileWriter.flush();
+        fileWriter.close();
+    }
+
+    private static DxfPart getNestPathByBid(int bid, List<DxfPart> list) {
+        for (DxfPart nestPath : list) {
+            if (nestPath.getBid() == bid) {
+                return nestPath;
+            }
+        }
+        return null;
     }
 
     private static List<DxfPart> getEntitiesFromFile(String fileName) {
@@ -71,6 +154,7 @@ class Main {
 
             if (entity instanceof DXFReader.LwPolyline) {
                 DXFReader.LwPolyline polyline = (DXFReader.LwPolyline) entity;
+                polyline.close();
 
                 NestPath nestPath = new NestPath();
                 polyline.segments.forEach(segment -> {

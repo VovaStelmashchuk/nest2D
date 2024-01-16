@@ -526,7 +526,7 @@ public class DXFGraphics extends Graphics2D
         vertices.add(new RealPoint(pts[4], pts[5], 0));
         vertices.add(new RealPoint(pts[6], pts[7], 0));
         
-        DXFLWPolyline polyline = new DXFLWPolyline(4 /*vertices*/, vertices, true /*closed*/, this);
+        DXFLWPolyline polyline = new DXFLWPolyline(4 /*vertices*/, vertices, true /*closed*/);
         dxfDocument.addEntity(polyline);
     }
     
@@ -1421,7 +1421,7 @@ public class DXFGraphics extends Graphics2D
             vertices.add(new RealPoint(pts[2*i], pts[2*i+1], 0));
         }
         
-        DXFLWPolyline polyline = new DXFLWPolyline(nPoints, vertices, isClosed, this);
+        DXFLWPolyline polyline = new DXFLWPolyline(nPoints, vertices, isClosed);
         dxfDocument.addEntity(polyline);
     }
 
