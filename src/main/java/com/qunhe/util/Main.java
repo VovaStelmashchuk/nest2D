@@ -10,7 +10,6 @@ import com.qunhe.util.nest.data.NestPath;
 import com.qunhe.util.nest.data.Placement;
 import com.qunhe.util.nest.util.SvgUtil;
 
-import java.awt.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -20,43 +19,7 @@ import java.util.Vector;
 
 import static com.qunhe.util.nest.util.IOUtils.saveSvgFile;
 
-/*Path2D.Double path = (Path2D.Double) part.getShape();
-
-            //Translate the path by 5 pixels in the x direction and 10 pixels in the y direction
-            AffineTransform translate = AffineTransform.getTranslateInstance(5, 10);
-            path.transform(translate);
-
-            // get the Vector<RealPoint> vertices from transform path
-            PathIterator pathIterator = path.getPathIterator(null);
-            Vector<RealPoint> vertices = new Vector<>();
-
-            //fill the vector
-            while (!pathIterator.isDone()) {
-                double[] coords = new double[6];
-                int type = pathIterator.currentSegment(coords);
-                switch (type) {
-                    case PathIterator.SEG_MOVETO:
-                    case PathIterator.SEG_LINETO:
-                        vertices.add(new RealPoint(coords[0], coords[1], 0));
-                        break;
-                    case PathIterator.SEG_QUADTO:
-                        vertices.add(new RealPoint(coords[0], coords[1], 0));
-                        vertices.add(new RealPoint(coords[2], coords[3], 0));
-                        break;
-                    case PathIterator.SEG_CUBICTO:
-                        vertices.add(new RealPoint(coords[0], coords[1], 0));
-                        vertices.add(new RealPoint(coords[2], coords[3], 0));
-                        vertices.add(new RealPoint(coords[4], coords[5], 0));
-                        break;
-                    case PathIterator.SEG_CLOSE:
-                        break;
-                }
-                pathIterator.next();
-}*/
-
 class Main {
-
-    private List<List<Point>> points = new ArrayList<>();
 
     public static void main(String[] args) throws Exception {
         List<DxfPart> listOfDxfParts = new ArrayList<>();
