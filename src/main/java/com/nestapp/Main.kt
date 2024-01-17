@@ -31,8 +31,6 @@ internal object Main {
             getEntitiesFromFile("/Users/vovastelmashchuk/Desktop/dxf_app/Nest4J/input/1x4.dxf")
         )
 
-        val binPolygon = binPolygon
-
         val list: MutableList<NestPath> = ArrayList()
 
         listOfDxfParts.forEach(Consumer { dxfPart: DxfPart ->
