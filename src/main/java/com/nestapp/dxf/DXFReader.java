@@ -1079,7 +1079,7 @@ public class DXFReader {
     }
 
     public class LwPolyline extends DrawItem implements AutoPop {
-        Path2D.Double path;
+        public Path2D.Double path;
         public List<LSegment> segments = new ArrayList<>();
         LSegment cSeg;
         private double xCp, yCp;
@@ -1130,7 +1130,7 @@ public class DXFReader {
         }
 
         @Override
-        Shape getShape() {
+        public Shape getShape() {
             return path;
         }
 

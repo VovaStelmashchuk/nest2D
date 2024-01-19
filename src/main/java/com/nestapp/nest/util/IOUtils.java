@@ -24,7 +24,7 @@ import com.nestapp.nest.data.Placement;
 import com.nestapp.nest.data.Segment;
 
 public class IOUtils {
-	
+
 	public static void log(Object... o) {
 		if (o != null) {
 			for (Object element : o) {
@@ -143,13 +143,13 @@ public class IOUtils {
     public static void saveSvgFile(List<String> strings, String file) throws Exception {
         debug(file);
         Path p = Paths.get(file);
-        
+
         if (Files.notExists(p, LinkOption.NOFOLLOW_LINKS)) {
         	Path directory = p.getParent();
         	if (Files.notExists(directory, LinkOption.NOFOLLOW_LINKS)) {
-        		Files.createDirectory(p.getParent(), new FileAttribute[0]);        		
+        		Files.createDirectory(p.getParent());
         	}
-			Files.createFile(p, new FileAttribute[0]).toAbsolutePath();
+			Files.createFile(p).toAbsolutePath();
 		}
         Writer writer = new FileWriter(file, false);
         writer.write("<?xml version=\"1.0\" standalone=\"no\"?>\n" +
