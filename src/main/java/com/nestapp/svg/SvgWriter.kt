@@ -1,7 +1,6 @@
 package com.nestapp.svg
 
 import com.nestapp.DxfPartPlacement
-import com.nestapp.nest.config.Config
 import com.nestapp.nest.util.IOUtils
 import java.io.FileWriter
 import java.io.Writer
@@ -9,7 +8,7 @@ import java.nio.file.Files
 import java.nio.file.LinkOption
 import java.nio.file.Paths
 
-class SvgWritter {
+class SvgWriter {
 
     fun writeNestPathsToSvg(
         list: List<DxfPartPlacement>,

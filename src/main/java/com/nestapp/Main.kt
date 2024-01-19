@@ -1,7 +1,7 @@
 package com.nestapp
 
 import com.nestapp.dxf.DxfApi
-import com.nestapp.svg.SvgWritter
+import com.nestapp.svg.SvgWriter
 import java.awt.Rectangle
 
 internal object Main {
@@ -28,7 +28,7 @@ internal object Main {
 
         dxfApi.writeFile(result, "test_yes.dxf")
 
-        val svgWriter = SvgWritter()
+        val svgWriter = SvgWriter()
         svgWriter.writeNestPathsToSvg(
             result,
             "/Users/vovastelmashchuk/Desktop/dxf_app/Nest4J/output/test_2.svg"
