@@ -5,7 +5,6 @@ import com.jsevy.jdxf.parts.DXFLWPolyline
 import com.jsevy.jdxf.parts.RealPoint
 import com.nestapp.DxfPart
 import com.nestapp.DxfPartPlacement
-import com.nestapp.nest.config.Config
 import com.nestapp.nest.data.NestPath
 import java.io.File
 import java.io.FileWriter
@@ -41,8 +40,7 @@ class DxfApi {
         }
 
         val dxfText = document.toDXFString()
-        val filePath = Config.OUTPUT_DIR + fileName
-        val fileWriter = FileWriter(filePath)
+        val fileWriter = FileWriter(fileName)
         fileWriter.write(dxfText)
         fileWriter.flush()
         fileWriter.close()
@@ -59,17 +57,17 @@ class DxfApi {
         return getEntities(dxfReader)
     }
 
-    private fun getEntities(dxfReader14: DXFReader): List<DxfPart> {
+    private fun getEntities(dxfReader: DXFReader): List<DxfPart> {
         val listOfListOfPoints: MutableList<DxfPart> = ArrayList()
-        for (entity in dxfReader14.entities) {
-            println(entity)
+        for (entity in dxfReader.entities) {
+            println("entity $entity")
 
             if (entity is DXFReader.LwPolyline) {
                 entity.close()
 
                 val nestPath = NestPath()
                 entity.segments.forEach { segment: DXFReader.LwPolyline.LSegment ->
-                    nestPath.add(segment.dx / dxfReader14.uScale, segment.dy / dxfReader14.uScale)
+                    nestPath.add(segment.dx / dxfReader.uScale, segment.dy / dxfReader.uScale)
                 }
 
                 listOfListOfPoints.add(DxfPart(entity, nestPath))

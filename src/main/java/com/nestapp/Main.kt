@@ -3,35 +3,60 @@ package com.nestapp
 import com.nestapp.dxf.DxfApi
 import com.nestapp.svg.SvgWriter
 import java.awt.Rectangle
+import java.io.File
 
 internal object Main {
     @Throws(Exception::class)
     @JvmStatic
     fun main(args: Array<String>) {
-        val dxfApi = DxfApi()
+        val files = File("mount/uploads").list()!!
+        //val files = listOf("1x3.dxf")
 
+        files
+            .filter { it.endsWith(".dxf") }
+            .sortedBy { it }
+            .forEachIndexed { index, fileName ->
+                processFile(index, fileName)
+            }
+    }
+
+    private fun processFile(index: Int, fileName: String) {
+        println(fileName)
+
+        val dxfApi = DxfApi()
         val listOfDxfParts: MutableList<DxfPart> = ArrayList()
         listOfDxfParts.addAll(
-            dxfApi.readFile("/Users/vovastelmashchuk/Desktop/dxf_app/Nest4J/mount/uploads/1x1.dxf")
+            dxfApi.readFile("mount/uploads/$fileName")
         )
 
-        listOfDxfParts.addAll(
-            dxfApi.readFile("/Users/vovastelmashchuk/Desktop/dxf_app/Nest4J/mount/uploads/1x2.dxf")
-        )
+        var size = 0
+        var result: Result<List<DxfPartPlacement>>? = null
 
-        val nestApi = NestApi()
+        while (result?.isSuccess != true) {
+            println("Size $size")
+            size += 50
+            val nestApi = NestApi()
+            result = nestApi.startNest(
+                plate = Rectangle(size, size),
+                dxfParts = listOfDxfParts,
+            )
 
-        val result = nestApi.startNest(
-            plate = Rectangle(300, 300),
-            dxfParts = listOfDxfParts,
-        )
+            result.onFailure {
+                println(it)
+            }
+        }
 
-        dxfApi.writeFile(result, "test_yes.dxf")
+        result.onSuccess { placement ->
+            //mount/user_inputs
+            val nameWithoutExt = File(fileName).nameWithoutExtension
 
-        val svgWriter = SvgWriter()
-        svgWriter.writeNestPathsToSvg(
-            result,
-            "/Users/vovastelmashchuk/Desktop/dxf_app/Nest4J/output/test_2.svg"
-        )
+            val folder = File("mount/user_inputs/$nameWithoutExt+$index")
+            folder.mkdirs()
+
+            dxfApi.writeFile(placement, folder.path + "/$nameWithoutExt.dxf")
+
+            val svgWriter = SvgWriter()
+            svgWriter.writeNestPathsToSvg(placement, folder.path + "/$nameWithoutExt.svg")
+        }
     }
 }

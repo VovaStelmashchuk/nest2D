@@ -1,5 +1,6 @@
 package com.nestapp.svg
 
+import com.nestapp.DxfPart
 import com.nestapp.DxfPartPlacement
 import com.nestapp.nest.util.IOUtils
 import java.io.FileWriter
@@ -26,7 +27,7 @@ class SvgWriter {
             appendLine("<g>")
             appendLine(
                 """
-                rect x="0" y="0" width="$width" height="$height"  fill="none" stroke="#010101" stroke-width="1" />
+                <rect x="0" y="0" width="$width" height="$height"  fill="none" stroke="#010101" stroke-width="1" />
             """.trimIndent()
             )
 

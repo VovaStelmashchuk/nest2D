@@ -3,6 +3,7 @@ package com.nestapp
 import com.nestapp.nest.Nest
 import com.nestapp.nest.config.Config
 import com.nestapp.nest.data.NestPath
+import com.nestapp.nest.util.GeometryUtil
 import java.awt.Rectangle
 
 class NestApi {
@@ -10,7 +11,17 @@ class NestApi {
     fun startNest(
         plate: Rectangle,
         dxfParts: List<DxfPart>,
-    ): List<DxfPartPlacement> {
+    ): Result<List<DxfPartPlacement>> {
+
+        val isAllPartFit = dxfParts.any { part ->
+            val bound = GeometryUtil.getPolygonBounds(part.nestPath)
+            bound.width > plate.width || bound.height > plate.height
+        }
+
+        if (isAllPartFit) {
+            return Result.failure(Throwable("Has part cannot be fit"))
+        }
+
         val nestPathPlace = createNestPath(plate)
 
         val config = Config()
@@ -25,11 +36,10 @@ class NestApi {
         val appliedPlacement = nest.startNest()
 
         if (appliedPlacement.size > 1) {
-            throw Exception("Cannot place in one bin")
+            return Result.failure(Exception("Cannot place in one bin"))
         }
-        val placements = appliedPlacement.first()
 
-        return placements
+        val placements = appliedPlacement.first()
             .map { placement ->
                 val dxfPart = dxfParts.find { dxfPart -> dxfPart.bid == placement.bid }!!
                 DxfPartPlacement(
@@ -38,6 +48,8 @@ class NestApi {
                     placement = placement,
                 )
             }
+
+        return Result.success(placements)
     }
 
     private fun createNestPath(rect: Rectangle): NestPath {
