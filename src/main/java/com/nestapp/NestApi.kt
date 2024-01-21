@@ -12,6 +12,8 @@ class NestApi {
         plate: Rectangle,
         dxfParts: List<DxfPart>,
     ): Result<List<DxfPartPlacement>> {
+        Config.BIN_WIDTH = plate.width.toDouble()
+        Config.BIN_HEIGHT = plate.height.toDouble()
 
         val isAllPartFit = dxfParts.any { part ->
             val bound = GeometryUtil.getPolygonBounds(part.nestPath)

@@ -10,6 +10,8 @@ import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 import java.util.Vector
+import kotlin.math.cos
+import kotlin.math.sin
 
 class DxfApi {
 
@@ -25,11 +27,24 @@ class DxfApi {
 
             val vertices = Vector<RealPoint>()
 
+            val angle: Double = dxfPartPlacment.placement.rotate * Math.PI / 180
+            val translateX = dxfPartPlacment.placement.translate.x * 0.039370078740157
+            val translateY = dxfPartPlacment.placement.translate.y * 0.039370078740157
+
             part.segments.forEach { segment: DXFReader.LwPolyline.LSegment ->
+                val originX = segment.dx
+                val originY = segment.dy
+
+                val rotatedX = originX * cos(angle) - originY * sin(angle)
+                val rotatedY = originX * sin(angle) + originY * cos(angle)
+
+                val finalX = rotatedX + translateX
+                val finalY = rotatedY + translateY
+
                 vertices.add(
                     RealPoint(
-                        segment.dx + (dxfPartPlacment.placement.translate.x * 0.039370078740157),
-                        segment.dy + (dxfPartPlacment.placement.translate.y * 0.039370078740157),
+                        finalX,
+                        finalY,
                         0.0
                     )
                 )
@@ -69,6 +84,8 @@ class DxfApi {
                 entity.segments.forEach { segment: DXFReader.LwPolyline.LSegment ->
                     nestPath.add(segment.dx / dxfReader.uScale, segment.dy / dxfReader.uScale)
                 }
+
+                nestPath.setPossibleNumberRotations(4)
 
                 listOfListOfPoints.add(DxfPart(entity, nestPath))
             }

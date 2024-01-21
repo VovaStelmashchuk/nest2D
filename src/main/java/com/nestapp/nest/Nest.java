@@ -51,9 +51,7 @@ public class Nest {
      * @return the placements' list of all NestPath
      */
     public List<List<Placement>> startNest() {
-
-
-        /*---------------------------------------------------PRELIMINARY SETTINGS----------------------------------------------------------------*/
+        /*-----------------------------PRELIMINARY SETTINGS-----------------------------*/
 
         List<NestPath> tree = CommonUtil.BuildTree(parts, Config.CURVE_TOLERANCE);        //conversione di eventuali self-intersecting polygons in pologoni semplici
         CommonUtil.offsetTree(tree, 0.5 * config.SPACING);
@@ -127,7 +125,7 @@ public class Nest {
         }
 
 
-        /*---------------------------------------------------START NESTING----------------------------------------------------------------*/
+        /*-------------------------START NESTING---------------------------------------*/
         launchcount = 0;
         Result best = null;
         List<List<Placement>> appliedPlacement = null;

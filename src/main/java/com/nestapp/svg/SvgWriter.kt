@@ -1,6 +1,5 @@
 package com.nestapp.svg
 
-import com.nestapp.DxfPart
 import com.nestapp.DxfPartPlacement
 import com.nestapp.nest.util.IOUtils
 import java.io.FileWriter
@@ -14,28 +13,16 @@ class SvgWriter {
     fun writeNestPathsToSvg(
         list: List<DxfPartPlacement>,
         fileName: String,
+        width: Double,
+        height: Double,
     ) {
-        val width = list.maxOf {
-            it.placement.translate.x + (it.nestPath.segments.maxOf { it.x })
-        }
-
-        val height = list.maxOf {
-            it.placement.translate.y + (it.nestPath.segments.maxOf { it.y })
-        }
-
+        println("Width $width, height $height")
         val rawSvg = buildString {
-            appendLine("<g>")
-            appendLine(
-                """
-                <rect x="0" y="0" width="$width" height="$height"  fill="none" stroke="#010101" stroke-width="1" />
-            """.trimIndent()
-            )
-
             for (part in list) {
                 val ox = part.placement.translate.x
                 val oy = part.placement.translate.y
                 val rotate = part.placement.rotate
-                appendLine("""<g transform="rotate($rotate)">""".trimIndent())
+                appendLine("""<g transform="translate($ox, $oy) rotate($rotate)">""".trimIndent())
                 appendLine("""<path d="""".trimIndent())
 
                 part.nestPath.segments.forEachIndexed { index, segment ->
@@ -46,9 +33,9 @@ class SvgWriter {
                     }
 
                     val segment = part.nestPath[index]
-                    append(segment.x + ox)
+                    append(segment.x)
                     append(" ")
-                    append(segment.y + oy)
+                    append(segment.y)
                     append(" ")
                 }
 
@@ -56,7 +43,6 @@ class SvgWriter {
                 appendLine("""Z" fill="#$color" stroke="#010101" stroke-width="0.5" /> """)
                 appendLine("</g>")
             }
-            appendLine("</g>")
         }
 
         saveStringsToSvgFile(rawSvg, fileName, width, height)
