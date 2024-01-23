@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
                 initProjectCard(data)
                 initProjectName(data)
+                initProjectButton(data)
             }
         )
         .catch(error => {
@@ -14,6 +15,33 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const fileCounts = new Map();
+
+function initProjectButton(project) {
+    document.querySelector('#build-button-id').addEventListener('click', () => {
+        const projectId = project.id;
+
+        const data = {};
+        data['project_id'] = projectId;
+        data['file_counts'] = fileCounts;
+        data['plate_width'] = 500;
+        data['plate_height'] = 500;
+
+        fetch('http://localhost:8080/nest', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+            .then(response => response.json())
+            .then(response => {
+                console.log(response)
+            }).catch(error => {
+            //window.location.href = '/500.html';
+            console.error('Error:', error)
+        })
+    });
+}
 
 function initProjectName(projects) {
     const container = document.querySelector('.project-title');
@@ -61,6 +89,7 @@ function initProjectCard(project) {
         const counterInput = document.createElement('p');
         counterInput.type = 'number';
         counterInput.textContent = '1';
+        fileCounts[fileKey] = 1;
         counterInput.className = 'counter-input';
 
         const decrementButton = document.createElement('button');

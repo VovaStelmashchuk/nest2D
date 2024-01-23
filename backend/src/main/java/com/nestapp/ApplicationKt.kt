@@ -1,7 +1,9 @@
 package com.nestapp
 
+import com.nestapp.nest_api.nestRestApi
 import com.nestapp.projects.ProjectsRepository
 import com.nestapp.projects.projectRest
+import io.ktor.http.HttpMethod.Companion.DefaultMethods
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.call
 import io.ktor.server.application.install
@@ -21,8 +23,14 @@ fun main() {
     embeddedServer(Netty, port = 8080) {
         install(StatusPages)
         install(AutoHeadResponse)
+
         install(CORS) {
             anyHost()
+            allowHeaders { true }
+            allowCredentials = true
+            DefaultMethods.forEach(::allowMethod)
+
+            allowNonSimpleContentTypes = true
         }
 
         install(ContentNegotiation) {
@@ -31,6 +39,7 @@ fun main() {
 
         routing {
             projectRest(File("mount"), projectsRepository)
+            nestRestApi(projectsRepository)
 
             get("/") {
                 call.respondText("Hello, world!")

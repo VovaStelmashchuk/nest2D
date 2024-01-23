@@ -2,6 +2,7 @@ package com.nestapp
 
 import com.nestapp.dxf.DxfApi
 import com.nestapp.nest.config.Config
+import com.nestapp.nest_api.NestApi
 import com.nestapp.svg.SvgWriter
 import java.awt.Rectangle
 import java.io.File
@@ -17,7 +18,6 @@ internal object Main {
         files
             .filter { it.endsWith(".dxf") }
             .sortedBy { it }
-            .take(2)
             .forEachIndexed { index, fileName ->
                 processFile(index, fileName)
             }

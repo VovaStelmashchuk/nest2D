@@ -61,6 +61,15 @@ class DxfApi {
         fileWriter.close()
     }
 
+    fun readFile(file: File): List<DxfPart> {
+        val dxfReader = DXFReader()
+        try {
+            dxfReader.parseFile(file)
+        } catch (e: IOException) {
+            throw RuntimeException(e)
+        }
+        return getEntities(dxfReader)
+    }
 
     fun readFile(fileName: String): List<DxfPart> {
         val dxfReader = DXFReader()

@@ -1,5 +1,7 @@
-package com.nestapp
+package com.nestapp.nest_api
 
+import com.nestapp.DxfPart
+import com.nestapp.DxfPartPlacement
 import com.nestapp.nest.Nest
 import com.nestapp.nest.config.Config
 import com.nestapp.nest.data.NestPath

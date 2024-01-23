@@ -14,9 +14,15 @@ class ProjectsRepository {
     }
 
     @OptIn(ExperimentalSerializationApi::class)
+    @Synchronized
     fun getProject(id: ProjectId): Project? {
         val root = Json.decodeFromStream<ProjectsRoot>(File(FILE).inputStream())
         return root.projects[id]
+    }
+
+    fun getFiles(id: ProjectId, fileIds: List<FileId>): Map<FileId, ProjectFile> {
+        val project = getProject(id) ?: return emptyMap()
+        return fileIds.associateWith { fileId -> requireNotNull(project.files[fileId]) }
     }
 }
 
