@@ -6,8 +6,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 initProjectName(data)
             }
         )
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+                window.location.href = '/500.html';
+                console.error('Error:', error)
+            }
+        );
 });
+
+const fileCounts = new Map();
 
 function initProjectName(projects) {
     const container = document.querySelector('.project-title');
@@ -16,11 +22,21 @@ function initProjectName(projects) {
     container.appendChild(title);
 }
 
+function adjustCount(input, fileKey, counterInput, increment) {
+
+    const currentValue = parseInt(input.textContent, 10) || 1;
+    const newValue = currentValue + increment;
+    if (newValue < 0) {
+        return;
+    }
+    input.textContent = newValue;
+    fileCounts.set(fileKey, newValue);
+    console.log(fileCounts)
+}
+
 function initProjectCard(project) {
     const container = document.querySelector('.card-container');
-    console.log(
-        project
-    )
+    console.log(project)
     for (const fileKey in project.files) {
         const name = project.files[fileKey].name
         console.log("name", name)
@@ -42,18 +58,18 @@ function initProjectCard(project) {
         const counter = document.createElement('div');
         counter.className = 'counter';
 
-        const decrementButton = document.createElement('button');
-        decrementButton.textContent = '-';
-        decrementButton.onclick = () => adjustCount(counterInput, -1);
-
         const counterInput = document.createElement('p');
         counterInput.type = 'number';
-        counterInput.textContent = "1";
+        counterInput.textContent = '1';
         counterInput.className = 'counter-input';
+
+        const decrementButton = document.createElement('button');
+        decrementButton.textContent = '-';
+        decrementButton.onclick = () => adjustCount(counterInput, fileKey, counterInput, -1);
 
         const incrementButton = document.createElement('button');
         incrementButton.textContent = '+';
-        incrementButton.onclick = () => adjustCount(counterInput, 1);
+        incrementButton.onclick = () => adjustCount(counterInput, fileKey, counterInput, 1);
 
         counter.appendChild(decrementButton);
         counter.appendChild(counterInput);
