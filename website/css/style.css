@@ -256,11 +256,13 @@ textarea {
 }
 
 .card-container {
-    width: 100%;
+    height: 90vh;
     display: flex;
-    flex-direction: column; /* Stack items vertically */
+    flex-direction: column;
     align-items: center; /* Center items horizontally */
     justify-content: flex-start; /* Align items to the start of the container */
+    overflow: auto;
+    overflow-x: hidden;
 }
 
 .card {
@@ -270,15 +272,16 @@ textarea {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     margin: 10px;
     border-radius: 5px;
-    overflow: hidden;
     display: flex;
 }
 
 .card img {
+    aspect-ratio: 1;
     height: 100%;
-    width: fit-content;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 8px;
+    background: #888888;
+    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px;
 }
 
 .card-content {
@@ -360,4 +363,71 @@ textarea {
 
 .counter-input[type=number] {
     -moz-appearance: textfield; /* Firefox */
+}
+
+.card .bin-input-container {
+    width: 100%;
+    padding: 20px;
+    border: 1px solid #ccc; /* Example border, adjust as needed */
+    border-radius: 5px; /* Rounded corners */
+    margin: 20px;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
+.input-container {
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.input {
+    margin-bottom: 0;
+}
+
+.input label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.input input {
+    width: 200px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.button-group {
+    display: flex;
+    margin-top: 10px;
+    flex-direction: column;
+}
+
+.button-group button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+    font-size: 16px;
+    margin: 16px;
+    width: 80%;
+}
+
+.build-button {
+    background-color: blue;
+}
+
+.download-button {
+    background-color: green;
+}
+
+.download-button:disabled {
+    background-color: grey;
+}
+
+.preview {
+    aspect-ratio: 1;
+    margin-left: 10px;
 }
