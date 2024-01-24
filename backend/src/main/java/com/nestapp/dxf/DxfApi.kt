@@ -21,6 +21,7 @@ class DxfApi {
         fileName: String
     ) {
         val document = DXFDocument()
+        document.setUnits(4)
 
         dxfPartPlacements.forEach { dxfPartPlacment ->
             val part = dxfPartPlacment.entity as DXFReader.LwPolyline
@@ -28,23 +29,24 @@ class DxfApi {
             val vertices = Vector<RealPoint>()
 
             val angle: Double = dxfPartPlacment.placement.rotate * Math.PI / 180
-            val translateX = dxfPartPlacment.placement.translate.x * 0.039370078740157
-            val translateY = dxfPartPlacment.placement.translate.y * 0.039370078740157
+
+            val translateX = dxfPartPlacment.placement.translate.x
+            val translateY = dxfPartPlacment.placement.translate.y
 
             part.segments.forEach { segment: DXFReader.LwPolyline.LSegment ->
-                val originX = segment.dx
-                val originY = segment.dy
+                val originX = segment.dx / 0.039370078740157
+                val originY = segment.dy / 0.039370078740157
 
                 val rotatedX = originX * cos(angle) - originY * sin(angle)
-                val rotatedY = originX * sin(angle) + originY * cos(angle)
+                val rotatedY = originY * cos(angle) + originX * sin(angle)
 
-                val finalX = rotatedX + translateX
-                val finalY = rotatedY + translateY
+                val translatedX = rotatedX + translateX
+                val translatedY = rotatedY + translateY
 
                 vertices.add(
                     RealPoint(
-                        finalX,
-                        finalY,
+                        translatedX,
+                        translatedY,
                         0.0
                     )
                 )
@@ -91,7 +93,7 @@ class DxfApi {
 
                 val nestPath = NestPath()
                 entity.segments.forEach { segment: DXFReader.LwPolyline.LSegment ->
-                    nestPath.add(segment.dx / dxfReader.uScale, segment.dy / dxfReader.uScale)
+                    nestPath.add(segment.dx / 0.039370078740157, segment.dy / 0.039370078740157)
                 }
 
                 nestPath.setPossibleNumberRotations(4)

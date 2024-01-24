@@ -25,43 +25,43 @@ import de.lighti.clipper.Point.LongPoint;
  */
 public class CommonUtil {
 
-	
-	
+
+
 	/**
 	 * @param p1	1st polygon
 	 * @param p2	2nd	polygon
 	 * @return		value of the area of the rectangle that contains the polygon where p1 and p2 overlap
 	 */
 	public static double overlapDouble(Polygon2D p1, Polygon2D p2)
-    {	
+    {
 		Area area = new Area(p1);
 		area.intersect(new Area(p2));
-		return Math.abs(area.getBounds().getWidth()*area.getBounds().getHeight());		
+		return Math.abs(area.getBounds().getWidth()*area.getBounds().getHeight());
     }
-	
+
 	/**
 	 * @param p1	1st NestPath
 	 * @param p2	2nd	NestPath
 	 * @return		true if p1 and p2 overlap using GeometryUtil.pointInPolygon()
 	 */
 	public static boolean overlapBool(NestPath p1, NestPath p2)
-    {		
+    {
 		for(Segment s1 : p1.getSegments())
 		{
 			Boolean res=GeometryUtil.pointInPolygon(s1, p2);
 			if(res!= null && res==true) return true;
 		}
-		
+
 		for(Segment s2 : p2.getSegments())
 		{
 			Boolean res=GeometryUtil.pointInPolygon(s2, p1);
 			if(res!= null && res==true) return true;
 		}
-		
+
 		return false;
     }
-	
-	
+
+
 
 	/**
 	 * @author Alberto Gambarara
@@ -122,7 +122,7 @@ public class CommonUtil {
 
 
 	/**
-	 * Add points to Path under Clipper     
+	 * Add points to Path under Clipper
 	 * @param x
 	 * @param y
 	 * @param path
@@ -264,7 +264,7 @@ public class CommonUtil {
 	/**
 	 * Corresponds to getParts in JS projects
 	 * @param parts (all polygons)
-	 * @param curve_tolerance 
+	 * @param curve_tolerance
 	 * @return polygons without self intersecting parts
 	 */
 	public static List<NestPath> BuildTree(List<NestPath> parts ,double curve_tolerance){
@@ -272,6 +272,7 @@ public class CommonUtil {
 		for(int i =0 ; i<parts.size();i++){
 			// Do cleaning with Clipper: self intersecting, redundant vertices...
 			NestPath cleanPoly = CommonUtil.cleanNestPath(parts.get(i));
+            assert cleanPoly != null;
 			cleanPoly.setBid(parts.get(i).getBid());
 			// Some parts are too small to keep. TODO remove this for the match
 			if(cleanPoly.size() > 2 &&  Math.abs(GeometryUtil.polygonArea(cleanPoly)) > curve_tolerance * curve_tolerance){

@@ -13,13 +13,17 @@ internal object Main {
     fun main(args: Array<String>) {
         Config.NFP_CACHE_PATH = "output/nfp.txt"
         val files = File("mount/uploads").list()!!
-        //val files = listOf("3x4.dxf")
+            .map {
+                "mount/uploads/$it"
+            }
+        //val files = listOf("mount/uploads/1x1.dxf")
 
         files
             .filter { it.endsWith(".dxf") }
             .sortedBy { it }
+            .takeLast(1)
             .forEachIndexed { index, fileName ->
-                processFile(index, fileName)
+                processFile(index + 3, fileName)
             }
     }
 
@@ -29,30 +33,24 @@ internal object Main {
         val dxfApi = DxfApi()
         val listOfDxfParts: MutableList<DxfPart> = ArrayList()
         listOfDxfParts.addAll(
-            dxfApi.readFile("mount/uploads/$fileName")
+            dxfApi.readFile(fileName)
         )
 
-        var size = 0
-        var result: Result<List<DxfPartPlacement>>? = null
+        val size = 350
+        val nestApi = NestApi()
+        val result: Result<List<DxfPartPlacement>> = nestApi.startNest(
+            plate = Rectangle(size, size),
+            dxfParts = listOfDxfParts,
+        )
 
-        while (result?.isSuccess != true) {
-            size += 50
-            println("Size $size")
-            val nestApi = NestApi()
-            result = nestApi.startNest(
-                plate = Rectangle(size, size),
-                dxfParts = listOfDxfParts,
-            )
-
-            result.onFailure {
-                println(it)
-            }
+        result.onFailure {
+            println(it)
         }
 
         println("size final $size")
 
         if (result.isSuccess) {
-            val placement = result.getOrNull()!!
+            val placement = result.getOrNull()!!.toList()
             //mount/user_inputs
             val nameWithoutExt = File(fileName).nameWithoutExtension
 

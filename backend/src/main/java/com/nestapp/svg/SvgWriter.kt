@@ -10,6 +10,10 @@ import java.nio.file.Paths
 
 class SvgWriter {
 
+    private companion object {
+        val COLORS = listOf("#7bafd1", "#fc8d8d", "#a6d854", "#ffd92f", "#e78ac3", "#66c2a5")
+    }
+
     fun writeNestPathsToSvg(
         list: List<DxfPartPlacement>,
         fileName: String,
@@ -18,7 +22,7 @@ class SvgWriter {
     ) {
         println("Width $width, height $height")
         val rawSvg = buildString {
-            for (part in list) {
+            for ((index, part) in list.withIndex()) {
                 val ox = part.placement.translate.x
                 val oy = part.placement.translate.y
                 val rotate = part.placement.rotate
@@ -39,8 +43,9 @@ class SvgWriter {
                     append(" ")
                 }
 
-                val color = if ((rotate == 0.0)) "7bafd1" else "fc8d8d"
-                appendLine("""Z" fill="#$color" stroke="#010101" stroke-width="0.5" /> """)
+                //val color = if ((rotate == 0.0)) "7bafd1" else "fc8d8d"
+                val color = COLORS[index % COLORS.size]
+                appendLine("""Z" fill="$color" stroke="#010101" stroke-width="0.5" /> """)
                 appendLine("</g>")
             }
         }
