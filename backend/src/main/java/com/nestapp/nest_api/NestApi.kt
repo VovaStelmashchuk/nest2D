@@ -16,6 +16,7 @@ class NestApi {
     ): Result<List<DxfPartPlacement>> {
         Config.BIN_WIDTH = plate.width.toDouble()
         Config.BIN_HEIGHT = plate.height.toDouble()
+        Config.ASSUME_NO_INNER_PARTS = true
 
         val isAllPartFit = dxfParts.any { part ->
             val bound = GeometryUtil.getPolygonBounds(part.nestPath)
@@ -36,7 +37,7 @@ class NestApi {
             .map { it.nestPath }
             .toMutableList()
 
-        val nest = Nest(nestPathPlace, nestPaths, config, 10)
+        val nest = Nest(nestPathPlace, nestPaths, config, 20)
         val appliedPlacement = nest.startNest()
 
         if (appliedPlacement.size > 1) {

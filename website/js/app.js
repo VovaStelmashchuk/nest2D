@@ -1,10 +1,13 @@
+var fileCounts = new Map();
+var project_id = ""
+
 document.addEventListener('DOMContentLoaded', () => {
     fetch('http://localhost:8080/project')
         .then(response => response.json())
         .then(data => {
+                project_id = data.id
                 initProjectCard(data)
                 initProjectName(data)
-                initProjectButton(data)
             }
         )
         .catch(error => {
@@ -12,16 +15,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('Error:', error)
             }
         );
-});
 
-const fileCounts = new Map();
-
-function initProjectButton(project) {
     document.querySelector('#build-button-id').addEventListener('click', () => {
-        const projectId = project.id;
-
-        const data = {};
-        data['project_id'] = projectId;
+        let data = {};
+        data['project_id'] = project_id;
         data['file_counts'] = fileCounts;
         data['plate_width'] = 500;
         data['plate_height'] = 500;
@@ -40,8 +37,9 @@ function initProjectButton(project) {
             //window.location.href = '/500.html';
             console.error('Error:', error)
         })
-    });
-}
+    })
+
+});
 
 function initProjectName(projects) {
     const container = document.querySelector('.project-title');
@@ -51,10 +49,9 @@ function initProjectName(projects) {
 }
 
 function adjustCount(input, fileKey, counterInput, increment) {
-
-    const currentValue = parseInt(input.textContent, 10) || 1;
+    const currentValue = parseInt(input.textContent, 10) || 0;
     const newValue = currentValue + increment;
-    if (newValue < 0) {
+    if ((newValue < 0) && (increment < 0)) {
         return;
     }
     input.textContent = newValue;

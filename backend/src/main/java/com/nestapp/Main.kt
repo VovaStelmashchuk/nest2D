@@ -11,19 +11,70 @@ internal object Main {
     @Throws(Exception::class)
     @JvmStatic
     fun main(args: Array<String>) {
-        Config.NFP_CACHE_PATH = "output/nfp.txt"
-        val files = File("mount/uploads").list()!!
+        Config.NFP_CACHE_PATH = null
+        //doFiles()
+
+        nestTwoFile()
+    }
+
+    private fun nestTwoFile() {
+        val files = listOf(
+            "mount/user_inputs/1x1+0/1x1.dxf",
+            "mount/user_inputs/1x2+1/1x2.dxf",
+        )
+
+        val dxfApi = DxfApi()
+        val listOfDxfParts: MutableList<DxfPart> = files.flatMap {
+            dxfApi.readFile(it)
+        }.toMutableList()
+
+        val size = 350
+        val nestApi = NestApi()
+        val result: Result<List<DxfPartPlacement>> = nestApi.startNest(
+            plate = Rectangle(size, size),
+            dxfParts = listOfDxfParts,
+        )
+
+        result.onFailure {
+            println(it)
+        }
+
+        println("size final $size")
+
+        if (result.isSuccess) {
+            val placement = result.getOrNull()!!.toList()
+
+            val nameWithoutExt = "some_file"
+
+            val folder = File("mount/nested/$nameWithoutExt")
+            folder.mkdirs()
+
+            dxfApi.writeFile(placement, folder.path + "/$nameWithoutExt.dxf")
+
+            println("Size on success ${size.toDouble()}")
+
+            val svgWriter = SvgWriter()
+            svgWriter.writeNestPathsToSvg(
+                placement,
+                folder.path + "/$nameWithoutExt.svg",
+                size.toDouble(),
+                size.toDouble()
+            )
+        }
+    }
+
+    private fun doFiles() {
+        /*val files = File("mount/uploads").list()!!
             .map {
                 "mount/uploads/$it"
-            }
-        //val files = listOf("mount/uploads/1x1.dxf")
+            }*/
+        val files = listOf("mount/user_inputs/1x2+1/1x2.dxf")
 
         files
             .filter { it.endsWith(".dxf") }
             .sortedBy { it }
-            .takeLast(1)
             .forEachIndexed { index, fileName ->
-                processFile(index + 3, fileName)
+                processFile(index, fileName)
             }
     }
 
@@ -51,10 +102,10 @@ internal object Main {
 
         if (result.isSuccess) {
             val placement = result.getOrNull()!!.toList()
-            //mount/user_inputs
+
             val nameWithoutExt = File(fileName).nameWithoutExtension
 
-            val folder = File("mount/user_inputs/$nameWithoutExt+$index")
+            val folder = File("mount/nested/$nameWithoutExt+$index")
             folder.mkdirs()
 
             dxfApi.writeFile(placement, folder.path + "/$nameWithoutExt.dxf")

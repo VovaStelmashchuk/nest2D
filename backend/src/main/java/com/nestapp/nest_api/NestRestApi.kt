@@ -1,7 +1,6 @@
 package com.nestapp.nest_api
 
 import com.nestapp.dxf.DxfApi
-import com.nestapp.nest.config.Config
 import com.nestapp.projects.FileId
 import com.nestapp.projects.ProjectId
 import com.nestapp.projects.ProjectsRepository
@@ -20,6 +19,7 @@ import java.io.File
 fun Route.nestRestApi(projectsRepository: ProjectsRepository) {
     post("/nest") {
         val nestInput = call.receive<NestInput>()
+        System.out.println("nestInput $nestInput")
         nest(nestInput, projectsRepository)
         call.respond(HttpStatusCode.OK, "OK NESTED")
     }
@@ -31,7 +31,14 @@ private fun nest(
 ) {
     val dxfApi = DxfApi()
 
-    val files = projectsRepository.getFiles(nestInput.projectId, nestInput.fileCounts.keys.toList())
+    println("nestInput $nestInput")
+
+    val fileIds = nestInput.fileCounts
+        .filter { it.value > 0 }
+        .keys
+        .toList()
+
+    val files = projectsRepository.getFiles(nestInput.projectId, fileIds)
         .map { (fileId, file) ->
             File("mount", "user_inputs/${fileId.value}/${file.dxfFile}")
         }
@@ -84,3 +91,5 @@ data class NestInput(
     @SerialName("plate_height")
     val plateHeight: Int,
 )
+
+
