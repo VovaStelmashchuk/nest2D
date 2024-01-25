@@ -2,6 +2,7 @@ package com.nestapp.svg
 
 import com.nestapp.DxfPartPlacement
 import com.nestapp.nest.util.IOUtils
+import java.io.File
 import java.io.FileWriter
 import java.io.Writer
 import java.nio.file.Files
@@ -17,6 +18,15 @@ class SvgWriter {
     fun writeNestPathsToSvg(
         list: List<DxfPartPlacement>,
         fileName: String,
+        width: Double,
+        height: Double,
+    ) {
+        writeNestPathsToSvg(list, File(fileName), width, height)
+    }
+
+    fun writeNestPathsToSvg(
+        list: List<DxfPartPlacement>,
+        file: File,
         width: Double,
         height: Double,
     ) {
@@ -50,21 +60,13 @@ class SvgWriter {
             }
         }
 
-        saveStringsToSvgFile(rawSvg, fileName, width, height)
+        saveStringsToSvgFile(rawSvg, file, width, height)
     }
 
     @Throws(Exception::class)
-    fun saveStringsToSvgFile(string: String, file: String, width: Double, height: Double) {
-        IOUtils.debug(file)
-        val p = Paths.get(file)
+    fun saveStringsToSvgFile(string: String, file: File, width: Double, height: Double) {
+        file.createNewFile()
 
-        if (Files.notExists(p, LinkOption.NOFOLLOW_LINKS)) {
-            val directory = p.parent
-            if (Files.notExists(directory, LinkOption.NOFOLLOW_LINKS)) {
-                Files.createDirectory(p.parent)
-            }
-            Files.createFile(p).toAbsolutePath()
-        }
         val writer: Writer = FileWriter(file, false)
         writer.write(
             "<?xml version=\"1.0\" standalone=\"no\"?>\n" +

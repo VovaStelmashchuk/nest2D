@@ -20,6 +20,14 @@ class DxfApi {
         dxfPartPlacements: List<DxfPartPlacement>,
         fileName: String
     ) {
+        writeFile(dxfPartPlacements, File(fileName))
+    }
+
+    @Throws(IOException::class)
+    fun writeFile(
+        dxfPartPlacements: List<DxfPartPlacement>,
+        file: File,
+    ) {
         val document = DXFDocument()
         document.setUnits(4)
 
@@ -57,7 +65,7 @@ class DxfApi {
         }
 
         val dxfText = document.toDXFString()
-        val fileWriter = FileWriter(fileName)
+        val fileWriter = FileWriter(file)
         fileWriter.write(dxfText)
         fileWriter.flush()
         fileWriter.close()

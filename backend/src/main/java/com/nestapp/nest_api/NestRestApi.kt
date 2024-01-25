@@ -10,25 +10,47 @@ import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.awt.Rectangle
 import java.io.File
 
-fun Route.nestRestApi(projectsRepository: ProjectsRepository) {
+fun Route.nestRestApi(
+    projectsRepository: ProjectsRepository,
+    nestedRepository: NestedRepository,
+) {
     post("/nest") {
         val nestInput = call.receive<NestInput>()
-        System.out.println("nestInput $nestInput")
-        nest(nestInput, projectsRepository)
-        call.respond(HttpStatusCode.OK, "OK NESTED")
+
+        val id = nestedRepository.getNextId()
+        val result = nest(id, nestInput, projectsRepository)
+        nestedRepository.addNested(result)
+
+        val nestedOutput = NestedOutput(
+            id = id,
+        )
+
+        call.respond(HttpStatusCode.OK, nestedOutput)
+    }
+
+    get("/nested/{id}.svg") {
+        val id = call.parameters["id"]?.toInt() ?: throw Exception("Nested id not found")
+        val nested = nestedRepository.getNested(id) ?: throw Exception("Nested not found")
+
+        println("nested.svgFile ${nested.svgFile}")
+        println("nested.dxfFile ${nested.dxfFile}")
+
+        call.respond(HttpStatusCode.MultiStatus)
     }
 }
 
 private fun nest(
+    id: Int,
     nestInput: NestInput,
     projectsRepository: ProjectsRepository,
-) {
+): Nested {
     val dxfApi = DxfApi()
 
     println("nestInput $nestInput")
@@ -63,22 +85,42 @@ private fun nest(
         throw Exception(it)
     }
 
+    val project = projectsRepository.getProject(nestInput.projectId) ?: throw Exception("Project not found")
+    val fileName = project.files
+        .filter { (key, _) -> fileIds.contains(key) }
+        .map { (_, value) -> value.name }
+        .joinToString(prefix = "${id}_", separator = "_and_", limit = 100) { it }
+
+    val folder = File("mount/nested/$fileName")
+    folder.mkdir()
+
+    val dxfFile = File(folder, "$fileName.dxf")
+    val svgFile = File(folder, "$fileName.svg")
 
     result.onSuccess { placement ->
-        dxfApi.writeFile(placement, "mount/nested/test__11.dxf")
+        dxfApi.writeFile(placement, dxfFile)
 
         println("Size on success ${nestInput.plateWidth} ${nestInput.plateHeight}")
 
         val svgWriter = SvgWriter()
         svgWriter.writeNestPathsToSvg(
             placement,
-            "mount/nested/test__11.svg",
+            svgFile,
             nestInput.plateWidth.toDouble(),
             nestInput.plateHeight.toDouble()
         )
     }
-}
 
+    return Nested(
+        id = id,
+        dxfFile = dxfFile.path,
+        svgFile = svgFile.path,
+        projectId = nestInput.projectId,
+        fileCounts = nestInput.fileCounts,
+        plateWidth = nestInput.plateWidth,
+        plateHeight = nestInput.plateHeight,
+    )
+}
 
 @Serializable
 data class NestInput(
@@ -92,4 +134,8 @@ data class NestInput(
     val plateHeight: Int,
 )
 
-
+@Serializable
+data class NestedOutput(
+    @SerialName("id")
+    val id: Int,
+)

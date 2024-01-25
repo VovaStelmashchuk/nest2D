@@ -55,7 +55,7 @@ function adjustCount(input, fileKey, counterInput, increment) {
         return;
     }
     input.textContent = newValue;
-    fileCounts.set(fileKey, newValue);
+    fileCounts[fileKey] = newValue;
     console.log(fileCounts)
 }
 
@@ -85,8 +85,8 @@ function initProjectCard(project) {
 
         const counterInput = document.createElement('p');
         counterInput.type = 'number';
-        counterInput.textContent = '1';
-        fileCounts[fileKey] = 1;
+        counterInput.textContent = '0';
+        fileCounts[fileKey] = 0;
         counterInput.className = 'counter-input';
 
         const decrementButton = document.createElement('button');
