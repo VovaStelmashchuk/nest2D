@@ -300,7 +300,6 @@ textarea {
     margin: auto;
     width: 90%;
     padding: 10px;
-
 }
 
 .project-title {
@@ -325,7 +324,7 @@ textarea {
 }
 
 .counter button {
-    background-color: #525252;
+    background-color: green;
     color: white;
     border: none;
     border-radius: 5px;
@@ -428,6 +427,25 @@ textarea {
 }
 
 .preview {
+    width: 100%;
+    height: 100%;
     aspect-ratio: 1;
     margin-left: 10px;
+    position: relative;
+}
+
+.center {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    place-items: center;
+    position: absolute;
+    margin: 0 auto;
+}
+
+.preview-text {
+    width: 100%;
+    font-size: xx-large;
+    color: black;
+    text-align: center;
 }

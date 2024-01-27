@@ -1,6 +1,7 @@
 package com.nestapp
 
 import com.nestapp.nest_api.NestedRepository
+import com.nestapp.nest_api.UserInputExecution
 import com.nestapp.nest_api.nestRestApi
 import com.nestapp.projects.ProjectsRepository
 import com.nestapp.projects.projectRest
@@ -36,6 +37,10 @@ fun main() {
             developmentMode = true
         }
         install(StatusPages) {
+            exception<UserInputExecution> { call, userInputExecution ->
+                println(userInputExecution.printStackTrace())
+                call.respond(HttpStatusCode.BadRequest, userInputExecution.getBody())
+            }
             exception<Throwable> { cause, throwable ->
                 println(throwable.printStackTrace())
                 cause.respond(HttpStatusCode.InternalServerError, "Error: $throwable")

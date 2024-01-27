@@ -37,11 +37,11 @@ class NestApi {
             .map { it.nestPath }
             .toMutableList()
 
-        val nest = Nest(nestPathPlace, nestPaths, config, 20)
+        val nest = Nest(nestPathPlace, nestPaths, config, 10)
         val appliedPlacement = nest.startNest()
 
         if (appliedPlacement.size > 1) {
-            return Result.failure(Exception("Cannot place in one bin"))
+            return Result.failure(CannotPlaceException())
         }
 
         val placements = appliedPlacement.first()
@@ -68,4 +68,6 @@ class NestApi {
         binPolygon.add(width.toDouble(), 0.0)
         return binPolygon
     }
+
+    class CannotPlaceException : Exception("Cannot place in one bin")
 }

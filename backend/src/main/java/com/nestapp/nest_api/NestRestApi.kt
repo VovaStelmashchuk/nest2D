@@ -28,13 +28,15 @@ fun Route.nestRestApi(
     post("/nest") {
         val nestInput = call.receive<NestInput>()
 
+        if (!nestInput.fileCounts.any { it.value > 0 }) {
+            throw UserInputExecution.NotFileSelectedException()
+        }
+
         val id = nestedRepository.getNextId()
         val result = nest(id, nestInput, projectsRepository)
         nestedRepository.addNested(result)
 
-        val nestedOutput = NestedOutput(
-            id = id,
-        )
+        val nestedOutput = NestedOutput(id = id)
 
         call.respond(HttpStatusCode.OK, nestedOutput)
     }
@@ -77,8 +79,6 @@ private fun nest(
 ): Nested {
     val dxfApi = DxfApi()
 
-    println("nestInput $nestInput")
-
     val fileIds = nestInput.fileCounts
         .filter { it.value > 0 }
         .keys
@@ -90,7 +90,7 @@ private fun nest(
         }
 
     if (files.any { !it.exists() }) {
-        throw Exception("Some files not found")
+        throw UserInputExecution.SomethingWrongWithUserInput("Some files not found")
     }
 
     val listOfDxfParts = files
@@ -106,10 +106,18 @@ private fun nest(
     )
 
     result.onFailure {
-        throw Exception(it)
+        throw when (it) {
+            is NestApi.CannotPlaceException -> {
+                UserInputExecution.CannotPlaceAllPartsIntoOneBin()
+            }
+
+            else -> it
+        }
     }
 
-    val project = projectsRepository.getProject(nestInput.projectId) ?: throw Exception("Project not found")
+    val project = projectsRepository.getProject(nestInput.projectId)
+        ?: throw UserInputExecution.SomethingWrongWithUserInput("Project not found")
+
     val fileName = project.files
         .filter { (key, _) -> fileIds.contains(key) }
         .map { (_, value) -> value.name }
@@ -123,8 +131,6 @@ private fun nest(
 
     result.onSuccess { placement ->
         dxfApi.writeFile(placement, dxfFile)
-
-        println("Size on success ${nestInput.plateWidth} ${nestInput.plateHeight}")
 
         val svgWriter = SvgWriter()
         svgWriter.writeNestPathsToSvg(
