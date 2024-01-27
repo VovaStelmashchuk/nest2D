@@ -1,124 +1,78 @@
 package com.nestapp
 
-import com.nestapp.dxf.DxfApi
-import com.nestapp.nest.config.Config
-import com.nestapp.nest_api.NestApi
-import com.nestapp.svg.SvgWriter
-import java.awt.Rectangle
+import com.nestapp.nest_api.NestedRepository
+import com.nestapp.nest_api.UserInputExecution
+import com.nestapp.nest_api.nestRestApi
+import com.nestapp.projects.ProjectsRepository
+import com.nestapp.projects.projectRest
+import io.ktor.http.HttpMethod.Companion.DefaultMethods
+import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.kotlinx.json.json
+import io.ktor.server.application.call
+import io.ktor.server.application.install
+import io.ktor.server.cio.CIO
+import io.ktor.server.engine.applicationEngineEnvironment
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.plugins.autohead.AutoHeadResponse
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.cors.routing.CORS
+import io.ktor.server.plugins.statuspages.StatusPages
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.get
+import io.ktor.server.routing.routing
+import kotlinx.serialization.json.Json
 import java.io.File
 
 internal object Main {
-    @Throws(Exception::class)
+
     @JvmStatic
     fun main(args: Array<String>) {
-        Config.NFP_CACHE_PATH = null
-        //doFiles()
-
-        nestTwoFile()
-    }
-
-    private fun nestTwoFile() {
-        val files = listOf(
-            "mount/user_inputs/1x1+0/1x1.dxf",
-            "mount/user_inputs/1x2+1/1x2.dxf",
-        )
-
-        val dxfApi = DxfApi()
-        val listOfDxfParts: MutableList<DxfPart> = files.flatMap {
-            dxfApi.readFile(it)
-        }.toMutableList()
-
-        val size = 350
-        val nestApi = NestApi()
-        val result: Result<List<DxfPartPlacement>> = nestApi.startNest(
-            plate = Rectangle(size, size),
-            dxfParts = listOfDxfParts,
-        )
-
-        result.onFailure {
-            println(it)
+        val json = Json {
+            prettyPrint = true
+            ignoreUnknownKeys = true
         }
+        val projectsRepository = ProjectsRepository()
+        val nestedRepository = NestedRepository(json)
 
-        println("size final $size")
-
-        if (result.isSuccess) {
-            val placement = result.getOrNull()!!.toList()
-
-            val nameWithoutExt = "some_file"
-
-            val folder = File("mount/nested/$nameWithoutExt")
-            folder.mkdirs()
-
-            dxfApi.writeFile(placement, folder.path + "/$nameWithoutExt.dxf")
-
-            println("Size on success ${size.toDouble()}")
-
-            val svgWriter = SvgWriter()
-            svgWriter.writeNestPathsToSvg(
-                placement,
-                folder.path + "/$nameWithoutExt.svg",
-                size.toDouble(),
-                size.toDouble()
-            )
-        }
-    }
-
-    private fun doFiles() {
-        /*val files = File("mount/uploads").list()!!
-            .map {
-                "mount/uploads/$it"
-            }*/
-        val files = listOf("mount/user_inputs/1x2+1/1x2.dxf")
-
-        files
-            .filter { it.endsWith(".dxf") }
-            .sortedBy { it }
-            .forEachIndexed { index, fileName ->
-                processFile(index, fileName)
+        embeddedServer(CIO, port = 8080) {
+            applicationEngineEnvironment {
+                developmentMode = true
             }
-    }
+            install(StatusPages) {
+                exception<UserInputExecution> { call, userInputExecution ->
+                    println(userInputExecution.printStackTrace())
+                    call.respond(HttpStatusCode.BadRequest, userInputExecution.getBody())
+                }
+                exception<Throwable> { cause, throwable ->
+                    println(throwable.printStackTrace())
+                    cause.respond(HttpStatusCode.InternalServerError, "Error: $throwable")
+                }
+            }
 
-    private fun processFile(index: Int, fileName: String) {
-        println(fileName)
+            install(AutoHeadResponse)
 
-        val dxfApi = DxfApi()
-        val listOfDxfParts: MutableList<DxfPart> = ArrayList()
-        listOfDxfParts.addAll(
-            dxfApi.readFile(fileName)
-        )
+            install(CORS) {
+                anyHost()
+                allowHeaders { true }
+                allowCredentials = true
+                DefaultMethods.forEach(::allowMethod)
 
-        val size = 350
-        val nestApi = NestApi()
-        val result: Result<List<DxfPartPlacement>> = nestApi.startNest(
-            plate = Rectangle(size, size),
-            dxfParts = listOfDxfParts,
-        )
+                allowNonSimpleContentTypes = true
+            }
 
-        result.onFailure {
-            println(it)
-        }
+            install(ContentNegotiation) {
+                json()
+            }
 
-        println("size final $size")
+            routing {
+                projectRest(File("mount"), projectsRepository)
+                nestRestApi(projectsRepository, nestedRepository)
 
-        if (result.isSuccess) {
-            val placement = result.getOrNull()!!.toList()
-
-            val nameWithoutExt = File(fileName).nameWithoutExtension
-
-            val folder = File("mount/nested/$nameWithoutExt+$index")
-            folder.mkdirs()
-
-            dxfApi.writeFile(placement, folder.path + "/$nameWithoutExt.dxf")
-
-            println("Size on success ${size.toDouble()}")
-
-            val svgWriter = SvgWriter()
-            svgWriter.writeNestPathsToSvg(
-                placement,
-                folder.path + "/$nameWithoutExt.svg",
-                size.toDouble(),
-                size.toDouble()
-            )
-        }
+                get("/") {
+                    call.respondText("Hello, world!")
+                }
+            }
+        }.start(wait = true)
     }
 }

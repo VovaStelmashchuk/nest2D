@@ -7,10 +7,24 @@ plugins {
 
 group = "com.nestapp"
 version = "0.0.1"
-description = "NestApp"
 
 application {
-    mainClass.set("com.nestapp.ApplicationKt")
+    mainClass.set("com.nestapp.Main")
+}
+
+ktor {
+    docker {
+        jreVersion.set(JavaVersion.VERSION_17)
+        localImageName.set("nest2d")
+        imageTag.set("0.0.2")
+        externalRegistry.set(
+            io.ktor.plugin.features.DockerImageRegistry.dockerHub(
+                appName = provider { "nest2d" },
+                username = providers.environmentVariable("DOCKER_HUB_USERNAME"),
+                password = providers.environmentVariable("DOCKER_HUB_PASSWORD")
+            )
+        )
+    }
 }
 
 repositories {
@@ -31,7 +45,7 @@ tasks.withType<Test>().configureEach {
 
 dependencies {
     implementation("io.ktor:ktor-server-core:2.3.7")
-    implementation("io.ktor:ktor-server-netty:2.3.7")
+    implementation("io.ktor:ktor-server-cio:2.3.7")
     implementation("io.ktor:ktor-server-status-pages:2.3.7")
     implementation("io.ktor:ktor-server-auto-head-response:2.3.7")
     implementation("io.ktor:ktor-server-content-negotiation:2.3.7")
@@ -57,6 +71,6 @@ dependencies {
 }
 
 kotlin {
-    jvmToolchain(8)
+    jvmToolchain(17)
 }
 
