@@ -1,3 +1,5 @@
+import axios from "axios";
+
 var fileCounts = new Map();
 var project_id = ""
 
@@ -36,6 +38,11 @@ function buildButtonClickHandler() {
             document.getElementById("download-button-id").disabled = false;
             document.getElementById("nesting_loader").style.display = "none";
             document.getElementById("click_to_show_preview_text").style.display = "none";
+
+            document.getElementById("download-button-id").onclick = () => {
+                download(response.id)
+            }
+
             updatePreview(response.id)
         })
         .catch(error => {
@@ -46,6 +53,23 @@ function buildButtonClickHandler() {
             let errorMessage = error.message || "Something went wrong. Please try again later.";
             document.getElementById("click_to_show_preview_text").style.display = "block";
             document.getElementById("click_to_show_preview_text").textContent = errorMessage;
+        })
+}
+
+function download(nestedId) {
+    axios({
+        url: `http://localhost:8080/nested/${nestedId}?format=dxf`,
+        method: 'GET',
+        responseType: 'blob'
+    })
+        .then((response) => {
+            const url = window.URL
+                .createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'nested.dxf');
+            document.body.appendChild(link);
+            link.click();
         })
 }
 
