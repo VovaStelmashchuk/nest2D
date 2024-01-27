@@ -5,10 +5,14 @@ import com.nestapp.projects.FileId
 import com.nestapp.projects.ProjectId
 import com.nestapp.projects.ProjectsRepository
 import com.nestapp.svg.SvgWriter
+import io.ktor.http.ContentDisposition
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
+import io.ktor.server.response.header
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondFile
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
@@ -35,14 +39,34 @@ fun Route.nestRestApi(
         call.respond(HttpStatusCode.OK, nestedOutput)
     }
 
-    get("/nested/{id}.svg") {
+    get("/nested/{id}") {
         val id = call.parameters["id"]?.toInt() ?: throw Exception("Nested id not found")
+        val format = call.request.queryParameters["format"] ?: throw Exception("Format not found")
+
         val nested = nestedRepository.getNested(id) ?: throw Exception("Nested not found")
 
-        println("nested.svgFile ${nested.svgFile}")
-        println("nested.dxfFile ${nested.dxfFile}")
+        val file = when (format) {
+            "svg" -> {
+                File(nested.svgFile)
+            }
 
-        call.respond(HttpStatusCode.MultiStatus)
+            "dxf" -> {
+                File(nested.dxfFile)
+            }
+
+            else -> {
+                throw Exception("Format not supported")
+            }
+        }
+
+        call.response.header(
+            HttpHeaders.ContentDisposition,
+            ContentDisposition.Attachment.withParameter(
+                ContentDisposition.Parameters.FileName,
+                file.name,
+            ).toString()
+        )
+        call.respondFile(file)
     }
 }
 
