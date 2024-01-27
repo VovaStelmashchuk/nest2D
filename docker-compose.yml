@@ -1,9 +1,9 @@
 services:
-  prismo-app:
+  nest2d-backend:
     image: vovochkastelmashchuk/nest2d:0.0.2
-    container_name: nest2d
+    container_name: nest2d-backend
     restart: always
     ports:
-      - 8080:8080
+      - 5000:8080
     volumes:
       - ./test-mount:/mount

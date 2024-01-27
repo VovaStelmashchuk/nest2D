@@ -1,7 +1,13 @@
 import axios from "axios";
 
+const backendHost = 'http://localhost:5000';
+
 var fileCounts = new Map();
 var project_id = ""
+
+const backendUrl = process.env.BACKEND_HOST;
+console.log("backendUrl");
+console.log(backendUrl);
 
 function buildButtonClickHandler() {
     document.getElementById("click_to_show_preview_text").style.display = "none";
@@ -17,7 +23,7 @@ function buildButtonClickHandler() {
     data['plate_width'] = document.getElementById("bin_width").value;
     data['plate_height'] = document.getElementById("bin_height").value;
 
-    fetch('http://localhost:8080/nest', {
+    fetch(`${backendHost}/nest`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -58,7 +64,7 @@ function buildButtonClickHandler() {
 
 function download(nestedId) {
     axios({
-        url: `http://localhost:8080/nested/${nestedId}?format=dxf`,
+        url: `${backendHost}/nested/${nestedId}?format=dxf`,
         method: 'GET',
         responseType: 'blob'
     })
@@ -74,7 +80,7 @@ function download(nestedId) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    fetch('http://localhost:8080/project')
+    fetch(`${backendHost}/project`)
         .then(response => response.json())
         .then(data => {
                 project_id = data.id
@@ -83,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         )
         .catch(error => {
-                window.location.href = '/500.html';
+                //window.location.href = '/500.html';
                 console.error('Error:', error)
             }
         );
@@ -96,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function updatePreview(nestedId) {
     const img = document.getElementById("preview_image");
     img.style.display = "block";
-    img.src = `http://localhost:8080/nested/${nestedId}?format=svg`;
+    img.src = `${backendHost}/nested/${nestedId}?format=svg`;
     img.alt = 'SVG preview image';
 }
 
@@ -129,7 +135,7 @@ function initProjectCard(project) {
         card.className = 'card';
 
         const img = document.createElement('img');
-        img.src = `http://localhost:8080/preview/${project.id}/${fileKey}`; // Construct the image URL
+        img.src = `${backendHost}/preview/${project.id}/${fileKey}`; // Construct the image URL
         img.alt = 'SVG Image';
 
         const content = document.createElement('div');
