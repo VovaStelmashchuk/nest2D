@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const backendHost = 'https://nest2d.online/api';
+const backendHost = 'http://localhost:8080/api';
 
 var fileCounts = new Map();
 var project_id = ""

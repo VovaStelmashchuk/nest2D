@@ -86,16 +86,25 @@ private fun nest(
 
     val files = projectsRepository.getFiles(nestInput.projectId, fileIds)
         .map { (fileId, file) ->
-            File("mount", "user_inputs/${fileId.value}/${file.dxfFile}")
+            File("mount", "user_inputs/${fileId.value}/${file.dxfFile}") to nestInput.fileCounts[fileId]!!
         }
+        .toMap()
 
-    if (files.any { !it.exists() }) {
+    if (files.any { !it.key.exists() }) {
         throw UserInputExecution.SomethingWrongWithUserInput("Some files not found")
     }
 
     val listOfDxfParts = files
-        .flatMap {
-            dxfApi.readFile(it)
+        .flatMap { (file, count) ->
+            val partsFromFile = dxfApi.readFile(file)
+
+            val result = buildList {
+                repeat(count) {
+                    addAll(partsFromFile)
+                }
+            }
+
+            return@flatMap result
         }
 
     val nestApi = NestApi()
