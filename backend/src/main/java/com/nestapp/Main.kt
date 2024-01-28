@@ -20,6 +20,7 @@ import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
+import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -66,11 +67,13 @@ internal object Main {
             }
 
             routing {
-                projectRest(File("mount"), projectsRepository)
-                nestRestApi(projectsRepository, nestedRepository)
+                route("/api") {
+                    projectRest(File("mount"), projectsRepository)
+                    nestRestApi(projectsRepository, nestedRepository)
 
-                get("/") {
-                    call.respondText("Hello, world!")
+                    get("/version") {
+                        call.respondText("Some version")
+                    }
                 }
             }
         }.start(wait = true)

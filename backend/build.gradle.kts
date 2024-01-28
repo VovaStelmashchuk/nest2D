@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.nestapp"
-version = "0.0.1"
+version = "0.0.5"
 
 application {
     mainClass.set("com.nestapp.Main")
@@ -16,7 +16,7 @@ ktor {
     docker {
         jreVersion.set(JavaVersion.VERSION_17)
         localImageName.set("nest2d")
-        imageTag.set("0.0.2")
+        imageTag.set("0.0.5")
         externalRegistry.set(
             io.ktor.plugin.features.DockerImageRegistry.dockerHub(
                 appName = provider { "nest2d" },

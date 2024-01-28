@@ -1,6 +1,6 @@
 services:
   nest2d-backend:
-    image: vovochkastelmashchuk/nest2d:0.0.2
+    image: vovochkastelmashchuk/nest2d:0.0.5
     container_name: nest2d-backend
     restart: always
     ports:

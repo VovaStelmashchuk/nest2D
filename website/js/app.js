@@ -1,13 +1,9 @@
 import axios from "axios";
 
-const backendHost = 'http://localhost:5000';
+const backendHost = 'https://nest2d.online/api';
 
 var fileCounts = new Map();
 var project_id = ""
-
-const backendUrl = process.env.BACKEND_HOST;
-console.log("backendUrl");
-console.log(backendUrl);
 
 function buildButtonClickHandler() {
     document.getElementById("click_to_show_preview_text").style.display = "none";
@@ -108,6 +104,7 @@ function updatePreview(nestedId) {
 
 function initProjectName(projects) {
     const container = document.querySelector('.project-title');
+    container.innerHTML = '';
     const title = document.createElement('h1');
     title.textContent = projects.name;
     container.appendChild(title);
