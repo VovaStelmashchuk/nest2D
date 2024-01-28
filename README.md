@@ -22,26 +22,26 @@ very expensive.
 
 for more detail , please go to [SVGNest](https://github.com/Jack000/SVGnest)
 
+## The repository based on few github project, I keep the original history of commits.
+
+Also, i have some plane to modify the project. The project will be support DXF file. The SVG format available only for
+the preview. The project will be migrate to Kotlin fully or majority.
+
+Fill free to create issues or pull requests. The main goal of the project is mainly free and open source solution for
+nesting problem. I try to find the way to compensate the price of cloud server. **You Star of the project can help to
+apply to some open source program.**
+
 ### Credits:
 
 - [SVGNest](https://github.com/Jack000/SVGnest)
 - [DXFReader](https://github.com/wholder/DXFReader)
 - [NEST4J fork](https://github.com/micycle1/Nest4J/tree/master)
--
 
 ### Referenced Paper
 
 - [López-Camacho *et al.* 2013](http://www.cs.stir.ac.uk/~goc/papers/EffectiveHueristic2DAOR2013.pdf)
 - [Kendall 2000](http://www.graham-kendall.com/papers/k2001.pdf)
 - [E.K. Burke *et al.* 2006](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.440.379&rep=rep1&type=pdf)
-
------ OLD README ----
-
-## Env
-
-Nest4J needs JDK1.8 version , and the maven dependency of [Clipper-java](https://github.com/lightbringer/clipper-java).
-You have to download [Clipper-java](https://github.com/lightbringer/clipper-java) and install it into your local maven
-repository.
 
 ### Extended Attributes of Polygon
 
