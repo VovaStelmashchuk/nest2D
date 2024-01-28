@@ -25,9 +25,6 @@
 
 package com.jsevy.jdxf.parts;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.util.Vector;
 
 
@@ -84,7 +81,6 @@ public class DXFLWPolyline extends DXFEntity {
             RealPoint point = vertices.elementAt(i);
             result += "10\n" + setPrecision(point.x) + "\n";
             result += "20\n" + setPrecision(point.y) + "\n";
-            result += "30\n" + setPrecision(point.z) + "\n";
         }
 
         return result;

@@ -1,5 +1,6 @@
 package com.nestapp.nest_api
 
+import com.nestapp.DxfPartPlacement
 import com.nestapp.dxf.DxfApi
 import com.nestapp.projects.FileId
 import com.nestapp.projects.ProjectId
@@ -109,7 +110,7 @@ private fun nest(
 
     val nestApi = NestApi()
 
-    val result = nestApi.startNest(
+    val result: Result<List<DxfPartPlacement>> = nestApi.startNest(
         plate = Rectangle(nestInput.plateWidth, nestInput.plateHeight),
         dxfParts = listOfDxfParts,
     )

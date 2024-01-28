@@ -1,18 +1,18 @@
 /*
  * JDXF Library
- * 
+ *
  *   Copyright (C) 2018, Jonathan Sevy <jsevy@jsevy.com>
- *   
+ *
  *   Permission is hereby granted, free of charge, to any person obtaining a copy
  *   of this software and associated documentation files (the "Software"), to deal
  *   in the Software without restriction, including without limitation the rights
  *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *   copies of the Software, and to permit persons to whom the Software is
  *   furnished to do so, subject to the following conditions:
- *   
+ *
  *   The above copyright notice and this permission notice shall be included in all
  *   copies or substantial portions of the Software.
- *   
+ *
  *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,31 +20,31 @@
  *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *   SOFTWARE.
- * 
+ *
  */
 
 package com.jsevy.jdxf.parts;
 
-import java.awt.Color;
+import java.awt.*;
 
 
 
 /**
  * Class providing static methods for handling colors of entities in DXF file. Colors are represented by
- * an index into a table, rather than RGB triples. The methods of this class help to find the match in the 
+ * an index into a table, rather than RGB triples. The methods of this class help to find the match in the
  * table for a specified RGB color so that the table index can be used in the entity definition.
- * 
+ *
  * @author jsevy
  *
  */
 public class DXFColor
 {
-    
+
 	/**
 	 * Find the closest match for a given RGB color in the standard DXF color table. The best match is selected on
 	 * the basis of minimum distance using R, G and B asaxes.
-	 * 
-	 * @param rgbColor	The RGB color for which a match is desired, represented as a standard Java argb color 
+	 *
+	 * @param rgbColor	The RGB color for which a match is desired, represented as a standard Java argb color
 	 * 					(alpha is ignored)
 	 * @return			The standard DXF color table index for the color that is the closest match to that supplied
 	 */
@@ -55,39 +55,39 @@ public class DXFColor
         int r1 = color.getRed();
         int g1 = color.getGreen();
         int b1 = color.getBlue();
-        
+
         int bestMatch = 0;
         int closestDistance = 3*255*255;
-        
+
         // start at index 1 since 0 not used - except it is used by AutoCAD - gah!!
         for (int i = 0; i < rgbTable.length; i++)
         {
             int r2 = rgbTable[i][0];
             int g2 = rgbTable[i][1];
             int b2 = rgbTable[i][2];
-            
+
             int distance = (r1-r2)*(r1-r2) + (g1-g2)*(g1-g2) + (b1-b2)*(b1-b2);
             if (distance < closestDistance)
             {
                 bestMatch = i;
                 closestDistance = distance;
             }
-            
+
             if (distance == 0)
             {
                 // found exact match
                 break;
             }
         }
-        
+
         return bestMatch;
     }
-    
-    
+
+
 	/**
 	 * The standard DXF color table rgb values.
 	 */
-    private static int[][] rgbTable = 
+    private static int[][] rgbTable =
         {
             {0,0,0},    // index 0 - not used - actually, used by AutoCAD online viewer
             {255,0,0},
@@ -346,6 +346,6 @@ public class DXFColor
             {224,224,224},
             {0,0,0}
         };
-    
-    
+
+
 }
