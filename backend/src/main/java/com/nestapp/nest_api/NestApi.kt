@@ -14,6 +14,10 @@ class NestApi {
         plate: Rectangle,
         dxfParts: List<DxfPart>,
     ): Result<List<DxfPartPlacement>> {
+        if (dxfParts.isEmpty()) {
+            return Result.failure(Throwable("Parts is empty"))
+        }
+
         Config.BIN_WIDTH = plate.width.toDouble()
         Config.BIN_HEIGHT = plate.height.toDouble()
         Config.ASSUME_NO_INNER_PARTS = true
@@ -48,7 +52,7 @@ class NestApi {
             .map { placement ->
                 val dxfPart = dxfParts.find { dxfPart -> dxfPart.bid == placement.bid }!!
                 DxfPartPlacement(
-                    entity = dxfPart.entity,
+                    entities = dxfPart.entities,
                     nestPath = dxfPart.nestPath,
                     placement = placement,
                 )

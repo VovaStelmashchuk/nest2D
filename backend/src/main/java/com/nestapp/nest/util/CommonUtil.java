@@ -297,7 +297,7 @@ public class CommonUtil {
 		Path path = NestPath2Path(srcPath);	//scrPath è il binPath passato come argomento, la superficie su cui disporre le figure
 		// Convert self intersecting polygons to simple ones
 		Paths simple = DefaultClipper.simplifyPolygon(path, Clipper.PolyFillType.NON_ZERO);
-		if(simple.size() == 0 ){
+		if(simple.isEmpty()){
 			return null;
 		}
 		Path biggest = simple.get(0);
@@ -311,7 +311,7 @@ public class CommonUtil {
 		}
 		// Remove vertices under tolerance specification
 		Path clean = biggest.cleanPolygon(Config.CURVE_TOLERANCE * Config.CLIIPER_SCALE);
-		if(clean.size() == 0 ){
+		if(clean.isEmpty()){
 			return null ;
 		}
 

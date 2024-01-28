@@ -541,38 +541,7 @@ public class DXFReader {
         }
     }
 
-    class Line extends Entity implements AutoPop {
-        Line2D.Double line;
-        private double xStart, yStart, xEnd, yEnd;
 
-        Line(String type) {
-            super(type);
-        }
-
-        @Override
-        void addParm(int gCode, String value) {
-            switch (gCode) {
-                case 10:                              // Line Point X1
-                    xStart = Double.parseDouble(value);
-                    break;
-                case 20:                              // Line Point Y2
-                    yStart = Double.parseDouble(value);
-                    break;
-                case 11:                              // Line Point X2
-                    xEnd = Double.parseDouble(value);
-                    break;
-                case 21:                              // Line Point Y2
-                    yEnd = Double.parseDouble(value);
-                    break;
-            }
-        }
-
-        @Override
-        public void close() {
-            line = new Line2D.Double(xStart, yStart, xEnd, yEnd);
-        }
-
-    }
 
     class Polyline extends Entity {
         private Path2D.Double path;

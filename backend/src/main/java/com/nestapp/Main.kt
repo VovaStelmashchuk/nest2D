@@ -5,6 +5,7 @@ import com.nestapp.nest_api.UserInputExecution
 import com.nestapp.nest_api.nestRestApi
 import com.nestapp.projects.ProjectsRepository
 import com.nestapp.projects.projectRest
+import com.nestapp.test.testTrigger
 import io.ktor.http.HttpMethod.Companion.DefaultMethods
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
@@ -29,6 +30,8 @@ internal object Main {
 
     @JvmStatic
     fun main(args: Array<String>) {
+        testTrigger()
+
         val json = Json {
             prettyPrint = true
             ignoreUnknownKeys = true
