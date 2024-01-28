@@ -1,9 +1,9 @@
 package com.nestapp
 
-import com.jsevy.jdxf.parts.DXFLWPolyline
-import com.jsevy.jdxf.parts.RealPoint
-import com.nestapp.dxf.Entity
-import com.nestapp.dxf.LwPolyline
+import com.nestapp.dxf.writter.parts.DXFLWPolyline
+import com.nestapp.dxf.writter.parts.RealPoint
+import com.nestapp.dxf.reader.Entity
+import com.nestapp.dxf.reader.LwPolyline
 import com.nestapp.nest.data.NestPath
 import com.nestapp.nest.data.Placement
 import java.util.Vector

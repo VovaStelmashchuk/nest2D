@@ -1,8 +1,9 @@
 package com.nestapp.dxf
 
-import com.jsevy.jdxf.DXFDocument
 import com.nestapp.DxfPart
 import com.nestapp.DxfPartPlacement
+import com.nestapp.dxf.reader.DXFReader
+import com.nestapp.dxf.writter.DXFDocument
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
