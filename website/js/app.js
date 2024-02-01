@@ -2,8 +2,8 @@ import axios from "axios";
 
 const backendHost = 'https://nest2d.online/api';
 
-var fileCounts = new Map();
-var project_id = ""
+let fileCounts = new Map();
+let project_id = "";
 
 function buildButtonClickHandler() {
     document.getElementById("click_to_show_preview_text").style.display = "none";
@@ -90,9 +90,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         );
 
-    document.querySelector('#build-button-id').addEventListener('click', () => {
-        buildButtonClickHandler();
-    })
+    const buildButton = document.querySelector('#build-button-id');
+    buildButton.removeEventListener('click', buildButtonClickHandler);
+    buildButton.addEventListener('click', buildButtonClickHandler);
 });
 
 function updatePreview(nestedId) {

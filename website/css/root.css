@@ -6,8 +6,24 @@ body, html {
 
 #header {
     background-color: #f1f1f1;
-    padding: 20px;
     text-align: center;
+}
+
+#banner {
+    background-color: #0057b7; /* This is the color of the banner in the screenshot */
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+
+#banner a {
+    color: #ffd700; /* This color is for the link, similar to the screenshot */
+    text-decoration: none; /* Removes the underline from the link */
+    font-weight: bold; /* Makes the link text bold */
+}
+
+#banner a:hover {
+    text-decoration: underline; /* Adds an underline on hover for better UX */
 }
 
 #content {
@@ -16,13 +32,17 @@ body, html {
 }
 
 #left, #right {
-    flex: 1;
     padding: 12px;
 }
 
 #right {
+    flex: 1.5;
     display: flex;
     flex-direction: column; /* Make the right div split vertically */
+}
+
+#left {
+    flex: 2;
 }
 
 #top, #bottom {
