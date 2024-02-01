@@ -1,9 +1,11 @@
 package com.nestapp
 
 import com.nestapp.dxf.reader.Entity
+import com.nestapp.dxf.reader.Line
 import com.nestapp.dxf.reader.LwPolyline
 import com.nestapp.dxf.writter.parts.DXFEntity
 import com.nestapp.dxf.writter.parts.DXFLWPolyline
+import com.nestapp.dxf.writter.parts.DXFLine
 import com.nestapp.dxf.writter.parts.RealPoint
 import com.nestapp.nest.data.NestPath
 import com.nestapp.nest.data.Placement
@@ -29,9 +31,16 @@ data class DxfPartPlacement(
         return entities.map { entity ->
             when (entity) {
                 is LwPolyline -> getDXFLWPolyline(entity)
+                is Line -> getDXFLine(entity)
                 else -> throw RuntimeException("Not support entity")
             }
         }
+    }
+
+    private fun getDXFLine(line: Line): DXFLine {
+        val start = RealPoint(line.xStart, line.yStart)
+        val end = RealPoint(line.xEnd, line.yEnd)
+        return DXFLine(start, end)
     }
 
     private fun getDXFLWPolyline(lwPolyline: LwPolyline): DXFLWPolyline {

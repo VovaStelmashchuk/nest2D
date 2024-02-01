@@ -1,0 +1,48 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+#header {
+    background-color: #f1f1f1;
+    padding: 20px;
+    text-align: center;
+}
+
+#content {
+    display: flex;
+    min-height: calc(100vh - 100px); /* Adjust the 100px to the total height of header and footer */
+}
+
+#left, #right {
+    flex: 1;
+    padding: 12px;
+}
+
+#right {
+    display: flex;
+    flex-direction: column; /* Make the right div split vertically */
+}
+
+#top, #bottom {
+    flex: 1;
+}
+
+#top {
+}
+
+#bottom {
+}
+
+#footer {
+    background-color: #f1f1f1;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 0;
+    padding-right: 0;
+    text-align: center;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}

@@ -25,45 +25,30 @@
 
 package com.nestapp.dxf.writter.parts;
 
-import java.awt.*;
-
-
-
-
 /**
  * Class representing a line segment.
- * @author jsevy
  *
+ * @author jsevy
  */
-public class DXFLine extends DXFEntity
-{
+public class DXFLine extends DXFEntity {
     private RealPoint start, end;
-    private Color color;
-    private BasicStroke stroke;
-
 
     /**
      * Create a line segment between the specified endpoints.
      *
-     * @param start		One endpoint
-     * @param end		The other endpoint
-     * @param graphics  The graphics object specifying parameters for this entity (color, thickness)
+     * @param start One endpoint
+     * @param end   The other endpoint
      */
-    public DXFLine(RealPoint start, RealPoint end, Graphics2D graphics)
-    {
+    public DXFLine(RealPoint start, RealPoint end) {
         this.start = new RealPoint(start);
         this.end = new RealPoint(end);
-        this.color = graphics.getColor();
-        this.stroke = (BasicStroke)graphics.getStroke();
     }
-
 
 
     /**
      * Implementation of DXFObject interface method; creates DXF text representing the line segment.
      */
-    public String toDXFString()
-    {
+    public String toDXFString() {
         String result = "0\nLINE\n";
 
         // print out handle and superclass marker(s)
@@ -78,18 +63,11 @@ public class DXFLine extends DXFEntity
         result += "11\n" + setPrecision(end.x) + "\n";
         result += "21\n" + setPrecision(end.y) + "\n";
 
-        // add thickness; specified in Java in pixels at 72 pixels/inch; needs to be in 1/100 of mm for DXF, and restricted range of values
-        result += "370\n" + getDXFLineWeight(stroke.getLineWidth()) + "\n";
-
-        // add color number
-        result += "62\n" + DXFColor.getClosestDXFColor(color.getRGB()) + "\n";
-
         return result;
     }
 
 
-    public String getDXFHatchInfo()
-    {
+    public String getDXFHatchInfo() {
         // line
         String result = "72\n" + "1" + "\n";
 

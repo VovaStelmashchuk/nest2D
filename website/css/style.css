@@ -245,16 +245,6 @@ textarea {
     }
 }
 
-.left {
-    float: left;
-    width: 50%;
-}
-
-.right {
-    float: right;
-    width: 50%;
-}
-
 .card-container {
     height: 90vh;
     display: flex;

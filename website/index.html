@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title></title>
+    <link rel="stylesheet" href="css/root.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/progress.css">
     <meta name="description" content="">
@@ -24,52 +25,51 @@
 </head>
 
 <body>
-
-<div class="centered">
-    <div class="project-title">
-
+<div id="header">Header</div>
+<div id="content">
+    <div id="left">
+        <div class="card-container"></div>
     </div>
-    <div class="left">
-        <div class="card-container">
+    <div id="right">
+        <div id="top">
+            <div class="preview" style="background: #e6e6e6">
+                <div class="center">
+                    <div id="nesting_loader" class="loader" style="display: none">
+                        <div class="loaderBar"></div>
+                    </div>
 
-        </div>
-    </div>
+                    <p id="click_to_show_preview_text" class="preview-text">
+                        Click build button to show preview
+                    </p>
 
-    <div class="right">
-        <div class="preview" style="background: #e6e6e6">
-            <div class="center">
-                <div id="nesting_loader" class="loader" style="display: none">
-                    <div class="loaderBar"></div>
+                    <img id="preview_image" src="" alt="Preview" style="display: none">
                 </div>
-
-                <p id="click_to_show_preview_text" class="preview-text">
-                    Click build button to show preview
-                </p>
-
-                <img id="preview_image" src="" alt="Preview" style="display: none">
             </div>
         </div>
-        <div>
-            <p style="padding: 0 10px 0 10px">You can click 'build' again to find more optimal nest</p>
-        </div>
-        <div class="card">
-            <div class="input-container">
-                <div class="input">
-                    <label for="bin_width">Bin Width</label>
-                    <input type="number" id="bin_width" name="width" placeholder="Enter width" value="500">
-                </div>
-                <div class="input">
-                    <label for="bin_height">Bin Height</label>
-                    <input type="number" id="bin_height" name="height" placeholder="Enter height" value="500">
-                </div>
+        <div id="bottom">
+            <div>
+                <p style="padding: 0 10px 0 10px">You can click 'build' again to find more optimal nest</p>
             </div>
-            <div class="button-group">
-                <button id="build-button-id" type="button" class="build-button">Build</button>
-                <button id="download-button-id" type="button" class="download-button" disabled>Download</button>
+            <div class="card">
+                <div class="input-container">
+                    <div class="input">
+                        <label for="bin_width">Bin Width</label>
+                        <input type="number" id="bin_width" name="width" placeholder="Enter width" value="500">
+                    </div>
+                    <div class="input">
+                        <label for="bin_height">Bin Height</label>
+                        <input type="number" id="bin_height" name="height" placeholder="Enter height" value="500">
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button id="build-button-id" type="button" class="build-button">Build</button>
+                    <button id="download-button-id" type="button" class="download-button" disabled>Download</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
+<div id="footer">Footer</div>
 </body>
-
 </html>
+
