@@ -30,7 +30,12 @@ internal object Main {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        testTrigger()
+        /*try {
+            testTrigger()
+        } catch (e: Exception) {
+            println("Error: $e")
+        }*/
+
 
         val json = Json {
             prettyPrint = true

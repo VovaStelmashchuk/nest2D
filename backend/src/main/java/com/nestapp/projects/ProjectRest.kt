@@ -11,11 +11,14 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import java.io.File
 
-private const val laser_gridfinity_id = "laser_gridfinity_boxes_0"
-
 fun Route.projectRest(mountFolder: File, projectsRepository: ProjectsRepository) {
-    get("/project") {
-        val project = projectsRepository.getProject(ProjectId(laser_gridfinity_id))
+    get("/projects") {
+        call.respond(HttpStatusCode.OK, projectsRepository.getProjects())
+    }
+
+    get("/project/{id}") {
+        val id = call.parameters["id"] ?: throw Exception("id not found")
+        val project = projectsRepository.getProject(ProjectId(id))
         print(project)
         call.respond(HttpStatusCode.OK, project ?: throw Exception("project not found"))
     }

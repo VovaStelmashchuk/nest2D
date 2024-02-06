@@ -1,3 +1,7 @@
+### get project
+GET http://localhost:8080/api/project/laser_gridfinity_boxes_0
+
+### NEST
 POST localhost:8080/api/nest
 Content-Type: application/json
 
@@ -21,3 +25,7 @@ Content-Type: application/json
 
 ### Test
 GET localhost:8080/api/test
+
+
+### Get all projects
+GET localhost:8080/api/projects

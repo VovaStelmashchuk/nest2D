@@ -13,16 +13,24 @@ class ProjectsRepository {
         private const val FILE = "mount/app_data/projects.json"
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Synchronized
     fun getProject(id: ProjectId): Project? {
-        val root = Json.decodeFromStream<ProjectsRoot>(File(FILE).inputStream())
+        val root = getProjectRoot()
         return root.projects[id]
     }
 
     fun getFiles(id: ProjectId, fileIds: List<FileId>): Map<FileId, ProjectFile> {
         val project = getProject(id) ?: return emptyMap()
         return fileIds.associateWith { fileId -> requireNotNull(project.files[fileId]) }
+    }
+
+    fun getProjects(): Map<ProjectId, Project> {
+        return getProjectRoot().projects
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    @Synchronized
+    private fun getProjectRoot(): ProjectsRoot {
+        return Json.decodeFromStream<ProjectsRoot>(File(FILE).inputStream())
     }
 }
 
