@@ -23,7 +23,7 @@ export default {
         }
     }
 }
-</script>
+</script >
 
 <style>
 .svg-image-container {

@@ -59,7 +59,7 @@ const fileCounts = ref({});
 const isBuilding = ref(false);
 const downloadDisabled = ref(true);
 const nestedId = ref(null);
-const errorMessage = ref('');
+const errorMessage = ref("");
 const showErrorMessage = ref(false);
 
 const closeErrorDialog = async () => {
