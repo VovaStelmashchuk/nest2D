@@ -164,9 +164,16 @@ onMounted(fetchProjectData);
 }
 
 .right-side .additional-text {
-    margin-top: 12px;
+    display: flex;
+    margin: 12px 0 0;
     text-align: center;
-    font-size: 1rem;
+    font-size: 12px;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    padding: 10px;
+    overflow-wrap: break-word;
+    white-space: normal;
 }
 
 .card-container {

@@ -22,6 +22,8 @@ import AppFooter from "@/components/AppFooter.vue";
     flex-direction: column;
     min-height: calc(100vh - 120px); /* Full viewport height - footer and header */
     width: 100vw;
+    margin: 0;
+    padding: 0;
 }
 
 .main-content {

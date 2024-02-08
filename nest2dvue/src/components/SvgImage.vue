@@ -23,14 +23,13 @@ export default {
         }
     }
 }
-</script >
+</script>
 
 <style>
 .svg-image-container {
     background: gray;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
-    width: 100%; /* Fill the width of the parent */
     position: relative; /* Needed for pseudo-element positioning */
 }
 
@@ -53,8 +52,12 @@ export default {
     display: flex;
     justify-content: center; /* Center text horizontally */
     align-items: center; /* Center text vertically */
-    font-size: 3rem; /* Make the text three times larger */
+    font-size: 24px;
     margin: 0; /* Remove any default margin */
-    color: white; /* Text color, adjust as needed */
+    color: white; /* Text color */
+    padding: 10px; /* Add padding to ensure text does not touch the borders */
+    overflow-wrap: break-word; /* Allow long words to break and wrap to the next line */
+    text-align: center; /* Center text alignment */
+    white-space: normal; /* Ensure whitespace is handled normally */
 }
 </style>

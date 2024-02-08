@@ -6,6 +6,12 @@
     font-weight: normal;
 }
 
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
 a,
 .green {
     text-decoration: none;
@@ -21,6 +27,12 @@ a,
 }
 
 @media (min-width: 1024px) {
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+    }
+
     body {
         display: flex;
         place-items: center;
