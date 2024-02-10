@@ -1,11 +1,3 @@
-<script>
-import {defineComponent} from 'vue'
-
-export default defineComponent({
-    name: "BlogView"
-})
-</script>
-
 <template>
     <h1>The nest2d online blog</h1>
     <div class="article-container">
@@ -147,3 +139,5 @@ export default defineComponent({
     }
 }
 </style>
+<script setup>
+</script>

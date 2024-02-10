@@ -1,8 +1,8 @@
 <template>
     <header>
         <nav>
-            <a href="/" class="nav-item">Projects</a>
-            <a href="/Blog" class="nav-item">Blog</a>
+            <RouterLink to="/" class="nav-item">Projects</RouterLink>
+            <RouterLink to="/blog" class="nav-item">Blog</RouterLink>
         </nav>
     </header>
 </template>

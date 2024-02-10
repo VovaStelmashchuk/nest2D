@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
     nest2d-web:
-        image: vovochkastelmashchuk/nest2d-web:0.1.0
+        build: .
         container_name: nest2d-web
         restart: always
         ports:
