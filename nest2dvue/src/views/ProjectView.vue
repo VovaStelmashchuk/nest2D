@@ -21,21 +21,12 @@
                 </div>
             </div>
             <div class="right-side">
-                <SvgImage :imageLink="yourSvgImageUrl" placeholderText="Click build to start nest process"/>
-
+                <ControlPanel class="just-card" style="margin-bottom: 10px" :isBuilding="isBuilding"
+                              :downloadDisabled="downloadDisabled"
+                              @build="buildButtonClickHandler" @download="downloadFile"/>
+                <SvgImage class="just-card" :imageLink="yourSvgImageUrl"
+                          placeholderText="Click build to start nest process"/>
                 <p class="additional-text">You can click the build button again to look for better results.</p>
-                <div class="inputs-column">
-                    <label for="width-input">Width</label>
-                    <input type="number" id="width-input" class="number-input" value="400"/>
-
-                    <label for="height-input">Height</label>
-                    <input type="number" id="height-input" class="number-input" value="570"/>
-                </div>
-                <div class="buttons-column">
-                    <button class="action-button" @click="buildButtonClickHandler" :disabled="isBuilding">Build</button>
-                    <button class="action-button-download" @click="downloadFile" :disabled="downloadDisabled">Download
-                    </button>
-                </div>
             </div>
         </div>
         <div v-if="isBuilding" class="progress-overlay">
@@ -52,6 +43,7 @@
 import {onMounted, ref} from 'vue';
 import axios from 'axios';
 import SvgImage from '@/components/SvgImage.vue';
+import ControlPanel from '@/components/ControlPanel.vue';
 
 const yourSvgImageUrl = ref('');
 const project = ref({files: {}});
@@ -80,13 +72,10 @@ const fetchProjectData = async () => {
     }
 };
 
-const buildButtonClickHandler = async () => {
+const buildButtonClickHandler = async ({width, height}) => {
     isBuilding.value = true;
     downloadDisabled.value = true;
     errorMessage.value = '';
-
-    let width = document.getElementById("width-input").value;
-    let height = document.getElementById("height-input").value;
 
     if (width === "" || height === "" || isNaN(width) || isNaN(height)) {
         isBuilding.value = false;
@@ -98,8 +87,8 @@ const buildButtonClickHandler = async () => {
     let data = {
         project_id: project.value.id,
         file_counts: fileCounts.value,
-        plate_width: width, // Assuming you have  input
-        plate_height: height, // Assuming you have height input
+        plate_width: width,
+        plate_height: height,
     };
 
     try {
@@ -184,6 +173,12 @@ onMounted(fetchProjectData);
     justify-content: flex-start;
     overflow: auto;
     overflow-x: hidden;
+}
+
+.just-card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px;
 }
 
 .card {
@@ -276,74 +271,6 @@ onMounted(fetchProjectData);
 
 .counter-input[type=number] {
     -moz-appearance: textfield;
-}
-
-.inputs-column {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-}
-
-.buttons-column {
-    margin-top: 12px;
-    display: flex;
-    flex-direction: row;
-    gap: 24px;
-}
-
-.inputs-column label {
-    display: block;
-    margin-bottom: 5px;
-    font-size: 1rem;
-    font-weight: bold;
-    text-align: center;
-}
-
-.number-input {
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    box-sizing: border-box;
-}
-
-.action-button {
-    padding: 10px;
-    background-color: blue;
-    color: white;
-    border: none;
-    line-height: 30px;
-    border-radius: 3px;
-    cursor: pointer;
-    font-weight: bold;
-    width: 200px;
-}
-
-.action-button-download {
-    padding: 10px;
-    background-color: green;
-    color: white;
-    border: none;
-    line-height: 30px;
-    border-radius: 3px;
-    cursor: pointer;
-    font-weight: bold;
-    width: 200px;
-}
-
-.action-button:hover {
-    background-color: darkblue;
-}
-
-.action-button:disabled {
-    background-color: #ccc;
-    color: #666;
-    cursor: not-allowed;
-}
-
-.action-button-download:disabled {
-    background-color: #ccc;
-    color: #666;
-    cursor: not-allowed;
 }
 
 .progress-overlay {
