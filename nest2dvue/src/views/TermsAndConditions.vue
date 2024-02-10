@@ -212,6 +212,12 @@
     white-space: normal;
 }
 
+.article-container ul {
+    margin-bottom: 20px;
+    color: var(--color-text);
+    overflow-wrap: break-word;
+    white-space: normal;
+}
 
 </style>
 <script setup>
