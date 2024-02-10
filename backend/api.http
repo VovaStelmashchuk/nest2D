@@ -1,12 +1,12 @@
 ### get project
 GET http://localhost:8080/api/project/laser_gridfinity_boxes_0
 
-### NEST
+### nest fusion project
 POST localhost:8080/api/nest
 Content-Type: application/json
 
 {
-    "project_id": "laser_gridfinity_boxes_0",
+    "project_id": "laser_gridfinity_boxes_fusion_360",
     "file_counts": {
         "1x1+0": 1,
         "1x2+1": 1,
@@ -21,6 +21,28 @@ Content-Type: application/json
     },
     "plate_width": "500",
     "plate_height": "500"
+}
+
+### nest fusion project
+POST localhost:8080/api/nest
+Content-Type: application/json
+
+{
+    "project_id": "laser_gridfinity_boxes_open_scad",
+    "file_counts": {
+        "1x1+0": 1,
+        "1x2+1": 0,
+        "1x3+2": 1,
+        "1x4+3": 0,
+        "2x2+4": 0,
+        "2x3+5": 0,
+        "2x4+6": 0,
+        "3x3+7": 0,
+        "3x4+8": 0,
+        "4x4+9": 0
+    },
+    "plate_width": "250",
+    "plate_height": "250"
 }
 
 ### Test

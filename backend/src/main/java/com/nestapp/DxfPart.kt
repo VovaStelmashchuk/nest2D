@@ -6,7 +6,7 @@ import com.nestapp.dxf.reader.LwPolyline
 import com.nestapp.dxf.writter.parts.DXFEntity
 import com.nestapp.dxf.writter.parts.DXFLWPolyline
 import com.nestapp.dxf.writter.parts.DXFLine
-import com.nestapp.dxf.writter.parts.RealPoint
+import com.nestapp.dxf.RealPoint
 import com.nestapp.nest.data.NestPath
 import com.nestapp.nest.data.Placement
 import java.util.Vector
@@ -40,31 +40,16 @@ data class DxfPartPlacement(
     private fun getDXFLine(line: Line): DXFLine {
         val start = RealPoint(line.xStart, line.yStart)
         val end = RealPoint(line.xEnd, line.yEnd)
-        return DXFLine(start, end)
+        return DXFLine(start.transform(placement), end.transform(placement))
     }
 
     private fun getDXFLWPolyline(lwPolyline: LwPolyline): DXFLWPolyline {
         val vertices = Vector<RealPoint>()
 
-        val angle: Double = placement.rotate * Math.PI / 180
-        val translateX = placement.translate.x
-        val translateY = placement.translate.y
-
         lwPolyline.segments.forEach { segment: LwPolyline.LSegment ->
-            val originX = segment.dx
-            val originY = segment.dy
-
-            val rotatedX = originX * cos(angle) - originY * sin(angle)
-            val rotatedY = originY * cos(angle) + originX * sin(angle)
-
-            val translatedX = rotatedX + translateX
-            val translatedY = rotatedY + translateY
-
             vertices.add(
-                RealPoint(
-                    translatedX,
-                    translatedY,
-                )
+                RealPoint(segment.dx, segment.dy)
+                    .transform(placement)
             )
         }
 

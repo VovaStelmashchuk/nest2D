@@ -7,7 +7,7 @@
                 </div>
                 <div class="card-container">
                     <div v-for="(file, key) in project.files" :key="key" class="card">
-                        <img :src="`https://nest2d.online/api/preview/${project.id}/${key}`" alt="SVG Image">
+                        <img :src="`${API_URL}/preview/${project.id}/${key}`" alt="SVG Image">
                         <div class="card-content">
                             <h3>{{ file.name }}</h3>
                             <div class="counter">
@@ -44,6 +44,11 @@ import {onMounted, ref} from 'vue';
 import axios from 'axios';
 import SvgImage from '@/components/SvgImage.vue';
 import ControlPanel from '@/components/ControlPanel.vue';
+import {API_URL} from "@/constants.js";
+import {useRoute} from "vue-router";
+
+const route = useRoute();
+const projectId = ref(route.params.id);
 
 const yourSvgImageUrl = ref('');
 const project = ref({files: {}});
@@ -60,7 +65,7 @@ const closeErrorDialog = async () => {
 
 const fetchProjectData = async () => {
     try {
-        const response = await axios.get(`https://nest2d.online/api/project`);
+        const response = await axios.get(`${API_URL}/project/${projectId.value}`);
         project.value = response.data;
         for (const key in response.data.files) {
             fileCounts.value[key] = 0;
@@ -92,12 +97,12 @@ const buildButtonClickHandler = async ({width, height}) => {
     };
 
     try {
-        const response = await axios.post(`https://nest2d.online/api/nest`, data);
+        const response = await axios.post(`${API_URL}/nest`, data);
         console.log(response.data.id);
         downloadDisabled.value = false;
         isBuilding.value = false;
         nestedId.value = response.data.id;
-        yourSvgImageUrl.value = `https://nest2d.online/api/nested/${response.data.id}?format=svg`
+        yourSvgImageUrl.value = `${API_URL}/nested/${response.data.id}?format=svg`
     } catch (error) {
         isBuilding.value = false;
         errorMessage.value = error.response?.data?.reason || "Something went wrong. Please try again later.";
@@ -109,7 +114,7 @@ const downloadFile = async () => {
     if (!nestedId.value) return;
     try {
         const response = await axios({
-            url: `https://nest2d.online/api/nested/${nestedId.value}?format=dxf`,
+            url: `${API_URL}/nested/${nestedId.value}?format=dxf`,
             method: 'GET',
             responseType: 'blob',
         });
@@ -120,10 +125,9 @@ const downloadFile = async () => {
         link.setAttribute('download', 'nested.dxf');
         document.body.appendChild(link);
         link.click();
-        document.body.removeChild(link); // Clean up after downloading
+        document.body.removeChild(link);
     } catch (error) {
         console.error('Download error:', error);
-        // Handle download error appropriately
     }
 };
 

@@ -76,8 +76,8 @@ internal object Main {
 
             routing {
                 route("/api") {
-                    projectRest(File("mount"), projectsRepository)
-                    nestRestApi(projectsRepository, nestedRepository)
+                    projectRest(File("mount/projects"), projectsRepository)
+                    nestRestApi(projectsRepository, nestedRepository, File("mount/projects"))
 
                     get("/version") {
                         call.respondText("Some version")

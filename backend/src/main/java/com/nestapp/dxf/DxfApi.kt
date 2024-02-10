@@ -53,6 +53,10 @@ class DxfApi {
         val lines = dxfReader.entities.filterIsInstance<Line>()
         dxfParts.addAll(getPartsFromLines(lines))
 
+        if (dxfReader.entities.size != lwPolylineList.size + lines.size) {
+            throw RuntimeException("Unsupported entity type")
+        }
+
         return dxfParts.toList()
     }
 

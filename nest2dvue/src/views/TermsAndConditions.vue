@@ -4,7 +4,7 @@
         <p>Welcome to <span class="highlight preview_website_name">nest2d</span>!</p>
         <p>These terms and conditions outline the rules and regulations for the use of <span
             class="highlight preview_company_name">Vova Stelmashchuk</span>'s Website, located at <span
-            class="highlight preview_website_url">nest2d.onilen</span>.</p>
+            class="highlight preview_website_url">nest2d.online</span>.</p>
         <p>By accessing this website we assume you accept these terms and conditions. Do not continue to use <span
             class="highlight preview_website_name">nest2d</span> if you do not agree to take all of the terms and
             conditions stated on this page.</p>

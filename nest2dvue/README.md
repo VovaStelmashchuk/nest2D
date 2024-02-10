@@ -35,11 +35,11 @@ npm run build
 - Build docker images
 
 ```sh
-docker build --tag vovochkastelmashchuk/nest2d-web:0.1.3 . 
+docker build --tag vovochkastelmashchuk/nest2d-web:0.2.1 . 
 ```
 
 - Push docker image
 
 ```sh
-docker push vovochkastelmashchuk/nest2d-web:0.1.3
+docker push vovochkastelmashchuk/nest2d-web:0.2.1
 ```

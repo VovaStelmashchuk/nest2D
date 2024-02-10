@@ -25,6 +25,8 @@
 
 package com.nestapp.dxf.writter.parts;
 
+import com.nestapp.dxf.RealPoint;
+
 /**
  * Class representing a line segment.
  *

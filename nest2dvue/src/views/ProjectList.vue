@@ -11,6 +11,7 @@
 import {onMounted, ref} from 'vue';
 import axios from 'axios';
 import {useRouter} from "vue-router";
+import {API_URL} from "@/constants.js";
 
 const projects = ref([]);
 const router = useRouter();
@@ -21,7 +22,7 @@ const navigateToProject = (projectId) => {
 
 onMounted(async () => {
     try {
-        const response = await axios.get('https://nest2d.online/api/projects');
+        const response = await axios.get(`${API_URL}/projects`);
         projects.value = response.data;
     } catch (error) {
         console.error('Error fetching projects:', error);
@@ -53,6 +54,9 @@ onMounted(async () => {
 }
 
 h2 {
-    margin-top: 0;
+    margin: 8px;
+    color: var(--color-text);
+    overflow-wrap: break-word;
+    white-space: normal;
 }
 </style>

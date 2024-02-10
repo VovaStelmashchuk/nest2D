@@ -25,6 +25,8 @@
 
 package com.nestapp.dxf.writter.parts;
 
+import com.nestapp.dxf.RealPoint;
+
 import java.awt.*;
 
 

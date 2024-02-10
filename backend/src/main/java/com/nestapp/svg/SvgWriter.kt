@@ -1,13 +1,10 @@
 package com.nestapp.svg
 
 import com.nestapp.DxfPartPlacement
-import com.nestapp.nest.util.IOUtils
+import com.nestapp.nest.data.NestPath
 import java.io.File
 import java.io.FileWriter
 import java.io.Writer
-import java.nio.file.Files
-import java.nio.file.LinkOption
-import java.nio.file.Paths
 
 class SvgWriter {
 
@@ -15,13 +12,46 @@ class SvgWriter {
         val COLORS = listOf("#7bafd1", "#fc8d8d", "#a6d854", "#ffd92f", "#e78ac3", "#66c2a5")
     }
 
-    fun writeNestPathsToSvg(
-        list: List<DxfPartPlacement>,
-        fileName: String,
-        width: Double,
-        height: Double,
+    fun writeJustNestPathsToSvg(
+        list: List<NestPath>,
+        file: File,
     ) {
-        writeNestPathsToSvg(list, File(fileName), width, height)
+        var minX = 0.0
+        var minY = 0.0
+        var maxX = 0.0
+        var maxY = 0.0
+        list.forEach { nestPath ->
+            nestPath.segments.forEach { segment ->
+                if (segment.x < minX) {
+                    minX = segment.x
+                }
+                if (segment.y < minY) {
+                    minY = segment.y
+                }
+                if (segment.x > maxX) {
+                    maxX = segment.x
+                }
+                if (segment.y > maxY) {
+                    maxY = segment.y
+                }
+            }
+        }
+
+        val translationX = -minX
+        val translationY = -minY
+
+        val width = maxX - minX
+        val height = maxY - minY
+
+        val rawSvg = buildString {
+            for ((index, nestPath) in list.withIndex()) {
+                appendLine("""<g transform="translate($translationX, $translationY)">""".trimIndent())
+                appendSvgPath(nestPath, index)
+                appendLine("</g>")
+            }
+        }
+
+        saveStringsToSvgFile(rawSvg, file, width, height)
     }
 
     fun writeNestPathsToSvg(
@@ -30,32 +60,13 @@ class SvgWriter {
         width: Double,
         height: Double,
     ) {
-        println("Width $width, height $height")
         val rawSvg = buildString {
             for ((index, part) in list.withIndex()) {
                 val ox = part.placement.translate.x
                 val oy = part.placement.translate.y
                 val rotate = part.placement.rotate
                 appendLine("""<g transform="translate($ox, $oy) rotate($rotate)">""".trimIndent())
-                appendLine("""<path d="""".trimIndent())
-
-                part.nestPath.segments.forEachIndexed { index, segment ->
-                    if (index == 0) {
-                        append("M")
-                    } else {
-                        append("L")
-                    }
-
-                    val segment = part.nestPath[index]
-                    append(segment.x)
-                    append(" ")
-                    append(segment.y)
-                    append(" ")
-                }
-
-                //val color = if ((rotate == 0.0)) "7bafd1" else "fc8d8d"
-                val color = COLORS[index % COLORS.size]
-                appendLine("""Z" fill="$color" stroke="#010101" stroke-width="0.5" /> """)
+                appendSvgPath(part.nestPath, index)
                 appendLine("</g>")
             }
         }
@@ -63,8 +74,28 @@ class SvgWriter {
         saveStringsToSvgFile(rawSvg, file, width, height)
     }
 
+    private fun StringBuilder.appendSvgPath(nestPath: NestPath, index: Int) {
+        appendLine("""<path d="""".trimIndent())
+
+        nestPath.segments.forEachIndexed { segmentIndex, segment ->
+            if (segmentIndex == 0) {
+                append("M")
+            } else {
+                append("L")
+            }
+
+            append(segment.x)
+            append(" ")
+            append(segment.y)
+            append(" ")
+        }
+
+        val color = COLORS[index % COLORS.size]
+        appendLine("""Z" fill="$color" stroke="#010101" stroke-width="0.5" /> """)
+    }
+
     @Throws(Exception::class)
-    fun saveStringsToSvgFile(string: String, file: File, width: Double, height: Double) {
+    private fun saveStringsToSvgFile(string: String, file: File, width: Double, height: Double) {
         file.createNewFile()
 
         val writer: Writer = FileWriter(file, false)
@@ -81,5 +112,4 @@ class SvgWriter {
         writer.write("</svg>")
         writer.close()
     }
-
 }

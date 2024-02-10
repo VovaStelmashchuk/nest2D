@@ -25,6 +25,7 @@ import java.io.File
 fun Route.nestRestApi(
     projectsRepository: ProjectsRepository,
     nestedRepository: NestedRepository,
+    projectsFolder: File,
 ) {
     post("/nest") {
         val nestInput = call.receive<NestInput>()
@@ -34,7 +35,7 @@ fun Route.nestRestApi(
         }
 
         val id = nestedRepository.getNextId()
-        val result = nest(id, nestInput, projectsRepository)
+        val result = nest(id, nestInput, projectsRepository, projectsFolder)
         nestedRepository.addNested(result)
 
         val nestedOutput = NestedOutput(id = id)
@@ -77,6 +78,7 @@ private fun nest(
     id: Int,
     nestInput: NestInput,
     projectsRepository: ProjectsRepository,
+    projectsFolder: File,
 ): Nested {
     val dxfApi = DxfApi()
 
@@ -87,7 +89,10 @@ private fun nest(
 
     val files = projectsRepository.getFiles(nestInput.projectId, fileIds)
         .map { (fileId, file) ->
-            File("mount", "user_inputs/${fileId.value}/${file.dxfFile}") to nestInput.fileCounts[fileId]!!
+            File(
+                projectsFolder,
+                "${nestInput.projectId.value}/${fileId.value}/${file.dxfFile}"
+            ) to nestInput.fileCounts[fileId]!!
         }
         .toMap()
 
@@ -128,16 +133,16 @@ private fun nest(
     val project = projectsRepository.getProject(nestInput.projectId)
         ?: throw UserInputExecution.SomethingWrongWithUserInput("Project not found")
 
-    val fileName = project.files
+    val nestedResultFolder = project.files
         .filter { (key, _) -> fileIds.contains(key) }
         .map { (_, value) -> value.name }
-        .joinToString(prefix = "${id}_", separator = "_and_", limit = 100) { it }
+        .joinToString(prefix = "${id}_${project.id.value}_", separator = "_and_", limit = 100) { it }
 
-    val folder = File("mount/nested/$fileName")
+    val folder = File("mount/nested/$nestedResultFolder")
     folder.mkdir()
 
-    val dxfFile = File(folder, "$fileName.dxf")
-    val svgFile = File(folder, "$fileName.svg")
+    val dxfFile = File(folder, "$nestedResultFolder.dxf")
+    val svgFile = File(folder, "$nestedResultFolder.svg")
 
     result.onSuccess { placement ->
         dxfApi.writeFile(placement, dxfFile)

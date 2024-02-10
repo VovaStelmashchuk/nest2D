@@ -26,36 +26,30 @@
 package com.nestapp.dxf.writter.parts;
 
 
-
+import com.nestapp.dxf.RealPoint;
 
 /**
  * Utility class representing a spline control point, specifying both a 3-dimensional position and a weight.
  *
  * @author jsevy
- *
  */
-public class SplineControlPoint extends RealPoint
-{
-    private static final long serialVersionUID = 1L;
+public class SplineControlPoint extends RealPoint {
+    public int multiplicity;
 
-	public int multiplicity;
-
-	// used internally, within expanded point vector
+    // used internally, within expanded point vector
     public int expandedIndex;
 
 
-    public SplineControlPoint (SplineControlPoint other)
-    {
+    public SplineControlPoint(SplineControlPoint other) {
         super(other.x, other.y);
         this.multiplicity = other.multiplicity;
     }
 
-    public boolean equals(Object object)
-    {
-        if(!(object instanceof SplineControlPoint))
+    public boolean equals(Object object) {
+        if (!(object instanceof SplineControlPoint))
             return false;
 
-        SplineControlPoint other = (SplineControlPoint)object;
+        SplineControlPoint other = (SplineControlPoint) object;
 
         return (this.x == other.x) && (this.y == other.y) && (this.multiplicity == other.multiplicity);
     }

@@ -11,15 +11,14 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import java.io.File
 
-fun Route.projectRest(mountFolder: File, projectsRepository: ProjectsRepository) {
+fun Route.projectRest(projectsFolder: File, projectsRepository: ProjectsRepository) {
     get("/projects") {
         call.respond(HttpStatusCode.OK, projectsRepository.getProjects())
     }
 
-    get("/project/{id}") {
-        val id = call.parameters["id"] ?: throw Exception("id not found")
-        val project = projectsRepository.getProject(ProjectId(id))
-        print(project)
+    get("/project/{project_id}") {
+        val id = ProjectId(call.parameters["project_id"] ?: throw Exception("project_id not found"))
+        val project = projectsRepository.getProject(id)
         call.respond(HttpStatusCode.OK, project ?: throw Exception("project not found"))
     }
 
@@ -30,7 +29,7 @@ fun Route.projectRest(mountFolder: File, projectsRepository: ProjectsRepository)
         val project = projectsRepository.getProject(projectId) ?: throw Exception("project not found")
         val svgFileName = project.files[fileId]?.svgFile ?: throw Exception("file not found")
 
-        val svgFile = File(mountFolder, "user_inputs/${fileId.value}/${svgFileName}")
+        val svgFile = File(projectsFolder, "${projectId.value}/${fileId.value}/${svgFileName}")
 
         call.response.header(
             HttpHeaders.ContentDisposition,
