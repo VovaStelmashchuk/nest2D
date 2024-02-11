@@ -46,15 +46,14 @@ Content-Type: application/json
 }
 
 ### nest big box
+
 POST localhost:8080/api/nest
 Content-Type: application/json
 
 {
     "project_id": "big_box_v1",
     "file_counts": {
-        "bottom+0": 1,
-        "long_side+2": 2,
-        "test_hole+3": 1
+        "big_box_all+26": 1
     },
     "plate_width": "1000",
     "plate_height": "1000"
@@ -73,8 +72,8 @@ POST localhost:8080/api/project/big_box_v1/add_file
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="file"; filename="long.dxf"
+Content-Disposition: form-data; name="file"; filename="big_box_all.dxf"
 
-< test-data/long_side.dxf
+< test-data/big_box/big_box.dxf
 
 

@@ -12,7 +12,7 @@ open class Entity internal constructor(@JvmField var type: String) {
     open fun close() {
     }
 
-    open fun toPath2D(): Path2D {
+    open fun toPath2D(): Path2D.Double {
         throw UnsupportedOperationException("Not implemented")
     }
 }

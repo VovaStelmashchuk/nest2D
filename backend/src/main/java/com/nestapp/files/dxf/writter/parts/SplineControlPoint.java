@@ -26,7 +26,7 @@
 package com.nestapp.files.dxf.writter.parts;
 
 
-import com.nestapp.files.dxf.RealPoint;
+import com.nestapp.files.dxf.common.RealPoint;
 
 /**
  * Utility class representing a spline control point, specifying both a 3-dimensional position and a weight.

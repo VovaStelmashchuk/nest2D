@@ -7,6 +7,7 @@ import com.nestapp.files.dxf.writter.DXFDocument
 import com.nestapp.nest.data.NestPath
 import org.apache.batik.ext.awt.geom.Polygon2D
 import java.awt.geom.AffineTransform
+import java.awt.geom.Area
 import java.awt.geom.Path2D
 import java.awt.geom.PathIterator
 import java.io.File
@@ -47,42 +48,40 @@ class DxfApi {
     }
 
     private fun getEntities(dxfReader: DXFReader): List<DxfPart> {
-        val dxfParts = mutableListOf<DxfPart>()
+        val connectedEntities: List<GroupedEntity> = EntityGrouper.groupEntities(dxfReader.entities)
+        val entitiesGroups: MutableMap<GroupedEntity, MutableList<GroupedEntity>> = mutableMapOf()
 
-        val lwPolylineList = dxfReader.entities.filterIsInstance<LwPolyline>()
-        dxfParts.addAll(getLwParts(lwPolylineList))
-
-        val lines = dxfReader.entities.filterIsInstance<Line>()
-        dxfParts.addAll(getPartsFromLines(lines))
-
-        if (dxfReader.entities.size != lwPolylineList.size + lines.size) {
-            throw RuntimeException("Unsupported entity type")
-        }
-
-        val dxfGroups: MutableMap<DxfPart, MutableList<DxfPart>> = mutableMapOf()
-
-        for (parentIndex in dxfParts.indices) {
-            val parent = dxfParts[parentIndex]
-            for (childIndex in dxfParts.indices) {
+        for (parentIndex in connectedEntities.indices) {
+            val parent: GroupedEntity = connectedEntities[parentIndex]
+            for (childIndex in connectedEntities.indices) {
                 if (parentIndex == childIndex) continue
-                val child = dxfParts[childIndex]
-                if (parent.polygon.contains(child.polygon)) {
-                    dxfGroups.getOrPut(parent) { mutableListOf() }.add(child)
+                val child: GroupedEntity = connectedEntities[childIndex]
+
+                if (isPathInsideAnother(parent.path, child.path)) {
+                    entitiesGroups.getOrPut(parent) { mutableListOf() }.add(child)
                 }
             }
         }
 
-        val singleParts = dxfParts.minus(dxfGroups.keys).minus(dxfGroups.values.flatten().toSet())
+        val singleGroups: List<DxfPart> =
+            connectedEntities.minus(entitiesGroups.keys).minus(entitiesGroups.values.flatten().toSet())
+                .map {
+                    DxfPart(it.entities, toNestPath(it.path))
+                }
 
-        val result = dxfGroups.map { (parent, children) ->
-            DxfPart(parent.entities, parent.nestPath, children)
-        } + singleParts
+        val allGroupsToNest: List<DxfPart> = entitiesGroups.map { (parent, children) ->
+            val childrenNestPaths = children.map { child -> DxfPart(child.entities, toNestPath(child.path)) }
+            return@map DxfPart(parent.entities, toNestPath(parent.path), childrenNestPaths)
+        } + singleGroups
 
-        result.forEach {
-            it.nestPath.setPossibleNumberRotations(4)
-        }
+        return allGroupsToNest
+    }
 
-        return result
+    private fun isPathInsideAnother(outerPath: Path2D.Double, innerPath: Path2D.Double): Boolean {
+        val parent = toNestPath(outerPath).toPolygon2D()
+        val child = toNestPath(innerPath).toPolygon2D()
+
+        return parent.contains(child)
     }
 
     private fun Polygon2D.contains(polygon2D: Polygon2D): Boolean {
@@ -93,41 +92,6 @@ class DxfApi {
             .all { (x, y) ->
                 this.contains(x, y)
             }
-    }
-
-    private fun getPartsFromLines(lines: List<Line>): List<DxfPart> {
-        val createdShapes = mutableListOf<MutableList<Line>>()
-        lines.forEach { line ->
-            var added = false
-            createdShapes.forEach { shape ->
-                shape.find { it.xEnd == line.xStart && it.yEnd == line.yStart }?.let {
-                    shape.add(line)
-                    added = true
-                }
-            }
-
-            if (!added) {
-                createdShapes.add(mutableListOf(line))
-            }
-        }
-
-        return createdShapes.map { shape ->
-            val nestPath = NestPath()
-            shape.toList().forEach { line ->
-                nestPath.add(line.xStart, line.yStart)
-                nestPath.add(line.xEnd, line.yEnd)
-            }
-            return@map DxfPart(shape.toList(), nestPath)
-        }
-    }
-
-    private fun getLwParts(
-        lwPolylineList: List<LwPolyline>
-    ): List<DxfPart> {
-        return lwPolylineList.map { lwPolyline ->
-            val nestPath = toNestPath(lwPolyline.toPath2D())
-            return@map DxfPart(listOf(lwPolyline), nestPath)
-        }
     }
 
     private fun toNestPath(path: Path2D): NestPath {

@@ -22,69 +22,62 @@
  *   SOFTWARE.
  *
  */
+package com.nestapp.files.dxf.writter.parts
 
-package com.nestapp.files.dxf.writter.parts;
-
-import com.nestapp.files.dxf.RealPoint;
-
-import java.util.Vector;
-
+import com.nestapp.files.dxf.common.LSegment
 
 /**
  * Class representing a set of line segments defining a (possibly closed) polygon.
- *
- * @author jsevy
+ * Create a set of line segments that connects the specified points, including a segment from the last
+ * to the first if closed is indicated.
+ * @param numVertices The number of vertices specified in the vertex list
+ * @param vertices    The vertices
+ * @param closed      If true, adds a segment between the last and first points
  */
-public class DXFLWPolyline extends DXFEntity {
-    private int numVertices;
-    private Vector<RealPoint> vertices;
-    private boolean closed;
+class DXFLWPolyline(
+    private val segments: List<LSegment>,
+    private val closed: Boolean,
+) : DXFEntity() {
 
-
-    /**
-     * Create a set of line segments that connects the specified points, including a segment from the last
-     * to the first if closed is indicated.
-     *
-     * @param numVertices The number of vertices specified in the vertex list
-     * @param vertices    The vertices
-     * @param closed      If true, adds a segment between the last and first points
-     */
-    public DXFLWPolyline(int numVertices, Vector<RealPoint> vertices, boolean closed) {
-        this.numVertices = numVertices;
-        this.vertices = vertices;
-        this.closed = closed;
-    }
-
-
-    /**
-     * Implementation of DXFObject interface method; creates DXF text representing the polyline.
-     */
-    public String toDXFString() {
-        String result = "0\nLWPOLYLINE\n";
+    override fun toDXFString(): String {
+        var result = "0\nLWPOLYLINE\n"
 
         // print out handle and superclass marker(s)
-        result += super.toDXFString();
+        result += super.toDXFString()
 
         // print out subclass marker
-        result += "100\nAcDbPolyline\n";
+        result += "100\nAcDbPolyline\n"
 
         // include number of vertices
-        result += "90\n" + numVertices + "\n";
+        result += "90\n${segments.size}\n"
 
         // indicate if closed
-        if (closed) {
-            result += "70\n1\n";
+        result += if (closed) {
+            "70\n1\n"
         } else {
-            result += "70\n0\n";
+            "70\n0\n"
         }
 
         // include list of vertices
-        for (int i = 0; i < vertices.size(); i++) {
-            RealPoint point = vertices.elementAt(i);
-            result += "10\n" + setPrecision(point.x) + "\n";
-            result += "20\n" + setPrecision(point.y) + "\n";
+        for (segment in segments) {
+            result += """
+                10
+                ${setPrecision(segment.dx)}
+
+                """.trimIndent()
+            result += """
+                20
+                ${setPrecision(segment.dy)}
+
+                """.trimIndent()
+
+            result += """
+            42
+            ${setPrecision(segment.bulge)}
+
+            """.trimIndent()
         }
 
-        return result;
+        return result
     }
 }

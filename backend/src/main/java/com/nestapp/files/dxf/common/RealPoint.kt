@@ -1,4 +1,4 @@
-package com.nestapp.files.dxf
+package com.nestapp.files.dxf.common
 
 import com.nestapp.nest.data.Placement
 import java.io.Serializable

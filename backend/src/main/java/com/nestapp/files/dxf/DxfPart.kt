@@ -1,5 +1,6 @@
 package com.nestapp.files.dxf
 
+import com.nestapp.files.dxf.common.RealPoint
 import com.nestapp.files.dxf.reader.Entity
 import com.nestapp.files.dxf.reader.Line
 import com.nestapp.files.dxf.reader.LwPolyline
@@ -9,7 +10,6 @@ import com.nestapp.files.dxf.writter.parts.DXFLine
 import com.nestapp.nest.data.NestPath
 import com.nestapp.nest.data.Placement
 import org.apache.batik.ext.awt.geom.Polygon2D
-import java.util.Vector
 
 data class DxfPart(
     val entities: List<Entity>,
@@ -53,15 +53,9 @@ data class DxfPartPlacement(
     }
 
     private fun getDXFLWPolyline(lwPolyline: LwPolyline): DXFLWPolyline {
-        val vertices = Vector<RealPoint>()
-
-        lwPolyline.segments.forEach { segment: LwPolyline.LSegment ->
-            vertices.add(
-                RealPoint(segment.dx, segment.dy)
-                    .transform(placement)
-            )
-        }
-
-        return DXFLWPolyline(vertices.size, vertices, true)
+        return DXFLWPolyline(
+            segments = lwPolyline.segments.map { it.transform(placement) },
+            closed = true
+        )
     }
 }

@@ -1,5 +1,6 @@
 package com.nestapp.files.dxf.reader
 
+import com.nestapp.files.dxf.common.LSegment
 import java.awt.geom.Arc2D
 import java.awt.geom.Path2D
 import java.awt.geom.Point2D
@@ -9,7 +10,8 @@ import kotlin.math.sqrt
 
 class LwPolyline internal constructor(type: String) : Entity(type), AutoPop {
     var segments: MutableList<LSegment> = ArrayList()
-    var cSeg: LSegment? = null
+
+    private var cSeg: LSegment? = null
     private var xCp = 0.0
     private var yCp = 0.0
     private var hasXcp = false
@@ -17,10 +19,6 @@ class LwPolyline internal constructor(type: String) : Entity(type), AutoPop {
     private var close = false
 
     private var path: Path2D.Double? = null
-
-    inner class LSegment internal constructor(var dx: Double, var dy: Double) {
-        var bulge: Double = 0.0
-    }
 
     override fun addParam(gCode: Int, value: String) {
         when (gCode) {
@@ -54,7 +52,7 @@ class LwPolyline internal constructor(type: String) : Entity(type), AutoPop {
         }
     }
 
-    override fun toPath2D(): Path2D {
+    override fun toPath2D(): Path2D.Double {
         return path!!
     }
 

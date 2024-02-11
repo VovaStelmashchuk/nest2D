@@ -11,7 +11,7 @@ class Line internal constructor(type: String) : Entity(type), AutoPop {
 
     private var line: Path2D.Double? = null
 
-    override fun toPath2D(): Path2D {
+    override fun toPath2D(): Path2D.Double {
         return line!!
     }
 

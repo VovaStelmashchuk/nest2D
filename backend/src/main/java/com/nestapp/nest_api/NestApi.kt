@@ -38,7 +38,7 @@ class NestApi {
         config.SPACING = 1.5
 
         val nestPaths = dxfParts
-            .map { it.nestPath }
+            .map { it.nestPath.also { it.setPossibleNumberRotations(4) } }
             .toMutableList()
 
         val nest = Nest(nestPathPlace, nestPaths, config, 10)
