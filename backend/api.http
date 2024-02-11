@@ -45,9 +45,36 @@ Content-Type: application/json
     "plate_height": "250"
 }
 
+### nest big box
+POST localhost:8080/api/nest
+Content-Type: application/json
+
+{
+    "project_id": "big_box_v1",
+    "file_counts": {
+        "bottom+0": 1,
+        "long_side+2": 2
+    },
+    "plate_width": "1000",
+    "plate_height": "1000"
+}
+
+
 ### Test
 GET localhost:8080/api/test
 
 
 ### Get all projects
 GET localhost:8080/api/projects
+
+### Add file to project
+POST localhost:8080/api/project/big_box_v1/add_file
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="bottom.dxf"
+
+# < /Users/vovastelmashchuk/Desktop/home lazer/box for asrs/long_side_1.dxf
+< /Users/vovastelmashchuk/Desktop/home lazer/box for asrs/bottom.dxf
+
+

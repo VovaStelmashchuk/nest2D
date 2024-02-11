@@ -1,7 +1,7 @@
 package com.nestapp.nest_api
 
-import com.nestapp.DxfPart
-import com.nestapp.DxfPartPlacement
+import com.nestapp.files.dxf.DxfPart
+import com.nestapp.files.dxf.DxfPartPlacement
 import com.nestapp.nest.Nest
 import com.nestapp.nest.config.Config
 import com.nestapp.nest.data.NestPath
@@ -50,10 +50,9 @@ class NestApi {
 
         val placements = appliedPlacement.first()
             .map { placement ->
-                val dxfPart = dxfParts.find { dxfPart -> dxfPart.bid == placement.bid }!!
+                val dxfPart: DxfPart = dxfParts.find { dxfPart -> dxfPart.bid == placement.bid }!!
                 DxfPartPlacement(
-                    entities = dxfPart.entities,
-                    nestPath = dxfPart.nestPath,
+                    dxfPart = dxfPart,
                     placement = placement,
                 )
             }

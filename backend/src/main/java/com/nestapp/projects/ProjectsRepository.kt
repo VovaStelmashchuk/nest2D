@@ -3,11 +3,14 @@ package com.nestapp.projects
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import java.io.File
 
-class ProjectsRepository {
+class ProjectsRepository(
+    private val json: Json,
+) {
 
     companion object {
         private const val FILE = "mount/app_data/projects.json"
@@ -23,6 +26,17 @@ class ProjectsRepository {
         return fileIds.associateWith { fileId -> requireNotNull(project.files[fileId]) }
     }
 
+    fun addFile(id: ProjectId, fileId: FileId, projectFile: ProjectFile) {
+        val root = getProjectRoot()
+        val project = root.projects[id] ?: throw IllegalArgumentException("Project not found")
+        val files = project.files.toMutableMap()
+        files[fileId] = projectFile
+
+        val rootMutable = root.projects.toMutableMap()
+        rootMutable[id] = project.copy(files = files)
+        saveProjectRoot(root.copy(projects = rootMutable.toMap()))
+    }
+
     fun getProjects(): Map<ProjectId, Project> {
         return getProjectRoot().projects
     }
@@ -30,7 +44,12 @@ class ProjectsRepository {
     @OptIn(ExperimentalSerializationApi::class)
     @Synchronized
     private fun getProjectRoot(): ProjectsRoot {
-        return Json.decodeFromStream<ProjectsRoot>(File(FILE).inputStream())
+        return json.decodeFromStream<ProjectsRoot>(File(FILE).inputStream())
+    }
+
+    @Synchronized
+    private fun saveProjectRoot(projectsRoot: ProjectsRoot) {
+        File(FILE).writeText(json.encodeToString(projectsRoot))
     }
 }
 

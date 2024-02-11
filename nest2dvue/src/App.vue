@@ -20,7 +20,7 @@ import AppFooter from "@/components/AppFooter.vue";
 .app-container {
     display: flex;
     flex-direction: column;
-    min-height: calc(100vh - 120px); /* Full viewport height - footer and header */
+    min-height: calc(100vh - 120px);
     width: 100vw;
     margin: 0;
     padding: 0;
@@ -28,7 +28,7 @@ import AppFooter from "@/components/AppFooter.vue";
 
 .main-content {
     padding: 0 2rem;
-    flex: 1; /* This allows the main content to grow and take available space */
+    flex: 1;
     margin-top: 60px;
 }
 </style>

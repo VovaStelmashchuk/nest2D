@@ -1,10 +1,11 @@
 package com.nestapp
 
+import com.nestapp.files.SvgFromDxf
 import com.nestapp.nest_api.NestedRepository
 import com.nestapp.nest_api.UserInputExecution
 import com.nestapp.nest_api.nestRestApi
 import com.nestapp.projects.ProjectsRepository
-import com.nestapp.projects.projectRest
+import com.nestapp.projects.projectsRest
 import com.nestapp.test.testTrigger
 import io.ktor.http.HttpMethod.Companion.DefaultMethods
 import io.ktor.http.HttpStatusCode
@@ -33,15 +34,14 @@ internal object Main {
         /*try {
             testTrigger()
         } catch (e: Exception) {
-            println("Error: $e")
+            e.printStackTrace()
         }*/
-
 
         val json = Json {
             prettyPrint = true
             ignoreUnknownKeys = true
         }
-        val projectsRepository = ProjectsRepository()
+        val projectsRepository = ProjectsRepository(json)
         val nestedRepository = NestedRepository(json)
 
         embeddedServer(CIO, port = 8080) {
@@ -76,7 +76,7 @@ internal object Main {
 
             routing {
                 route("/api") {
-                    projectRest(File("mount/projects"), projectsRepository)
+                    projectsRest(File("mount/projects"), projectsRepository, SvgFromDxf())
                     nestRestApi(projectsRepository, nestedRepository, File("mount/projects"))
 
                     get("/version") {

@@ -1,37 +1,37 @@
 package com.nestapp.test
 
-import com.nestapp.dxf.DxfApi
-import com.nestapp.svg.SvgWriter
+import com.nestapp.files.dxf.DxfApi
+import com.nestapp.files.svg.SvgWriter
+import com.nestapp.nest_api.NestApi
+import java.awt.Rectangle
 import java.io.File
 
 fun testTrigger() {
-    val files = File("mount/uploads/laser_gridfinity_boxes_open_scad").list()?.toList()!!
-        .sortedBy { it }
+    val file = File("mount/projects/big_box_v1/long_side_1+0/long_side_1.dxf")
 
-    files.forEachIndexed { index, it ->
-        doFile(it, index)
-    }
+    val dxfApi = DxfApi()
 
-}
+    val dxfParts = dxfApi.readFile(file)
 
-private fun doFile(file: String, index: Int) {
-    val dxfAPi = DxfApi()
-    val dxfFile = File("mount/uploads/laser_gridfinity_boxes_open_scad/${file}")
-    val dxf = dxfAPi.readFile(dxfFile)
-
-    dxf.map { it.nestPath }
-
-    val svgWriter = SvgWriter()
-
-    val name = file.removeSuffix(".dxf")
-
-    val parentFolder = File("mount/projects/laser_gridfinity_boxes_open_scad/$name+$index")
-    parentFolder.mkdir()
-
-    svgWriter.writeJustNestPathsToSvg(
-        dxf.map { it.nestPath },
-        File(parentFolder, "$name.svg"),
+    val nestApi = NestApi()
+    val result = nestApi.startNest(
+        plate = Rectangle(0, 0, 1000, 1000),
+        dxfParts = dxfParts + dxfParts + dxfParts,
     )
 
-    dxfFile.copyTo(File(parentFolder, "$name.dxf"), true)
+    val dxfFile = File("test-data", "1.dxf")
+    val svgFile = File("test-data", "1.svg")
+
+    result.onSuccess { placement ->
+        dxfApi.writeFile(placement, dxfFile)
+
+        val svgWriter = SvgWriter()
+        svgWriter.writeNestPathsToSvg(
+            placement,
+            svgFile,
+            1000.0,
+            1000.0,
+        )
+    }
 }
+

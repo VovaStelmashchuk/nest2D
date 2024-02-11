@@ -1,11 +1,11 @@
 package com.nestapp.nest_api
 
-import com.nestapp.DxfPartPlacement
-import com.nestapp.dxf.DxfApi
+import com.nestapp.files.dxf.DxfPartPlacement
+import com.nestapp.files.dxf.DxfApi
 import com.nestapp.projects.FileId
 import com.nestapp.projects.ProjectId
 import com.nestapp.projects.ProjectsRepository
-import com.nestapp.svg.SvgWriter
+import com.nestapp.files.svg.SvgWriter
 import io.ktor.http.ContentDisposition
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
