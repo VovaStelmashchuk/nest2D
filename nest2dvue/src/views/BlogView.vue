@@ -1,5 +1,36 @@
 <template>
-    <h1>The nest2d online blog</h1>
+    <div class="article-container">
+        <div class="article-title">
+            <p>Project updates, #2</p>
+        </div>
+        <div class="article-meta">
+            <p>Published on
+                <time datetime="2021-08-01">Feb 11, 2024</time>
+                by nest2d
+            </p>
+        </div>
+        <div class="article-body">
+            <h2>New features</h2>
+            <ul>
+                <li>Fully support for LwPolyline, (includes code 42 for bulge)</li>
+                <li>Implement combine paths (currently not fully tested with combine path from different DXF types)</li>
+            </ul>
+
+            <h2>New projects</h2>
+            <ul>
+                <li>Laser gridfinity boxes by OpenSCAD (the project with Line)</li>
+                <li>Big box, my big box for Laser gridfinity (the project proof the curse and inner hole works fine)
+                </li>
+            </ul>
+            <h2>Next stages</h2>
+            <ul>
+                <li>Implement CI for deploy docker container, for web and backend</li>
+                <li>Add the photo to the project</li>
+                <li>Better look for holes into preview images</li>
+            </ul>
+            <p></p>
+        </div>
+    </div>
     <div class="article-container">
         <div class="article-title">
             <p>Project updates, #1</p>
@@ -126,6 +157,13 @@
     border-top: 1px solid #eee; /* Adds a line above the footer */
     padding-top: 20px; /* Space above the footer content */
     margin-top: 20px; /* Space above the line */
+}
+
+.article-container ul {
+    margin-bottom: 20px;
+    color: var(--color-text);
+    overflow-wrap: break-word;
+    white-space: normal;
 }
 
 /* Responsive design adjustments */
