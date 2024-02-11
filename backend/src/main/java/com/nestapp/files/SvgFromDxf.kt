@@ -10,10 +10,10 @@ class SvgFromDxf {
     private val svgWriter = SvgWriter()
 
     fun convertDxfToSvg(dxfFile: File, svgFile: File) {
-        val dxf = dxfApi.readFile(dxfFile)
+        val dxfParts = dxfApi.readFile(dxfFile)
 
-        svgWriter.writeJustNestPathsToSvg(
-            dxf.map { it.nestPath },
+        svgWriter.writeDxfPathsToSvg(
+            dxfParts,
             svgFile,
         )
     }

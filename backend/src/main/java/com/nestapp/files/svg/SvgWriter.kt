@@ -1,5 +1,6 @@
 package com.nestapp.files.svg
 
+import com.nestapp.files.dxf.DxfPart
 import com.nestapp.files.dxf.DxfPartPlacement
 import com.nestapp.nest.data.NestPath
 import java.io.File
@@ -12,28 +13,30 @@ class SvgWriter {
         val COLORS = listOf("#7bafd1", "#fc8d8d", "#a6d854", "#ffd92f", "#e78ac3", "#66c2a5")
     }
 
-    fun writeJustNestPathsToSvg(
-        list: List<NestPath>,
+    fun writeDxfPathsToSvg(
+        dxfParts: List<DxfPart>,
         file: File,
     ) {
-        var minX = 0.0
-        var minY = 0.0
-        var maxX = 0.0
-        var maxY = 0.0
-        list.forEach { nestPath ->
-            nestPath.segments.forEach { segment ->
-                if (segment.x < minX) {
-                    minX = segment.x
-                }
-                if (segment.y < minY) {
-                    minY = segment.y
-                }
-                if (segment.x > maxX) {
-                    maxX = segment.x
-                }
-                if (segment.y > maxY) {
-                    maxY = segment.y
-                }
+        var minX = Double.MAX_VALUE
+        var minY = Double.MAX_VALUE
+        var maxX = Double.MIN_VALUE
+        var maxY = Double.MIN_VALUE
+
+        dxfParts.forEach { dxfPart ->
+            if (minX > dxfPart.nestPath.minX) {
+                minX = dxfPart.nestPath.minX
+            }
+
+            if (minY > dxfPart.nestPath.minY) {
+                minY = dxfPart.nestPath.minY
+            }
+
+            if (maxX < dxfPart.nestPath.maxX) {
+                maxX = dxfPart.nestPath.maxX
+            }
+
+            if (maxY < dxfPart.nestPath.maxY) {
+                maxY = dxfPart.nestPath.maxY
             }
         }
 
@@ -44,9 +47,12 @@ class SvgWriter {
         val height = maxY - minY
 
         val rawSvg = buildString {
-            for ((index, nestPath) in list.withIndex()) {
+            for ((index, dxfPart) in dxfParts.withIndex()) {
                 appendLine("""<g transform="translate($translationX, $translationY)">""".trimIndent())
-                appendSvgPath(nestPath, index)
+                appendSvgPath(dxfPart.nestPath, index)
+                dxfPart.inners.forEach { innerDxfPart ->
+                    appendSvgPath(innerDxfPart.nestPath, index)
+                }
                 appendLine("</g>")
             }
         }

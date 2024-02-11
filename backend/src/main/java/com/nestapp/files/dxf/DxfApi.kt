@@ -6,6 +6,9 @@ import com.nestapp.files.dxf.reader.LwPolyline
 import com.nestapp.files.dxf.writter.DXFDocument
 import com.nestapp.nest.data.NestPath
 import org.apache.batik.ext.awt.geom.Polygon2D
+import java.awt.geom.AffineTransform
+import java.awt.geom.Path2D
+import java.awt.geom.PathIterator
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
@@ -71,9 +74,15 @@ class DxfApi {
 
         val singleParts = dxfParts.minus(dxfGroups.keys).minus(dxfGroups.values.flatten().toSet())
 
-        return dxfGroups.map { (parent, children) ->
+        val result = dxfGroups.map { (parent, children) ->
             DxfPart(parent.entities, parent.nestPath, children)
         } + singleParts
+
+        result.forEach {
+            it.nestPath.setPossibleNumberRotations(4)
+        }
+
+        return result
     }
 
     private fun Polygon2D.contains(polygon2D: Polygon2D): Boolean {
@@ -116,13 +125,39 @@ class DxfApi {
         lwPolylineList: List<LwPolyline>
     ): List<DxfPart> {
         return lwPolylineList.map { lwPolyline ->
-            val nestPath = NestPath()
-            lwPolyline.segments.forEach { segment: LwPolyline.LSegment ->
-                nestPath.add(segment.dx, segment.dy)
-            }
-            nestPath.setPossibleNumberRotations(4)
+            val nestPath = toNestPath(lwPolyline.toPath2D())
             return@map DxfPart(listOf(lwPolyline), nestPath)
         }
     }
+
+    private fun toNestPath(path: Path2D): NestPath {
+        val step = 0.1
+        val nestPath = NestPath()
+
+        val at = AffineTransform()
+        val iter = path.getPathIterator(at, step)
+        val coords = DoubleArray(6)
+        while (!iter.isDone) {
+            val type = iter.currentSegment(coords)
+
+            when (type) {
+                PathIterator.SEG_MOVETO, PathIterator.SEG_LINETO -> {
+                    nestPath.add(coords[0], coords[1])
+                }
+
+                PathIterator.SEG_QUADTO -> {
+                    nestPath.add(coords[2], coords[3])
+                }
+
+                PathIterator.SEG_CUBICTO -> {
+                    nestPath.add(coords[4], coords[5])
+                }
+            }
+            iter.next()
+        }
+
+        return nestPath
+    }
+
 }
 

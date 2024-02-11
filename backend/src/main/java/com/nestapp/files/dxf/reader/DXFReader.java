@@ -58,7 +58,7 @@ public class DXFReader {
         }
 
         @Override
-        void addParm(int gCode, String value) {
+        public void addParam(int gCode, String value) {
             if (gCode == 2 && sType == null) {
                 sType = value;
             } else if (gCode == 9) {
@@ -85,7 +85,7 @@ public class DXFReader {
         }
 
         @Override
-        void addParm(int gCode, String value) {
+        public void addParam(int gCode, String value) {
             switch (gCode) {
                 case 1:                                       // Text string
                     // Process Control Codes and Special Chars
@@ -193,7 +193,7 @@ public class DXFReader {
         }
 
         @Override
-        void addParm(int gCode, String value) {
+        public void addParam(int gCode, String value) {
             switch (gCode) {
                 case 1:                                         // Text string
                     // Process Format Codes (most are ignored)
@@ -299,7 +299,7 @@ public class DXFReader {
         }
 
         @Override
-        void addParm(int gCode, String value) {
+        public void addParam(int gCode, String value) {
             switch (gCode) {
                 case 2:                                       // Block name
                     blockDict.put(value, this);
@@ -339,7 +339,7 @@ public class DXFReader {
         }
 
         @Override
-        void addParm(int gCode, String value) {
+        public void addParam(int gCode, String value) {
             switch (gCode) {
                 case 2:                                     // Name of Block to insert
                     blockName = value;
@@ -382,7 +382,7 @@ public class DXFReader {
         }
 
         @Override
-        void addParm(int gCode, String value) {
+        public void addParam(int gCode, String value) {
             switch (gCode) {
                 case 2:                                     // Name of Block to with Dimension graphics
                     blockName = value;
@@ -421,7 +421,7 @@ public class DXFReader {
         }
 
         @Override
-        void addParm(int gCode, String value) {
+        public void addParam(int gCode, String value) {
             switch (gCode) {
                 case 10:                                  // Center Point X1
                     cx = Double.parseDouble(value);
@@ -453,7 +453,7 @@ public class DXFReader {
         }
 
         @Override
-        void addParm(int gCode, String value) {
+        public void addParam(int gCode, String value) {
             switch (gCode) {
                 case 10:                                  // Center Point X1
                     cx = Double.parseDouble(value);
@@ -511,7 +511,7 @@ public class DXFReader {
         }
 
         @Override
-        void addParm(int gCode, String value) {
+        public void addParam(int gCode, String value) {
             switch (gCode) {
                 case 10:                                  // Center Point X1
                     cx = Double.parseDouble(value);
@@ -555,7 +555,7 @@ public class DXFReader {
         }
 
         @Override
-        void addParm(int gCode, String value) {
+        public void addParam(int gCode, String value) {
             if (gCode == 70) {
                 int flags = Integer.parseInt(value);
                 close = (flags & 1) != 0;
@@ -563,7 +563,7 @@ public class DXFReader {
         }
 
         @Override
-        void addChild(Entity child) {
+        public void addChild(Entity child) {
             if (child instanceof Vertex) {
                 if (points == null) {
                     points = new ArrayList<>();
@@ -609,7 +609,7 @@ public class DXFReader {
         }
 
         @Override
-        void addParm(int gCode, String value) {
+        public void addParam(int gCode, String value) {
             switch (gCode) {
                 case 10:                                    // Vertex X
                     xx = Double.parseDouble(value);
@@ -638,7 +638,7 @@ public class DXFReader {
         }
 
         @Override
-        void addParm(int gCode, String value) {
+        public void addParam(int gCode, String value) {
             switch (gCode) {
                 case 10:                                    // Control Point X
                     xCp = Double.parseDouble(value);
@@ -855,7 +855,7 @@ public class DXFReader {
                     if (DEBUG) {
                         debugPrint(gCode + ": " + value);
                     }
-                    cEntity.addParm(gCode, value);
+                    cEntity.addParam(gCode, value);
                 }
             }
         }

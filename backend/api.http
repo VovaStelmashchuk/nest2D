@@ -53,7 +53,8 @@ Content-Type: application/json
     "project_id": "big_box_v1",
     "file_counts": {
         "bottom+0": 1,
-        "long_side+2": 2
+        "long_side+2": 2,
+        "test_hole+3": 1
     },
     "plate_width": "1000",
     "plate_height": "1000"
@@ -72,9 +73,8 @@ POST localhost:8080/api/project/big_box_v1/add_file
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="file"; filename="bottom.dxf"
+Content-Disposition: form-data; name="file"; filename="long.dxf"
 
-# < /Users/vovastelmashchuk/Desktop/home lazer/box for asrs/long_side_1.dxf
-< /Users/vovastelmashchuk/Desktop/home lazer/box for asrs/bottom.dxf
+< test-data/long_side.dxf
 
 

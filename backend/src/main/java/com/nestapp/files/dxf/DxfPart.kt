@@ -23,6 +23,10 @@ data class DxfPart(
     val polygon: Polygon2D by lazy {
         nestPath.toPolygon2D()
     }
+
+    override fun toString(): String {
+        return "DxfPart(entities=$entities, nestPath=$nestPath, inners=$inners)"
+    }
 }
 
 data class DxfPartPlacement(
