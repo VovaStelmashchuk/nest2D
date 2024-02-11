@@ -17,8 +17,6 @@ public class Config {
     // Contest purpose
     public static boolean IS_DEBUG;
     public static double BOUND_SPACING;
-    public static boolean ASSUME_NO_INNER_PARTS = false;
-    public static boolean ASSUME_ALL_PARTS_PLACABLE;
     public static int LIMIT = 0;
     public static String OUTPUT_DIR = "output/";
     public static String NFP_CACHE_PATH;

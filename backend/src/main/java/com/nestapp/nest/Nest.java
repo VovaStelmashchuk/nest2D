@@ -2,12 +2,12 @@ package com.nestapp.nest;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.nestapp.nest.algorithm.GeneticAlgorithm;
+import com.nestapp.nest.algorithm.Individual;
 import com.nestapp.nest.config.Config;
 import com.nestapp.nest.contest.InputConfig;
 import com.nestapp.nest.data.*;
 import com.nestapp.nest.util.*;
-import com.nestapp.nest.algorithm.GeneticAlgorithm;
-import com.nestapp.nest.algorithm.Individual;
 
 import java.util.*;
 
@@ -19,8 +19,6 @@ import static com.nestapp.nest.util.IOUtils.log;
  */
 public class Nest {
 
-    private NestPath binPath;
-    private List<NestPath> parts;
     private Config config;
     private int loopCount;
     private GeneticAlgorithm GA = null;
@@ -32,14 +30,10 @@ public class Nest {
     /**
      * Create a new Nest object
      *
-     * @param binPath base polygon
-     * @param parts   list of plate polygons
-     * @param config  parameter settings
-     * @param count   The number of iterations to calculate
+     * @param config parameter settings
+     * @param count  The number of iterations to calculate
      */
-    public Nest(NestPath binPath, List<NestPath> parts, Config config, int count) {
-        this.binPath = binPath;
-        this.parts = parts;
+    public Nest(Config config, int count) {
         this.config = config;
         this.loopCount = count;
         nfpCache = new HashMap<>();
@@ -50,17 +44,16 @@ public class Nest {
      *
      * @return the placements' list of all NestPath
      */
-    public List<List<Placement>> startNest() {
-        /*-----------------------------PRELIMINARY SETTINGS-----------------------------*/
+    public List<List<Placement>> startNest(NestPath binPath, List<NestPath> parts) {
+        List<NestPath> tree = NewCommonUtils.INSTANCE.copyNestPathsAndSetIds(parts);
 
-        List<NestPath> tree = CommonUtil.BuildTree(parts, Config.CURVE_TOLERANCE);        //conversione di eventuali self-intersecting polygons in pologoni semplici
         CommonUtil.offsetTree(tree, 0.5 * config.SPACING);
         binPath.config = config;
         for (NestPath nestPath : parts) {
             nestPath.config = config;
         }
 
-        NestPath binPolygon = CommonUtil.cleanNestPath(binPath);    //conversione di un eventuale binPath self intersecting in un poligono semplice
+        NestPath binPolygon = new NestPath(binPath);    //conversione di un eventuale binPath self intersecting in un poligono semplice
         // Bound binBound = GeometryUtil.getPolygonBounds(binPolygon);
         if (Config.BOUND_SPACING > 0) {
             List<NestPath> offsetBin = CommonUtil.polygonOffset(binPolygon, -Config.BOUND_SPACING);
@@ -112,6 +105,7 @@ public class Nest {
         }
         /**
          * Make sure it's counterclockwise (rotazione antioraria) TODO why?
+         * Need for NFP algorithm
          */
         for (NestPath element : tree) {
             Segment start = element.get(0);
@@ -405,34 +399,6 @@ public class Nest {
             }
         }
         return CanBePlacdPolygonIndex;
-    }
-
-    public void add(NestPath np) {
-        parts.add(np);
-    }
-
-    public NestPath getBinPath() {
-        return binPath;
-    }
-
-    public List<NestPath> getParts() {
-        return parts;
-    }
-
-    public void setBinPath(NestPath binPath) {
-        this.binPath = binPath;
-    }
-
-    public void setParts(List<NestPath> parts) {
-        this.parts = parts;
-    }
-
-    public Config getConfig() {
-        return config;
-    }
-
-    public void setConfig(Config config) {
-        this.config = config;
     }
 
 }

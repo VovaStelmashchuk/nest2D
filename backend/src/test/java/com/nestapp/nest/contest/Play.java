@@ -42,26 +42,24 @@ public class Play {
         Config.BIN_HEIGHT = 1000;
         Config.NB_ITERATIONS = 2;
         Config.BOUND_SPACING = 0;
-        Config.ASSUME_NO_INNER_PARTS = true;
-        Config.ASSUME_ALL_PARTS_PLACABLE = true;
-        String INPUT_FILE = "./data/"+lotId+"_lingjian.csv";
+        String INPUT_FILE = "./data/" + lotId + "_lingjian.csv";
         //inputFile = "./data/debug";
         String OUTPUT_DIR = "./data/";
-        String OUTPUT_FILE = OUTPUT_DIR+lotId+".csv";
+        String OUTPUT_FILE = OUTPUT_DIR + lotId + ".csv";
         Config.LIMIT = 10;
         // TODO enable this line to load nfp from file
         //Config.NFP_CACHE_PATH=Config.OUTPUT_DIR+"nfp"+lotId+".txt";
 
         // Start ------------
         //List<NestPath> polygons = IOUtils.readFromContestFile(inputFile);
-        IOUtils.log("Loading data from "+ INPUT_FILE);
+        IOUtils.log("Loading data from " + INPUT_FILE);
         List<ContestData> datas = ContestData.readFromFile(INPUT_FILE);
         List<NestPath> polygons = datas.stream().map(ContestData::getPolygon).collect(Collectors.toList());
-        IOUtils.log(polygons.size()+" parts loaded.");
+        IOUtils.log(polygons.size() + " parts loaded.");
         InputConfig.INPUT = datas;
         InputConfig.INPUT_POLY = polygons;
-        if(Config.LIMIT>0){
-            polygons = polygons.subList(0,Config.LIMIT);
+        if (Config.LIMIT > 0) {
+            polygons = polygons.subList(0, Config.LIMIT);
         }
 
         NestPath bin = new NestPath();
@@ -71,27 +69,26 @@ public class Play {
         bin.add(0, Config.BIN_HEIGHT);
         bin.setBid(-1);
 
-        Nest nest = new Nest(bin, polygons, config, Config.NB_ITERATIONS);
-        List<List<Placement>> appliedPlacement = nest.startNest();
+        Nest nest = new Nest(config, Config.NB_ITERATIONS);
+        List<List<Placement>> appliedPlacement = nest.startNest(bin, polygons);
         IOUtils.log("Save to svg...");
         List<String> strings = SvgUtil.svgGenerator(polygons, appliedPlacement, Config.BIN_WIDTH, Config.BIN_HEIGHT);
-        saveSvgFile(strings,OUTPUT_FILE+".html");
+        saveSvgFile(strings, OUTPUT_FILE + ".html");
         IOUtils.log("Save to 'submit' folder...");
         IOUtils.writeToFile(OUTPUT_FILE, appliedPlacement, datas);
     }
 
     @Test
-    public void testSeri(){
+    public void testSeri() {
         Map<String, Integer> m = new HashMap<>();
-        m.put("test",5);
-        Gson g =new Gson();
+        m.put("test", 5);
+        Gson g = new Gson();
         String res = g.toJson(m, m.getClass());
         log(res);
         Gson g2 = new Gson();
         Map<String, Integer> m2 = g2.fromJson(res, m.getClass());
         log("Done");
     }
-
 
 
 }

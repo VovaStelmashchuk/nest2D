@@ -11,7 +11,7 @@ fun testTrigger() {
 
     val dxfApi = DxfApi()
 
-    val dxfParts = dxfApi.readFile(file)
+    val dxfParts = dxfApi.readFile(file, 0.1)
 
     val nestApi = NestApi()
     val result = nestApi.startNest(

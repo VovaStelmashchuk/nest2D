@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.nestapp.nest.algorithm.GeneticAlgorithm;
 import com.nestapp.nest.algorithm.Individual;
+import com.nestapp.nest.util.NewCommonUtils;
 import org.junit.jupiter.api.Test;
 
 import com.nestapp.nest.config.Config;
@@ -77,7 +78,7 @@ public class GeneticAlgorithmTest {
         List<NestPath> parts = new ArrayList<>();
         parts.add(in);parts.add(poly2); parts.add(poly1);
 
-        List<NestPath> tree = CommonUtil.BuildTree(parts,Config.CURVE_TOLERANCE);
+        List<NestPath> tree = NewCommonUtils.INSTANCE.copyNestPathsAndSetIds(parts);
         CommonUtil.offsetTree(tree , 0.5 * config.SPACING);
 
         List<NestPath> adam = new ArrayList<>();

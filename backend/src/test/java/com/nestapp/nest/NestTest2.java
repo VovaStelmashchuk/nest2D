@@ -77,8 +77,8 @@ public class NestTest2 {
         config.USE_HOLE = true;
 
         // Inizio del nesting
-        Nest nest = new Nest(binPolygon, list, config, 20);
-        List<List<Placement>> appliedPlacement = nest.startNest();
+        Nest nest = new Nest(config, 20);
+        List<List<Placement>> appliedPlacement = nest.startNest(binPolygon, list);
         List<String> strings = SvgUtil.svgGenerator(list, appliedPlacement, width, height);
         // System.out.println("STRINGHE SVG GENERATE " + strings.size());
         for (String s : strings) {
@@ -105,14 +105,14 @@ public class NestTest2 {
         config.SPACING = 0;
         config.POPULATION_SIZE = 6;
 
-        Nest nest = new Nest(bin, polygons, config, 1);    // singola iterazione -> loopcount = 1
+        Nest nest = new Nest(config, 1);    // singola iterazione -> loopcount = 1
 
-        List<List<Placement>> appliedPlacement = nest.startNest();
+        List<List<Placement>> appliedPlacement = nest.startNest(bin, polygons);
         List<String> strings = SvgUtil.svgGenerator(polygons, appliedPlacement, binWidth, binHeight);
         IOUtils.saveSvgFile(strings, Config.OUTPUT_DIR + "problem.html");
 
         // find solution
-        nest = new Nest(bin, polygons, config, 20);    // 10 iterazioni -> loopcount = 10
+        nest = new Nest(config, 20);    // 10 iterazioni -> loopcount = 10
         nest.observers.add(new ListPlacementObserver() {
             @Override
             public void populationUpdate(List<List<Placement>> appliedPlacement) {
@@ -125,7 +125,7 @@ public class NestTest2 {
                 System.out.println("Fitness " + result.fitness + "		Area " + result.area);
             }
         });
-        appliedPlacement = nest.startNest();
+        appliedPlacement = nest.startNest(bin, polygons);
         strings = SvgUtil.svgGenerator(polygons, appliedPlacement, binWidth, binHeight);
         IOUtils.saveSvgFile(strings, Config.OUTPUT_DIR + "solution.html");
     }

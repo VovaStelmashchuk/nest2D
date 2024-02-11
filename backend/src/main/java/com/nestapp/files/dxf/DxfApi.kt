@@ -1,13 +1,10 @@
 package com.nestapp.files.dxf
 
 import com.nestapp.files.dxf.reader.DXFReader
-import com.nestapp.files.dxf.reader.Line
-import com.nestapp.files.dxf.reader.LwPolyline
 import com.nestapp.files.dxf.writter.DXFDocument
 import com.nestapp.nest.data.NestPath
 import org.apache.batik.ext.awt.geom.Polygon2D
 import java.awt.geom.AffineTransform
-import java.awt.geom.Area
 import java.awt.geom.Path2D
 import java.awt.geom.PathIterator
 import java.io.File
@@ -37,18 +34,18 @@ class DxfApi {
         fileWriter.close()
     }
 
-    fun readFile(file: File): List<DxfPart> {
+    fun readFile(file: File, tolerance: Double): List<DxfPart> {
         val dxfReader = DXFReader()
         try {
             dxfReader.parseFile(file)
         } catch (e: IOException) {
             throw RuntimeException(e)
         }
-        return getEntities(dxfReader)
+        return getEntities(dxfReader, tolerance)
     }
 
-    private fun getEntities(dxfReader: DXFReader): List<DxfPart> {
-        val connectedEntities: List<GroupedEntity> = EntityGrouper.groupEntities(dxfReader.entities)
+    private fun getEntities(dxfReader: DXFReader, tolerance: Double): List<DxfPart> {
+        val connectedEntities: List<GroupedEntity> = EntityGrouper.groupEntities(dxfReader.entities, tolerance)
         val entitiesGroups: MutableMap<GroupedEntity, MutableList<GroupedEntity>> = mutableMapOf()
 
         for (parentIndex in connectedEntities.indices) {
@@ -57,7 +54,7 @@ class DxfApi {
                 if (parentIndex == childIndex) continue
                 val child: GroupedEntity = connectedEntities[childIndex]
 
-                if (isPathInsideAnother(parent.path, child.path)) {
+                if (isPathInsideAnother(parent.path, child.path, tolerance)) {
                     entitiesGroups.getOrPut(parent) { mutableListOf() }.add(child)
                 }
             }
@@ -66,20 +63,20 @@ class DxfApi {
         val singleGroups: List<DxfPart> =
             connectedEntities.minus(entitiesGroups.keys).minus(entitiesGroups.values.flatten().toSet())
                 .map {
-                    DxfPart(it.entities, toNestPath(it.path))
+                    DxfPart(it.entities, toNestPath(it.path, tolerance))
                 }
 
         val allGroupsToNest: List<DxfPart> = entitiesGroups.map { (parent, children) ->
-            val childrenNestPaths = children.map { child -> DxfPart(child.entities, toNestPath(child.path)) }
-            return@map DxfPart(parent.entities, toNestPath(parent.path), childrenNestPaths)
+            val childrenNestPaths = children.map { child -> DxfPart(child.entities, toNestPath(child.path, tolerance)) }
+            return@map DxfPart(parent.entities, toNestPath(parent.path, tolerance), childrenNestPaths)
         } + singleGroups
 
         return allGroupsToNest
     }
 
-    private fun isPathInsideAnother(outerPath: Path2D.Double, innerPath: Path2D.Double): Boolean {
-        val parent = toNestPath(outerPath).toPolygon2D()
-        val child = toNestPath(innerPath).toPolygon2D()
+    private fun isPathInsideAnother(outerPath: Path2D.Double, innerPath: Path2D.Double, tolerance: Double): Boolean {
+        val parent = toNestPath(outerPath, tolerance).toPolygon2D()
+        val child = toNestPath(innerPath, tolerance).toPolygon2D()
 
         return parent.contains(child)
     }
@@ -94,12 +91,11 @@ class DxfApi {
             }
     }
 
-    private fun toNestPath(path: Path2D): NestPath {
-        val step = 0.1
+    private fun toNestPath(path: Path2D, tolerance: Double): NestPath {
         val nestPath = NestPath()
 
         val at = AffineTransform()
-        val iter = path.getPathIterator(at, step)
+        val iter = path.getPathIterator(at, tolerance)
         val coords = DoubleArray(6)
         while (!iter.isDone) {
             val type = iter.currentSegment(coords)

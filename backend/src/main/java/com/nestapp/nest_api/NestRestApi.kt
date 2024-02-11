@@ -102,7 +102,7 @@ private fun nest(
 
     val listOfDxfParts = files
         .flatMap { (file, count) ->
-            val partsFromFile = dxfApi.readFile(file)
+            val partsFromFile = dxfApi.readFile(file, nestInput.tolerance)
 
             val result = buildList {
                 repeat(count) {
@@ -177,6 +177,8 @@ data class NestInput(
     val plateWidth: Int,
     @SerialName("plate_height")
     val plateHeight: Int,
+    @SerialName("tolerance")
+    val tolerance: Double = 0.01,
 )
 
 @Serializable

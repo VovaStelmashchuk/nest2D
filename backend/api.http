@@ -23,7 +23,7 @@ Content-Type: application/json
     "plate_height": "500"
 }
 
-### nest fusion project
+### nest open scad project
 POST localhost:8080/api/nest
 Content-Type: application/json
 

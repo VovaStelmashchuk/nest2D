@@ -38,7 +38,7 @@ public class NfpUtilTest {
         List<NestPath> list = new ArrayList<>();
         list.add(inner);list.add(outer);list.add(little);
         Config config = new Config();
-        List<NestPath> tree = CommonUtil.BuildTree(list , Config.CURVE_TOLERANCE);
+        List<NestPath> tree = NewCommonUtils.INSTANCE.copyNestPathsAndSetIds(list);
         CommonUtil.offsetTree(tree , 0.5 * config.SPACING);
         NestPath A = tree.get(0);
         NestPath B = tree.get(1);

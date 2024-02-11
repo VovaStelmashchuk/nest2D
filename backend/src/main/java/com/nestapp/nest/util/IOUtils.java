@@ -1,20 +1,5 @@
 package com.nestapp.nest.util;
 
-import java.io.BufferedReader;
-import java.io.FileWriter;
-import java.io.Writer;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.FileAttribute;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.google.gson.Gson;
 import com.nestapp.nest.config.Config;
 import com.nestapp.nest.contest.ContestData;
@@ -22,6 +7,17 @@ import com.nestapp.nest.contest.InputConfig;
 import com.nestapp.nest.data.NestPath;
 import com.nestapp.nest.data.Placement;
 import com.nestapp.nest.data.Segment;
+
+import java.io.FileWriter;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.FileAttribute;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class IOUtils {
 
@@ -48,46 +44,6 @@ public class IOUtils {
 			}
 		}
 	}
-
-    public static List<NestPath> readFromContestFile(String filepath) throws Exception{
-        List<NestPath> nestPaths = new ArrayList<>();
-        BufferedReader reader = Files.newBufferedReader(Paths.get(filepath));
-        String line = reader.readLine();
-        int count = 0;
-        while((line=reader.readLine())!=null){
-//            if(count>100){
-//                break;
-//            }
-            // Each line defines a part
-            String[] fields = line.split("\"");
-            String[] fields3 = fields[0].split(",");
-            String lotId = fields3[0];
-            String partId = fields3[1];
-            int nbPart = Integer.parseInt(fields3[2]);
-            String []rotDegrees = fields[3].split(",");
-            String matId = fields[4].replace(",","");
-            // Coord
-            NestPath polygon = new NestPath();
-            Pattern p = Pattern.compile("\\G\\[+([\\d\\.]+),\\s*([\\d\\.]+)[\\],\\]\\s]+");
-            Matcher m = p.matcher(fields[1]);
-            while(m.find()){
-                //log(m.group(1));
-                //log(m.group(2));
-                double x = Double.parseDouble(m.group(1));
-                double y = Double.parseDouble(m.group(2));
-                polygon.add(x, y);
-            }
-
-            //polygon.setBid(count++);
-            polygon.setRotation(0);//TODO
-            nestPaths.add(polygon);
-            while(--nbPart >= 0) {
-                nestPaths.add(new NestPath(polygon));
-            }
-        }
-
-        return nestPaths;
-    }
 
 	public static synchronized void saveNfpCache(Map<String, List<NestPath>> nfpCache, String filename) {
 		try {
