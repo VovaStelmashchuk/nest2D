@@ -356,10 +356,6 @@ public class Nest {
             for (int j = 0; j < best.placements.get(i).size(); j++) {
                 PathPlacement v = best.placements.get(i).get(j);
                 NestPath nestPath = tree.get(v.id);
-                for (NestPath child : nestPath.getChildren()) {
-                    Placement chPlacement = new Placement(child.getBid(), new Segment(v.x, v.y), v.rotation);
-                    binTranslate.add(chPlacement);
-                }
                 Placement placement = new Placement(nestPath.getBid(), new Segment(v.x, v.y), v.rotation);
                 binTranslate.add(placement);
             }

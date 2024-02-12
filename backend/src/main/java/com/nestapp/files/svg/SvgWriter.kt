@@ -23,20 +23,22 @@ class SvgWriter {
         var maxY = Double.MIN_VALUE
 
         dxfParts.forEach { dxfPart ->
-            if (minX > dxfPart.nestPath.minX) {
-                minX = dxfPart.nestPath.minX
-            }
+            dxfPart.nestPath.segments.forEach { segment ->
+                if (minX > segment.x) {
+                    minX = segment.x
+                }
 
-            if (minY > dxfPart.nestPath.minY) {
-                minY = dxfPart.nestPath.minY
-            }
+                if (minY > segment.y) {
+                    minY = segment.y
+                }
 
-            if (maxX < dxfPart.nestPath.maxX) {
-                maxX = dxfPart.nestPath.maxX
-            }
+                if (maxX < segment.x) {
+                    maxX = segment.x
+                }
 
-            if (maxY < dxfPart.nestPath.maxY) {
-                maxY = dxfPart.nestPath.maxY
+                if (maxY < segment.y) {
+                    maxY = segment.y
+                }
             }
         }
 

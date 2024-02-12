@@ -1,5 +1,6 @@
 package com.nestapp.nest.util;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.nestapp.nest.config.Config;
@@ -97,29 +98,6 @@ public class NfpUtil {
                 }
             }
 
-            if(useHoles && A.getChildren().size() >0 ){
-                Bound Bbounds = GeometryUtil.getPolygonBounds(B);
-                for(int i = 0 ; i <A.getChildren().size() ; i++){
-                    Bound Abounds = GeometryUtil.getPolygonBounds(A.getChildren().get(i));
-
-                    if(Abounds.width > Bbounds.width && Abounds.height > Bbounds.height){
-
-                        List<NestPath> cnfp = GeometryUtil.noFitPolygon(A.getChildren().get(i),B,true,searchEdges);
-                        // ensure all interior NFPs have the same winding direction
-
-                        if(cnfp != null && cnfp.size() > 0){
-
-                            for(int j=0; j<cnfp.size(); j++){
-                                if(GeometryUtil.polygonArea(cnfp.get(j)) < 0){
-                                    cnfp.get(j).reverse();
-                                }
-                                nfp.add(cnfp.get(j));
-                            }
-                        }
-
-                    }
-                }
-            }
         }
         if(nfp ==null ){
 

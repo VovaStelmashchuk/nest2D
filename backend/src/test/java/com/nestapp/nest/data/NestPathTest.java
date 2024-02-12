@@ -38,16 +38,13 @@ public class NestPathTest {
         chPath.setRotation(13);
         Segment s2 = new Segment(3,4);
         chPath.add(s2);
-        nestPath.addChildren(chPath);
 
         nestPath.toString();
         NestPath clone = new NestPath(nestPath);
         clone.toString();
         clone.getSegments().get(0).setX(11);
         clone.getSegments().get(0).setY(14);
-        clone.getChildren().get(0).setRotation(15);
         clone.setRotation(222);
-        clone.getChildren().get(0).getSegments().get(0).setX(55);
         nestPath.toString();
         clone.toString();
     }
@@ -98,7 +95,6 @@ public class NestPathTest {
         nestPath1.add(new Segment(5,5));
         nestPath1.add(new Segment(15,15));
         nestPath1.add(new Segment(25, 5 ));
-        nestPath.addChildren(nestPath1);
         NestPath clone = new NestPath(nestPath);
         System.out.println(clone.equals(nestPath) +" , "+ nestPath.equals(clone));
     }

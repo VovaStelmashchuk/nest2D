@@ -50,17 +50,14 @@ public class CommonUtil {
                     element.add(s);
                 }
             }
-            if (!element.getChildren().isEmpty()) {
-                offsetTree(element.getChildren(), -offset);
-            }
         }
     }
 
     public static List<NestPath> polygonOffset(NestPath polygon, double offset) {
-        List<NestPath> result = new ArrayList<>();
         if (offset == 0 || GeometryUtil.almostEqual(offset, 0)) {
-            return result;
+            return null;
         }
+
         Path p = new Path();
         for (Segment s : polygon.getSegments()) {
             ClipperCoor cc = CommonUtil.toClipperCoor(s.getX(), s.getY());
@@ -75,6 +72,7 @@ public class CommonUtil {
         co.execute(newpaths, offset * Config.CLIIPER_SCALE);
 
         // The length here is 1, which is what we want
+        List<NestPath> result = new ArrayList<>();
         for (Path newpath : newpaths) {
             result.add(CommonUtil.clipperToNestPath(newpath));
         }
@@ -87,7 +85,6 @@ public class CommonUtil {
             from.add(from.get(0));
             from.getSegments().remove(0);
         }
-
 
         return result;
     }
