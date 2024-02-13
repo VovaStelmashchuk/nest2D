@@ -79,14 +79,13 @@ internal object Main {
                 route("/api") {
                     projectsRest(
                         configuration,
-                        File("mount/projects"),
                         projectsRepository,
                         SvgFromDxf()
                     )
                     nestRestApi(
+                        configuration,
                         projectsRepository,
                         nestedRepository,
-                        File("mount/projects")
                     )
 
                     get("/version") {

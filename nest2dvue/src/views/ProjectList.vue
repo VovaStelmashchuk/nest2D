@@ -70,7 +70,9 @@ onMounted(async () => {
 }
 
 h2 {
-    margin-top: 0;
+    margin-bottom: 20px; /* Space below paragraphs */
+    color: var(--color-text);
     overflow-wrap: break-word;
+    white-space: normal;
 }
 </style>

@@ -62,6 +62,23 @@ Content-Type: application/json
     "plate_height": "1000"
 }
 
+### nest big box v2
+
+POST localhost:8080/api/nest
+Content-Type: application/json
+
+{
+    "project_id": "big_box_v2",
+    "file_counts": {
+        "big_box_all+0": 1,
+        "big_box_all+1": 1,
+        "big_box_all+2": 1
+    },
+    "plate_width": "1000",
+    "plate_height": "1000"
+}
+
+
 ### Get all projects
 GET localhost:8080/api/projects
 
@@ -74,4 +91,20 @@ Content-Disposition: form-data; name="file"; filename="big_box_all.dxf"
 
 < test-data/big_box/big_box.dxf
 
+### Add file to project big box V2
+POST nest2d.online/api/project/big_box_v2/add_file
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="short_side.dxf"
+
+< test-data/big_box_v2/short_side.dxf
+
+
+### Create the project
+POST nest2d.online/api/project
+Content-Type: application/json
+
+{
+    "name": "Big Box V2"
+}

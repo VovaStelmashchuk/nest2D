@@ -1,5 +1,6 @@
 package com.nestapp.nest_api
 
+import com.nestapp.Configuration
 import com.nestapp.files.dxf.DxfPartPlacement
 import com.nestapp.files.dxf.DxfApi
 import com.nestapp.projects.FileId
@@ -23,9 +24,9 @@ import java.awt.Rectangle
 import java.io.File
 
 fun Route.nestRestApi(
+    configuration: Configuration,
     projectsRepository: ProjectsRepository,
     nestedRepository: NestedRepository,
-    projectsFolder: File,
 ) {
     post("/nest") {
         val nestInput = call.receive<NestInput>()
@@ -35,7 +36,7 @@ fun Route.nestRestApi(
         }
 
         val id = nestedRepository.getNextId()
-        val result = nest(id, nestInput, projectsRepository, projectsFolder)
+        val result = nest(id, nestInput, projectsRepository, configuration.projectsFolder)
         nestedRepository.addNested(result)
 
         val nestedOutput = NestedOutput(id = id)

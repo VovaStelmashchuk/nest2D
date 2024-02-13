@@ -41,6 +41,16 @@ class ProjectsRepository(
         return getProjectRoot().projects
     }
 
+    fun add(project: Project) {
+        val root = getProjectRoot()
+        val projects = root.projects.toMutableMap()
+        if (projects.containsKey(project.id)) {
+            throw IllegalArgumentException("Project with id ${project.id} already exists")
+        }
+        projects[project.id] = project
+        saveProjectRoot(root.copy(projects = projects.toMap()))
+    }
+
     @OptIn(ExperimentalSerializationApi::class)
     @Synchronized
     private fun getProjectRoot(): ProjectsRoot {

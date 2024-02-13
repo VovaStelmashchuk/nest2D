@@ -2,6 +2,9 @@ package com.nestapp.projects
 
 import com.nestapp.Configuration
 import com.nestapp.files.SvgFromDxf
+import com.nestapp.projects.rest.allProjects
+import com.nestapp.projects.rest.createProject
+import com.nestapp.projects.rest.projectDetails
 import io.ktor.http.ContentDisposition
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -22,12 +25,12 @@ import java.io.File
 
 fun Route.projectsRest(
     configuration: Configuration,
-    projectsFolder: File,
     projectsRepository: ProjectsRepository,
     svgFromDxf: SvgFromDxf,
 ) {
     allProjects(configuration, projectsRepository)
     projectDetails(configuration, projectsRepository)
+    createProject(configuration, projectsRepository)
 
     get("/preview/{project_id}/{file_id}") {
         val project = project(projectsRepository)
@@ -35,7 +38,7 @@ fun Route.projectsRest(
         val fileId = FileId(call.parameters["file_id"] ?: throw Exception("file_id not found"))
         val svgFileName = project.files[fileId]?.svgFile ?: throw Exception("file not found")
 
-        val svgFile = File(projectsFolder, "${project.id.value}/${fileId.value}/${svgFileName}")
+        val svgFile = File(configuration.projectsFolder, "${project.id.value}/${fileId.value}/${svgFileName}")
 
         call.response.header(
             HttpHeaders.ContentDisposition,
@@ -47,17 +50,17 @@ fun Route.projectsRest(
         call.respondFile(svgFile)
     }
 
-    fileUploader(projectsRepository, projectsFolder, svgFromDxf)
+    fileUploader(configuration, projectsRepository, svgFromDxf)
 }
 
 private fun Route.fileUploader(
+    configuration: Configuration,
     projectsRepository: ProjectsRepository,
-    projectsFolder: File,
     svgFromDxf: SvgFromDxf,
 ) {
     post("/project/{project_id}/add_file") {
         val project = project(projectsRepository)
-        val projectFolder = File(projectsFolder, project.id.value)
+        val projectFolder = File(configuration.projectsFolder, project.id.value)
         val multipartData = call.receiveMultipart()
 
         multipartData.forEachPart { part ->
@@ -75,7 +78,7 @@ private fun Route.fileUploader(
                     File(fileFolder, fileName).writeBytes(fileBytes)
 
                     val projectFile = addFileToProject(
-                        projectsFolder = projectsFolder,
+                        projectsFolder = configuration.projectsFolder,
                         projectId = project.id,
                         fileId = FileId(fileId),
                         svgFromDxf = svgFromDxf,

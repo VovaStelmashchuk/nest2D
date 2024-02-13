@@ -1,6 +1,10 @@
-package com.nestapp.projects
+package com.nestapp.projects.rest
 
 import com.nestapp.Configuration
+import com.nestapp.projects.FileId
+import com.nestapp.projects.Project
+import com.nestapp.projects.ProjectId
+import com.nestapp.projects.ProjectsRepository
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
