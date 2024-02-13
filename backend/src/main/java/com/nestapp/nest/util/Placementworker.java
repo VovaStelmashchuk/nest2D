@@ -28,10 +28,10 @@ import de.lighti.clipper.Point.LongPoint;
  */
 public class Placementworker {
     private static Gson gson = new GsonBuilder().create();
-    
+
     public NestPath binPolygon;
     private Config config;
-    
+
     public Map<String, List<NestPath>> nfpCache;
 
     /**
@@ -53,20 +53,19 @@ public class Placementworker {
      * @return
      */
     public Result placePaths(List<NestPath> paths) {
-    	
+
     	// rotazione dei NestPaths passati (paths)
         List<NestPath> rotated = new ArrayList<>();
         for (int i = 0; i < paths.size(); i++) {
             NestPath r = GeometryUtil.rotatePolygon2Polygon(paths.get(i), paths.get(i).getRotation());
             r.setRotation(paths.get(i).getRotation());
             r.setPossibleRotations(paths.get(i).getPossibleRotations());
-            r.setSource(paths.get(i).getSource());
             r.setId(paths.get(i).getId());
             rotated.add(r);
         }
-        paths = rotated;	
-        
-        
+        paths = rotated;
+
+
         List<List<PathPlacement>> allplacements = new ArrayList<>();
         // Now the fitness is defined as the width of material used.
         double fitness = 0;
@@ -82,12 +81,12 @@ public class Placementworker {
 
             //fitness += 1;
             double minwidth = Double.MAX_VALUE;				// valore che verrà assegnato alla fitness
-            
+
             // Loops over all the polygons (paths)
             for (int i = 0; i < paths.size(); i++) {
                 NestPath path = paths.get(i);
 
-                
+
                 //inner NFP	***************************************************************
                 key = gson.toJson(new NfpKey(-1, path.getId(), true, 0, path.getRotation()));
                 if (!nfpCache.containsKey(key)) {
@@ -108,7 +107,7 @@ public class Placementworker {
                     continue;
                 }//***************************************************************
 
-                
+
                 PathPlacement position = null;
                 if (placed.size() == 0) {
                     // first placement , put it on the left
@@ -201,7 +200,7 @@ public class Placementworker {
 //                System.out.println("UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
                 for (NestPath element : finalNfpf) {
                     nf = element;
-                    if (Math.abs(GeometryUtil.polygonArea(nf)) < 2) {	
+                    if (Math.abs(GeometryUtil.polygonArea(nf)) < 2) {
                         continue;
                     }
                     for (int k = 0; k < nf.size(); k++) {
@@ -248,7 +247,7 @@ public class Placementworker {
                 fitness += minwidth; /// binarea;
             	//fitness = minwidth;
             }
-	
+
             for (int i = 0; i < placed.size(); i++) {
                 int index = paths.indexOf(placed.get(i));
                 if (index >= 0) {

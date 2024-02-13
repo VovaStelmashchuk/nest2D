@@ -1,11 +1,10 @@
 package com.nestapp.nest.data;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.nestapp.nest.config.Config;
 import org.apache.batik.ext.awt.geom.Polygon2D;
 
-import com.nestapp.nest.config.Config;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author yisa
@@ -15,11 +14,8 @@ public class NestPath implements Comparable<NestPath> {
     private final List<Segment> segments;
     public double offsetX;
     public double offsetY;
-
     private int id;
-    private int source;
     private int rotation;    // angolo rotazione
-
     public int[] rotations;
     public Config config;
     public double area;
@@ -52,7 +48,6 @@ public class NestPath implements Comparable<NestPath> {
         this.id = srcNestPath.id;
         this.rotation = srcNestPath.rotation;
         this.rotations = srcNestPath.rotations;    //TODO not clone.
-        this.source = srcNestPath.source;
         this.offsetX = srcNestPath.offsetX;
         this.offsetY = srcNestPath.offsetY;
         this.bid = srcNestPath.bid;
@@ -99,9 +94,7 @@ public class NestPath implements Comparable<NestPath> {
             rever.add(segments.get(i));
         }
         segments.clear();
-        for (Segment s : rever) {
-            segments.add(s);
-        }
+        segments.addAll(rever);
     }
 
     public Segment get(int i) {
@@ -111,7 +104,7 @@ public class NestPath implements Comparable<NestPath> {
     @Override
     public String toString() {
         String res = "";
-        res += "id = " + id + " , source = " + source + " , rotation = " + rotation + "\n";
+        res += "id = " + id + " , rotation = " + rotation + "\n";
         int count = 0;
         for (Segment s : segments) {
             res += "Segment " + count + "\n";
@@ -128,15 +121,6 @@ public class NestPath implements Comparable<NestPath> {
     public void setRotation(int rotation) {
         this.rotation = rotation;
     }
-
-    public int getSource() {
-        return source;
-    }
-
-    public void setSource(int source) {
-        this.source = source;
-    }
-
 
     public void clear() {
         segments.clear();
@@ -242,8 +226,8 @@ public class NestPath implements Comparable<NestPath> {
     public Polygon2D toPolygon2D() {///TODO optimize
         Polygon2D newp;
 
-        List<Float> xp = new ArrayList<Float>();
-        List<Float> yp = new ArrayList<Float>();
+        List<Float> xp = new ArrayList<>();
+        List<Float> yp = new ArrayList<>();
         for (Segment s : segments) {
             xp.add((float) s.getX());
             yp.add((float) s.getY());

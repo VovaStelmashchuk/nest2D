@@ -1,5 +1,6 @@
 package com.nestapp.projects
 
+import com.nestapp.Configuration
 import com.nestapp.files.SvgFromDxf
 import io.ktor.http.ContentDisposition
 import io.ktor.http.HttpHeaders
@@ -20,17 +21,13 @@ import io.ktor.util.pipeline.PipelineContext
 import java.io.File
 
 fun Route.projectsRest(
+    configuration: Configuration,
     projectsFolder: File,
     projectsRepository: ProjectsRepository,
     svgFromDxf: SvgFromDxf,
 ) {
-    get("/projects") {
-        call.respond(HttpStatusCode.OK, projectsRepository.getProjects())
-    }
-
-    get("/project/{project_id}") {
-        call.respond(HttpStatusCode.OK, project(projectsRepository))
-    }
+    allProjects(configuration, projectsRepository)
+    projectDetails(configuration, projectsRepository)
 
     get("/preview/{project_id}/{file_id}") {
         val project = project(projectsRepository)

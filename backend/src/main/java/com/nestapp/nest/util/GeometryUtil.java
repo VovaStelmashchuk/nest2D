@@ -229,7 +229,6 @@ public class GeometryUtil {
         }
         rotated.setBid(polygon.getBid());
         rotated.setId(polygon.getId());
-        rotated.setSource(polygon.getSource());
         return rotated;
     }
 

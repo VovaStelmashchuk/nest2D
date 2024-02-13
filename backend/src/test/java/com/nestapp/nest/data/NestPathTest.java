@@ -26,14 +26,12 @@ public class NestPathTest {
     @Test
     public void CloneTest() throws Exception{
         NestPath nestPath = new NestPath();
-        nestPath.setSource(1);
         nestPath.setId(2);
         nestPath.setRotation(3);
         Segment s1 = new Segment(1,2);
         nestPath.add(s1);
 
         NestPath chPath = new NestPath();
-        chPath.setSource(11);
         chPath.setId(12);
         chPath.setRotation(13);
         Segment s2 = new Segment(3,4);

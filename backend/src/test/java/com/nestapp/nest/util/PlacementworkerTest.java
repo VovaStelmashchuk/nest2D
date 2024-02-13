@@ -53,7 +53,6 @@ public class PlacementworkerTest {
         nestPath1.add(6.164 ,346.7929602 );
         nestPath1.add(10,345);
         nestPath1.add(270,345);
-        nestPath1.setSource(1);
         nestPath1.setId(1);
         nestPath1.setRotation(270);
 
@@ -70,7 +69,6 @@ public class PlacementworkerTest {
         nestPath2.add(396.8357416 , 6.1286348);
         nestPath2.add(400,5);
         nestPath2.add(500,5);
-        nestPath2.setSource(0);
         nestPath2.setId(0);
         nestPath2.setRotation(270);
         placelist.add(nestPath1);

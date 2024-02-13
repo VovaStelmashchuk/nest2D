@@ -6,15 +6,16 @@
                     <h1>{{ project.name }}</h1>
                 </div>
                 <div class="card-container">
-                    <div v-for="(file, key) in project.files" :key="key" class="card">
-                        <img :src="`${API_URL}/preview/${project.id}/${key}`" alt="SVG Image">
+                    <div v-for="file in project.files" :key="file.id" class="card">
+                        <img :src="file.svg_url" alt="SVG Image">
                         <div class="card-content">
                             <h3>{{ file.name }}</h3>
                             <div class="counter">
-                                <button :class="{ inactive: fileCounts[key] === 0 }" @click="decrementCount(key)">-
+                                <button :class="{ inactive: fileCounts[file.id] === 0 }"
+                                        @click="decrementCount(file.id)">-
                                 </button>
-                                <p class="counter-input">{{ fileCounts[key] }}</p>
-                                <button @click="incrementCount(key)">+</button>
+                                <p class="counter-input">{{ fileCounts[file.id] }}</p>
+                                <button @click="incrementCount(file.id)">+</button>
                             </div>
                         </div>
                     </div>
@@ -51,7 +52,7 @@ const route = useRoute();
 const projectId = ref(route.params.id);
 
 const yourSvgImageUrl = ref('');
-const project = ref({files: {}});
+const project = ref({});
 const fileCounts = ref({});
 const isBuilding = ref(false);
 const downloadDisabled = ref(true);
@@ -67,9 +68,8 @@ const fetchProjectData = async () => {
     try {
         const response = await axios.get(`${API_URL}/project/${projectId.value}`);
         project.value = response.data;
-        for (const key in response.data.files) {
-            fileCounts.value[key] = 0;
-        }
+        console.log(response.data.files)
+        response.data.files.forEach((file) => fileCounts.value[file.id] = 0)
     } catch (error) {
         console.error('Error:', error);
         errorMessage.value = error || "Something went wrong. Please try again later.";

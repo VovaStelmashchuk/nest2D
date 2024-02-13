@@ -6,7 +6,6 @@ import com.nestapp.nest_api.UserInputExecution
 import com.nestapp.nest_api.nestRestApi
 import com.nestapp.projects.ProjectsRepository
 import com.nestapp.projects.projectsRest
-import com.nestapp.test.testTrigger
 import io.ktor.http.HttpMethod.Companion.DefaultMethods
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
@@ -31,12 +30,6 @@ internal object Main {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        /*try {
-            testTrigger()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }*/
-
         val json = Json {
             prettyPrint = true
             ignoreUnknownKeys = true
@@ -74,10 +67,27 @@ internal object Main {
                 json()
             }
 
+            val baseUrl = "https://nest2d.online/api"
+            //val baseUrl = "http://localhost:8080/api"
+
+            val configuration = Configuration(
+                baseUrl = baseUrl,
+                projectsFolder = File("mount/projects"),
+            )
+
             routing {
                 route("/api") {
-                    projectsRest(File("mount/projects"), projectsRepository, SvgFromDxf())
-                    nestRestApi(projectsRepository, nestedRepository, File("mount/projects"))
+                    projectsRest(
+                        configuration,
+                        File("mount/projects"),
+                        projectsRepository,
+                        SvgFromDxf()
+                    )
+                    nestRestApi(
+                        projectsRepository,
+                        nestedRepository,
+                        File("mount/projects")
+                    )
 
                     get("/version") {
                         call.respondText("Some version")

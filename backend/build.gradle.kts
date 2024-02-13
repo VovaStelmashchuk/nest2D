@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.nestapp"
-version = "0.3.0"
+version = "0.3.2"
 
 application {
     mainClass.set("com.nestapp.Main")
@@ -16,7 +16,7 @@ ktor {
     docker {
         jreVersion.set(JavaVersion.VERSION_17)
         localImageName.set("nest2d")
-        imageTag.set("0.3.0")
+        imageTag.set(project.version.toString())
         externalRegistry.set(
             io.ktor.plugin.features.DockerImageRegistry.dockerHub(
                 appName = provider { "nest2d" },
@@ -54,13 +54,11 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
 
-    implementation("com.xhiteam.dxf:dxf:1.0.0")
-
     implementation("com.github.jchamlin:clipper-java:b4dcd50c51")
     implementation("com.google.code.gson:gson:2.10")
     implementation("org.uncommons.watchmaker:watchmaker-framework:0.7.1")
-    implementation("org.apache.xmlgraphics:batik-svg-dom:1.14")
-    implementation("org.apache.xmlgraphics:batik-swing:1.14")
+    implementation("org.apache.xmlgraphics:batik-svg-dom:1.17")
+    implementation("org.apache.xmlgraphics:batik-swing:1.17")
     implementation("org.dom4j:dom4j:2.1.3")
     implementation("org.uncommons.watchmaker:watchmaker-swing:0.7.1")
     implementation("io.jenetics:jenetics:5.2.0")

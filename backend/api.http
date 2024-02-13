@@ -1,3 +1,6 @@
+### get all project
+GET http://localhost:8080/api/all_projects
+
 ### get project
 GET http://localhost:8080/api/project/laser_gridfinity_boxes_0
 
@@ -31,7 +34,7 @@ Content-Type: application/json
     "project_id": "laser_gridfinity_boxes_open_scad",
     "file_counts": {
         "1x1+0": 1,
-        "1x2+1": 0,
+        "1x2+1": 1,
         "1x3+2": 1,
         "1x4+3": 0,
         "2x2+4": 0,
