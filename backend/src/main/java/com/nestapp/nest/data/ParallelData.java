@@ -1,5 +1,7 @@
 package com.nestapp.nest.data;
 
+import com.nestapp.nest.nfp.NfpKey;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,7 +9,7 @@ import java.util.List;
  * @author yisa
  */
 public class ParallelData {
-    
+
     public NfpKey key ;
     public List<NestPath> value ;
 

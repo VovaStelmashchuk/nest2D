@@ -38,7 +38,7 @@ class NestApi {
             .map { it.nestPath.also { it.setPossibleNumberRotations(4) } }
             .toMutableList()
 
-        val nest = Nest(config, 10)
+        val nest = Nest(config, 5)
         val appliedPlacement = nest.startNest(createNestPath(plate), nestPaths)
 
         if (appliedPlacement.size > 1) {

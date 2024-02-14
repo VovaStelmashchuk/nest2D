@@ -5,12 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.nestapp.nest.util.Placementworker;
 import org.junit.jupiter.api.Test;
 
 import com.nestapp.nest.config.Config;
 import com.nestapp.nest.data.NestPath;
-import com.nestapp.nest.data.NfpKey;
+import com.nestapp.nest.nfp.NfpKey;
 import com.nestapp.nest.data.Result;
 import com.nestapp.nest.data.Segment;
 

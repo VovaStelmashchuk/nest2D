@@ -3,14 +3,12 @@ package com.nestapp.nest.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.nestapp.nest.util.CommonUtil;
-import com.nestapp.nest.util.NfpUtil;
 import org.junit.jupiter.api.Test;
 
 import com.nestapp.nest.config.Config;
 import com.nestapp.nest.data.NestPath;
-import com.nestapp.nest.data.NfpKey;
-import com.nestapp.nest.data.NfpPair;
+import com.nestapp.nest.nfp.NfpKey;
+import com.nestapp.nest.nfp.NfpPair;
 import com.nestapp.nest.data.ParallelData;
 
 public class NfpUtilTest {
@@ -44,6 +42,6 @@ public class NfpUtilTest {
         NestPath B = tree.get(1);
         NfpKey nfpKey = new NfpKey(A.getId(),B.getId(),false,0 ,0 );
         NfpPair nfpPair = new NfpPair(A,B, nfpKey);
-        ParallelData parallelData = NfpUtil.nfpGenerator(nfpPair,config);
+        ParallelData parallelData = NfpUtil.nfpGenerator(nfpPair);
     }
 }

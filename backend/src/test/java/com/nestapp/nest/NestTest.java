@@ -88,7 +88,7 @@ public class NestTest {
         Nest nest = new Nest(config, 1);
         List<List<Placement>> appliedPlacement = nest.startNest(bin, polygons);
         List<String> strings = SvgUtil.svgGenerator(polygons, appliedPlacement, binWidth, binHeight);
-        IOUtils.saveSvgFile(strings,Config.OUTPUT_DIR+"problem.html");
+
 
 
         // Soluzione finale -> file "solution.html"
@@ -108,7 +108,6 @@ public class NestTest {
 		});
         appliedPlacement = nest.startNest(bin, polygons);
         strings = SvgUtil.svgGenerator(polygons, appliedPlacement, binWidth, binHeight);
-        IOUtils.saveSvgFile(strings,Config.OUTPUT_DIR+"solution.html");
     }
 
     private static List<NestPath> transferSvgIntoPolygons() throws DocumentException {

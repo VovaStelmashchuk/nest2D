@@ -1,15 +1,16 @@
 package com.nestapp.nest_api
 
 import com.nestapp.Configuration
-import com.nestapp.files.dxf.DxfPartPlacement
 import com.nestapp.files.dxf.DxfApi
+import com.nestapp.files.dxf.DxfPartPlacement
+import com.nestapp.files.svg.SvgWriter
 import com.nestapp.projects.FileId
 import com.nestapp.projects.ProjectId
 import com.nestapp.projects.ProjectsRepository
-import com.nestapp.files.svg.SvgWriter
 import io.ktor.http.ContentDisposition
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.header
@@ -22,6 +23,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.awt.Rectangle
 import java.io.File
+import kotlin.math.log
 
 fun Route.nestRestApi(
     configuration: Configuration,
@@ -36,7 +38,7 @@ fun Route.nestRestApi(
         }
 
         val id = nestedRepository.getNextId()
-        val result = nest(id, nestInput, projectsRepository, configuration.projectsFolder)
+        val result = call.nest(id, nestInput, projectsRepository, configuration.projectsFolder)
         nestedRepository.addNested(result)
 
         val nestedOutput = NestedOutput(id = id)
@@ -75,13 +77,20 @@ fun Route.nestRestApi(
     }
 }
 
-private fun nest(
+private fun ApplicationCall.nest(
     id: Int,
     nestInput: NestInput,
     projectsRepository: ProjectsRepository,
     projectsFolder: File,
 ): Nested {
     val dxfApi = DxfApi()
+
+    this.application.environment.log.info(
+        "Nesting {} into {}x{}",
+        nestInput.fileCounts,
+        nestInput.plateWidth,
+        nestInput.plateHeight
+    )
 
     val fileIds = nestInput.fileCounts
         .filter { it.value > 0 }
@@ -116,6 +125,8 @@ private fun nest(
 
     val nestApi = NestApi()
 
+    this.application.environment.log.info("Nesting ${listOfDxfParts.size} parts")
+
     val result: Result<List<DxfPartPlacement>> = nestApi.startNest(
         plate = Rectangle(nestInput.plateWidth, nestInput.plateHeight),
         dxfParts = listOfDxfParts,
@@ -130,6 +141,8 @@ private fun nest(
             else -> it
         }
     }
+
+    this.application.environment.log.info("Nesting done")
 
     val project = projectsRepository.getProject(nestInput.projectId)
         ?: throw UserInputExecution.SomethingWrongWithUserInput("Project not found")

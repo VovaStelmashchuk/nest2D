@@ -9,7 +9,7 @@ import com.google.gson.GsonBuilder;
 import com.nestapp.nest.config.Config;
 import com.nestapp.nest.data.Bound;
 import com.nestapp.nest.data.NestPath;
-import com.nestapp.nest.data.NfpKey;
+import com.nestapp.nest.nfp.NfpKey;
 import com.nestapp.nest.data.Result;
 import com.nestapp.nest.data.Segment;
 import com.nestapp.nest.data.PathPlacement;

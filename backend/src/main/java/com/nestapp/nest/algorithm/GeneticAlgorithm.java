@@ -185,37 +185,6 @@ public class GeneticAlgorithm {
         return pop.get(0);
     }
 
-
-    /**
-     * Return an angle for a polygon
-     *
-     * @param part
-     * @return
-     */
-    @Deprecated
-    private int randomAngleOld(NestPath part) {
-        List<Integer> angleList = new ArrayList<>();
-        int rotate = Math.max(1, part.getRotation());
-        if (rotate == 0) {
-            angleList.add(0);
-        } else {
-            for (int i = 0; i < rotate; i++) {
-                angleList.add((360 / rotate) * i);
-            }
-        }
-        Collections.shuffle(angleList);
-        for (Integer element : angleList) {
-            Bound rotatedPart = GeometryUtil.rotatePolygon(part, element);
-            if (rotatedPart.getWidth() < binBounds.getWidth() && rotatedPart.getHeight() < binBounds.getHeight()) {
-                return element;
-            }
-        }
-        /**
-         * No valid angle found
-         */
-        return -1;
-    }
-
     public static int randomAngle(NestPath part) {
         int[] poss = part.getPossibleRotations();
         if (poss == null || poss.length < 2) {
@@ -223,22 +192,4 @@ public class GeneticAlgorithm {
         }
         return poss[(int) (Math.random() * poss.length)];
     }
-
-
-    public List<NestPath> getAdam() {
-        return adam;
-    }
-
-    public void setAdam(List<NestPath> adam) {
-        this.adam = adam;
-    }
-
-    public NestPath getBin() {
-        return bin;
-    }
-
-    public void setBin(NestPath bin) {
-        this.bin = bin;
-    }
-
 }
