@@ -16,7 +16,6 @@ public class NestPath implements Comparable<NestPath> {
     public double offsetY;
     private int id;
     private int rotation;    // angolo rotazione
-    public int[] rotations;
     public Config config;
     public double area;
 
@@ -47,7 +46,6 @@ public class NestPath implements Comparable<NestPath> {
 
         this.id = srcNestPath.id;
         this.rotation = srcNestPath.rotation;
-        this.rotations = srcNestPath.rotations;    //TODO not clone.
         this.offsetX = srcNestPath.offsetX;
         this.offsetY = srcNestPath.offsetY;
         this.bid = srcNestPath.bid;
@@ -166,31 +164,6 @@ public class NestPath implements Comparable<NestPath> {
         }
         return -1;
     }
-
-    public void setPossibleRotations(int[] rotations) {
-        this.rotations = rotations;
-    }
-
-    /**
-     * Set the number of possible rotations for the polygon
-     *
-     * @param rots number of rotations
-     * @author Alberto Gambarara
-     */
-    public void setPossibleNumberRotations(int rots) {
-        if (rots < 2) return;
-        int[] possrots = new int[rots];
-        for (int i = 0; i < rots; i++) {
-            possrots[i] = Math.round((360 / rots) * i);
-        }
-        this.rotations = possrots;
-
-    }
-
-    public int[] getPossibleRotations() {
-        return this.rotations;
-    }
-
 
     public int getBid() {
         return bid;

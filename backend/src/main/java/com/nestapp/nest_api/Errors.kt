@@ -23,6 +23,10 @@ open class UserInputExecution(
         2, "Cannot place all parts into one bin"
     )
 
+    class TheInputHasPartsThatCannotFitInBin : UserInputExecution(
+        3, "The input has parts that cannot fit in bin"
+    )
+
     class SomethingWrongWithUserInput(reason: String) : UserInputExecution(
         9999, reason
     )

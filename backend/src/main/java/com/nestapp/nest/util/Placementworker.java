@@ -1,35 +1,25 @@
 package com.nestapp.nest.util;
 
+import com.nestapp.nest.config.Config;
+import com.nestapp.nest.data.*;
+import com.nestapp.nest.nfp.NfpCacheRepository;
+import com.nestapp.nest.nfp.NfpKey;
+import com.nestapp.nest.util.coor.ClipperCoor;
+import de.lighti.clipper.*;
+import de.lighti.clipper.Point.LongPoint;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.nestapp.nest.config.Config;
-import com.nestapp.nest.data.Bound;
-import com.nestapp.nest.data.NestPath;
-import com.nestapp.nest.nfp.NfpKey;
-import com.nestapp.nest.data.Result;
-import com.nestapp.nest.data.Segment;
-import com.nestapp.nest.data.PathPlacement;
-import com.nestapp.nest.util.coor.ClipperCoor;
-
-import de.lighti.clipper.Clipper;
-import de.lighti.clipper.DefaultClipper;
-import de.lighti.clipper.Path;
-import de.lighti.clipper.Paths;
-import de.lighti.clipper.Point;
-import de.lighti.clipper.Point.LongPoint;
 
 
 public class Placementworker {
 
     public NestPath binPolygon;
 
-    public Map<NfpKey, List<NestPath>> nfpCache;
+    public NfpCacheRepository nfpCache;
 
-    public Placementworker(NestPath binPolygon, Map<NfpKey, List<NestPath>> nfpCache) {
+    public Placementworker(NestPath binPolygon, NfpCacheRepository nfpCache) {
         this.binPolygon = binPolygon;
         this.nfpCache = nfpCache;
     }
@@ -39,13 +29,11 @@ public class Placementworker {
      * bottom plate through nfp, and return the fitness of this population
      */
     public Result placePaths(List<NestPath> paths) {
-
         // rotazione dei NestPaths passati (paths)
         List<NestPath> rotated = new ArrayList<>();
         for (int i = 0; i < paths.size(); i++) {
             NestPath r = GeometryUtil.rotatePolygon2Polygon(paths.get(i), paths.get(i).getRotation());
             r.setRotation(paths.get(i).getRotation());
-            r.setPossibleRotations(paths.get(i).getPossibleRotations());
             r.setId(paths.get(i).getId());
             rotated.add(r);
         }
@@ -72,7 +60,7 @@ public class Placementworker {
                 NestPath path = paths.get(i);
                 //inner NFP	***************************************************************
                 NfpKey key = new NfpKey(-1, path.getId(), true, 0, path.getRotation());
-                if (!nfpCache.containsKey(key)) {
+                if (!nfpCache.exist(key)) {
                     continue;
                 }
                 List<NestPath> binNfp = nfpCache.get(key);
@@ -80,7 +68,7 @@ public class Placementworker {
                 boolean error = false;
                 for (NestPath element : placed) {
                     key = new NfpKey(element.getId(), path.getId(), false, element.getRotation(), path.getRotation());
-                    if (!nfpCache.containsKey(key)) {
+                    if (!nfpCache.exist(key)) {
                         error = true;
                         break;
                     }

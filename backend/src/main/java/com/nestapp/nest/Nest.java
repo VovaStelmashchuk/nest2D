@@ -1,9 +1,8 @@
 package com.nestapp.nest;
 
-import com.nestapp.nest.algorithm.GeneticAlgorithm;
-import com.nestapp.nest.algorithm.Individual;
 import com.nestapp.nest.config.Config;
 import com.nestapp.nest.data.*;
+import com.nestapp.nest.nfp.NfpCacheRepository;
 import com.nestapp.nest.nfp.NfpKey;
 import com.nestapp.nest.nfp.NfpPair;
 import com.nestapp.nest.nfp.NfpUtils;
@@ -15,31 +14,17 @@ import java.util.*;
 
 public class Nest {
 
-    private final int mutationRate;
-    private final int populationSize;
-
     private final Config config;
-    private final int loopCount;
-    private GeneticAlgorithm GA = null;
-    private final Map<NfpKey, List<NestPath>> nfpCache;
-    private int launchCount = 0;
+    private final NfpCacheRepository nfpCache = new NfpCacheRepository();
 
 
     /**
      * @param config parameter settings
-     * @param count  The number of iterations to calculate
      */
     public Nest(
-        Config config,
-        int count,
-        int mutationRate,
-        int populationSize
+        Config config
     ) {
         this.config = config;
-        this.loopCount = count;
-        this.populationSize = populationSize;
-        this.mutationRate = mutationRate;
-        nfpCache = new HashMap<>();
     }
 
     /**
@@ -123,23 +108,9 @@ public class Nest {
 
 
         /*-------------------------START NESTING---------------------------------------*/
-        launchCount = 0;
-        Result best = null;
-        List<List<Placement>> appliedPlacement = null;
+        Result result = launchWorkers(tree, binPolygon);
+        List<List<Placement>> appliedPlacement = applyPlacement(result, tree);
 
-        for (int i = 0; i < loopCount; i++) {
-            Result result = launchWorkers(tree, binPolygon, config);
-            if (best != null) {
-                System.out.print("startNest(): best fitness = " + best.fitness + ", current fitness = " + result.fitness);
-            }
-            // if result gets value less than fitness, it will be the new values of best fitness
-            if (i == 0 || best.fitness > result.fitness) {
-                best = result;
-                appliedPlacement = applyPlacement(best, tree);
-                notifyObserver(appliedPlacement);
-            }
-            notifyObserver(result);
-        }
         return appliedPlacement;
     }
 
@@ -148,66 +119,22 @@ public class Nest {
      *
      * @param tree       lista di tutti i poligoni da disporre
      * @param binPolygon superficie principale su cui disporre i poligoni
-     * @param config     confiugurazione standard
      * @return bestResult
      */
-    public Result launchWorkers(List<NestPath> tree, NestPath binPolygon, Config config) {
-        launchCount++;
+    public Result launchWorkers(List<NestPath> tree, NestPath binPolygon) {
+        List<NestPath> adam = generateAdamForGeneticAlgorithm(tree);
 
-        System.out.print("launch count: " + launchCount + "time " + System.currentTimeMillis());
+        nfpCache.setNestPaths(adam);
+        nfpCache.setBinPolygon(binPolygon);
 
-        // GA is null by default
-        if (GA == null) {
-            List<NestPath> adam = generateAdamForGeneticAlgorithm(tree);
-            GA = new GeneticAlgorithm(adam, binPolygon, mutationRate, populationSize);
-        }
-
-        Individual individual = null;
-        for (Individual element : GA.population) {
-            if (element.getFitness() < 0) {
-                individual = element;
-                break;
-            }
-        }
-
-        /*---------------------GENERATION OF CHILDERN---------------------*/
-        // dalla seconda iterazione di loopcount nel metodo startNest --> launchcount >= 2
-        if (launchCount > 1 && individual == null) {
-            GA.generation();
-            individual = GA.population.get(1);
-        }
-
-        //Above is GA. Now we got a set of candidates
-        List<NestPath> placelist = individual.getPlacement();
-        List<Integer> rotations = individual.getRotation();
-
-        for (int i = 0; i < placelist.size(); i++) {
-            placelist.get(i).setRotation(rotations.get(i));
-        }
-
-        /*-------------------------------------CREATE NFP CACHE-------------------------------------*/
-        List<NfpPair> nfpPairs = NfpUtils.INSTANCE.createNfpPairs(placelist, binPolygon, rotations);
-
-        for (NfpPair nfpPair : nfpPairs) {
-            if (!nfpCache.containsKey(nfpPair.key)) {
-                System.out.println("Generating nfp key:" + nfpPair.key);
-                ParallelData data = NfpUtil.nfpGenerator(nfpPair);
-
-                if (data == null) {
-                    System.out.println("Null nfp a: " + nfpPair.getA().getBid() + ",b:" + nfpPair.getB().getBid());
-                }
-                assert data != null;
-                nfpCache.put(data.key, data.value);
-            }
-        }
         /*---------------------FITNESS COMPUTATION---------------------*/
         // Places parts according to the sequence specified by the individual
         Placementworker worker = new Placementworker(binPolygon, nfpCache); // --------> uses Placementworker to set fitness value
 
         List<NestPath> placeListSlice = new ArrayList<>();
 
-        for (int i = 0; i < placelist.size(); i++) {
-            placeListSlice.add(new NestPath(placelist.get(i)));
+        for (int i = 0; i < adam.size(); i++) {
+            placeListSlice.add(new NestPath(adam.get(i)));
         }
 
         Result result = worker.placePaths(placeListSlice);
@@ -225,6 +152,7 @@ public class Nest {
         }
         for (NestPath nestPath : adam) {
             nestPath.area = GeometryUtil.polygonArea(nestPath);
+            nestPath.setRotation(90);
         }
         Collections.sort(adam);
         return adam;
