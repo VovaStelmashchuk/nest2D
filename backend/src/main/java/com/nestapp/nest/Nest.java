@@ -1,11 +1,10 @@
 package com.nestapp.nest;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.nestapp.nest.algorithm.GeneticAlgorithm;
 import com.nestapp.nest.algorithm.Individual;
 import com.nestapp.nest.config.Config;
 import com.nestapp.nest.data.*;
+import com.nestapp.nest.nfp.NfpKey;
 import com.nestapp.nest.nfp.NfpPair;
 import com.nestapp.nest.nfp.NfpUtils;
 import com.nestapp.nest.util.*;
@@ -13,30 +12,33 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-import static com.nestapp.nest.util.IOUtils.log;
 
-/**
- * @author yisa
- */
 public class Nest {
 
-    private Config config;
-    private int loopCount;
+    private final int mutationRate;
+    private final int populationSize;
+
+    private final Config config;
+    private final int loopCount;
     private GeneticAlgorithm GA = null;
-    private Map<String, List<NestPath>> nfpCache;
-    private static Gson gson = new GsonBuilder().create();
-    private int launchcount = 0;
+    private final Map<NfpKey, List<NestPath>> nfpCache;
+    private int launchCount = 0;
 
 
     /**
-     * Create a new Nest object
-     *
      * @param config parameter settings
      * @param count  The number of iterations to calculate
      */
-    public Nest(Config config, int count) {
+    public Nest(
+        Config config,
+        int count,
+        int mutationRate,
+        int populationSize
+    ) {
         this.config = config;
         this.loopCount = count;
+        this.populationSize = populationSize;
+        this.mutationRate = mutationRate;
         nfpCache = new HashMap<>();
     }
 
@@ -104,7 +106,7 @@ public class Nest {
         if (GeometryUtil.polygonArea(binPolygon) > 0) {
             binPolygon.reverse();
         }
-        /**
+        /*
          * Make sure it's counterclockwise (rotazione antioraria) TODO why?
          * Need for NFP algorithm
          */
@@ -121,13 +123,15 @@ public class Nest {
 
 
         /*-------------------------START NESTING---------------------------------------*/
-        launchcount = 0;
+        launchCount = 0;
         Result best = null;
         List<List<Placement>> appliedPlacement = null;
 
         for (int i = 0; i < loopCount; i++) {
             Result result = launchWorkers(tree, binPolygon, config);
-            if (best != null) log(best.fitness);
+            if (best != null) {
+                System.out.print("startNest(): best fitness = " + best.fitness + ", current fitness = " + result.fitness);
+            }
             // if result gets value less than fitness, it will be the new values of best fitness
             if (i == 0 || best.fitness > result.fitness) {
                 best = result;
@@ -139,44 +143,6 @@ public class Nest {
         return appliedPlacement;
     }
 
-    // observable /observe pattern
-    public interface ListPlacementObserver {
-        void populationUpdate(List<List<Placement>> appliedPlacement);
-    }
-
-    public interface ResultObserver {
-        void muationStepDone(Result result);
-    }
-
-    public List<ListPlacementObserver> observers = new ArrayList<>();
-
-    public List<ResultObserver> resultobservers = new ArrayList<>();
-
-    public void notifyObserver(List<List<Placement>> appliedPlacement) {
-        for (ListPlacementObserver lo : observers) {
-            lo.populationUpdate(appliedPlacement);
-        }
-    }
-
-    public void notifyObserver(Result result) {
-        for (ResultObserver lo : resultobservers) {
-            lo.muationStepDone(result);
-        }
-    }
-
-    public double computeUseRate(Result best, List<NestPath> tree) {
-        // Log new result
-        double sumarea = 0;
-        double totalarea = Config.BIN_HEIGHT * best.fitness;
-        for (List<PathPlacement> element : best.placements) {
-            // totalarea += Math.abs(GeometryUtil.polygonArea(binPolygon));
-            for (PathPlacement element2 : element) {
-                sumarea += Math.abs(GeometryUtil.polygonArea(tree.get(element2.id)));
-            }
-        }
-        return (sumarea / totalarea) * 100;
-    }
-
     /**
      * Applicazione dell'algoritmo di nesting
      *
@@ -186,14 +152,14 @@ public class Nest {
      * @return bestResult
      */
     public Result launchWorkers(List<NestPath> tree, NestPath binPolygon, Config config) {
-        launchcount++;
-        if (Config.IS_DEBUG) {
-            IOUtils.log("launchWorkers(): launching worker " + launchcount);
-        }
+        launchCount++;
+
+        System.out.print("launch count: " + launchCount + "time " + System.currentTimeMillis());
+
         // GA is null by default
         if (GA == null) {
             List<NestPath> adam = generateAdamForGeneticAlgorithm(tree);
-            GA = new GeneticAlgorithm(adam, binPolygon, config);
+            GA = new GeneticAlgorithm(adam, binPolygon, mutationRate, populationSize);
         }
 
         Individual individual = null;
@@ -206,7 +172,7 @@ public class Nest {
 
         /*---------------------GENERATION OF CHILDERN---------------------*/
         // dalla seconda iterazione di loopcount nel metodo startNest --> launchcount >= 2
-        if (launchcount > 1 && individual == null) {
+        if (launchCount > 1 && individual == null) {
             GA.generation();
             individual = GA.population.get(1);
         }
@@ -222,27 +188,21 @@ public class Nest {
         /*-------------------------------------CREATE NFP CACHE-------------------------------------*/
         List<NfpPair> nfpPairs = NfpUtils.INSTANCE.createNfpPairs(placelist, binPolygon, rotations);
 
-        System.out.print("launch count: " + launchcount + ": ");
-        System.out.print("nfp pairs size " + nfpPairs.size());
-
-        // The first time nfpCache is empty, nfpCache stores Nfp ( List<NestPath> ) formed by two polygons corresponding to nfpKey
-
         for (NfpPair nfpPair : nfpPairs) {
-            System.out.println("Generating nfp a:" + nfpPair.getA().getBid() + ",b:" + nfpPair.getB().getBid());
+            if (!nfpCache.containsKey(nfpPair.key)) {
+                System.out.println("Generating nfp key:" + nfpPair.key);
+                ParallelData data = NfpUtil.nfpGenerator(nfpPair);
 
-            ParallelData data = NfpUtil.nfpGenerator(nfpPair);
-            if (data == null) {
-                System.out.println("Null nfp a: " + nfpPair.getA().getBid() + ",b:" + nfpPair.getB().getBid());
+                if (data == null) {
+                    System.out.println("Null nfp a: " + nfpPair.getA().getBid() + ",b:" + nfpPair.getB().getBid());
+                }
+                assert data != null;
+                nfpCache.put(data.key, data.value);
             }
-
-            String tkey = gson.toJson(data.getKey());
-            nfpCache.put(tkey, data.value);
         }
         /*---------------------FITNESS COMPUTATION---------------------*/
-
-        IOUtils.debug("Launching placement worker...");
         // Places parts according to the sequence specified by the individual
-        Placementworker worker = new Placementworker(binPolygon, config, nfpCache); // --------> uses Placementworker to set fitness value
+        Placementworker worker = new Placementworker(binPolygon, nfpCache); // --------> uses Placementworker to set fitness value
 
         List<NestPath> placeListSlice = new ArrayList<>();
 
@@ -325,4 +285,27 @@ public class Nest {
         return CanBePlacdPolygonIndex;
     }
 
+    public interface ListPlacementObserver {
+        void populationUpdate(List<List<Placement>> appliedPlacement);
+    }
+
+    public interface ResultObserver {
+        void muationStepDone(Result result);
+    }
+
+    public List<ListPlacementObserver> observers = new ArrayList<>();
+
+    public List<ResultObserver> resultobservers = new ArrayList<>();
+
+    public void notifyObserver(List<List<Placement>> appliedPlacement) {
+        for (ListPlacementObserver lo : observers) {
+            lo.populationUpdate(appliedPlacement);
+        }
+    }
+
+    public void notifyObserver(Result result) {
+        for (ResultObserver lo : resultobservers) {
+            lo.muationStepDone(result);
+        }
+    }
 }

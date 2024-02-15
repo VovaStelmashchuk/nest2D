@@ -9,8 +9,8 @@ object NfpUtils {
         for (i in placelist.indices) {
             // Add bin polygon to pair of each path
 
-            val part: NestPath = placelist.get(i)
-            val key = NfpKey(binPolygon.getId(), part.id, true, 0, part.rotation)
+            val part: NestPath = placelist[i]
+            val key = NfpKey(binPolygon.id, part.id, true, 0, part.rotation)
             nfpPairs.add(NfpPair(binPolygon, part, key))
 
             // Fill all combination of nest paths

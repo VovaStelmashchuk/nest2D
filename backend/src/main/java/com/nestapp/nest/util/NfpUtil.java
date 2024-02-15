@@ -38,7 +38,6 @@ public class NfpUtil {
             nfp = GeometryUtil.minkowskiDifference(A, B);
             // sanity check
             if (nfp.isEmpty()) {
-
                 return null;
             }
             //TODO This test is causing null result

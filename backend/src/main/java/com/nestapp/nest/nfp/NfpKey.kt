@@ -1,6 +1,6 @@
 package com.nestapp.nest.nfp
 
-class NfpKey(
+data class NfpKey(
     val a: Int,
     val b: Int,
     val isInside: Boolean,

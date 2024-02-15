@@ -18,9 +18,6 @@ class NestApi {
             return Result.failure(Throwable("Parts is empty"))
         }
 
-        Config.BIN_WIDTH = plate.width.toDouble()
-        Config.BIN_HEIGHT = plate.height.toDouble()
-
         val isAllPartFit = dxfParts.any { part ->
             val bound = GeometryUtil.getPolygonBounds(part.nestPath)
             bound.width > plate.width || bound.height > plate.height
@@ -31,14 +28,18 @@ class NestApi {
         }
 
         val config = Config()
-        config.USE_HOLE = false
         config.SPACING = 1.5
 
         val nestPaths = dxfParts
             .map { it.nestPath.also { it.setPossibleNumberRotations(4) } }
             .toMutableList()
 
-        val nest = Nest(config, 5)
+        val nest = Nest(
+            config,
+            5,
+            20,
+            10
+        )
         val appliedPlacement = nest.startNest(createNestPath(plate), nestPaths)
 
         if (appliedPlacement.size > 1) {

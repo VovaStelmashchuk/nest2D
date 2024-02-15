@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.nestapp.nest.config.Config;
 import com.nestapp.nest.data.Bound;
 import com.nestapp.nest.data.NestPath;
 import com.nestapp.nest.util.GeometryUtil;
@@ -20,19 +19,23 @@ public class GeneticAlgorithm {
     public Bound binBounds;
     public List<Integer> angles;
     public List<Individual> population;
-    Config config;
+    private final int mutationRate;
+    private final int populationSize;
 
     /**
-     * GA object constructor
-     *
-     * @param adam   polygons list
-     * @param bin    bin polygon
-     * @param config
+     * @param adam polygons list
+     * @param bin  bin polygon
      */
-    public GeneticAlgorithm(List<NestPath> adam, NestPath bin, Config config) {
+    public GeneticAlgorithm(
+        List<NestPath> adam,
+        NestPath bin,
+        int mutationRate,
+        int populationSize
+    ) {
         this.adam = adam;
         this.bin = bin;
-        this.config = config;
+        this.mutationRate = mutationRate;
+        this.populationSize = populationSize;
         this.binBounds = GeometryUtil.getPolygonBounds(bin);    // estremi della superficie (binPath) su cui si dispongono i poligoni
         population = new ArrayList<>();
         init();
@@ -46,7 +49,7 @@ public class GeneticAlgorithm {
             angles.add(angle);                        // Random angle added
         }
         population.add(new Individual(adam, angles));
-        while (population.size() < config.POPULATION_SIZE) {        // config.POPULATION_SIZE = 10 by default
+        while (population.size() < populationSize) {        // config.POPULATION_SIZE = 10 by default
             Individual mutant = mutate(population.get(0));
             population.add(mutant);
         }
@@ -56,14 +59,14 @@ public class GeneticAlgorithm {
         Individual clone = new Individual(individual);            // creates a clone (added to the population) that mutates and rotates original individuals
         for (int i = 0; i < clone.placement.size(); i++) {        // iterate all the NestPath included in the "clone" ondividual
             double random = Math.random();
-            if (random < 0.01 * config.MUTATION_RATE) {            // config.MUTATION_RATE = 10 by default
+            if (random < 0.01 * mutationRate) {            // config.MUTATION_RATE = 10 by default
                 int j = i + 1;
                 if (j < clone.placement.size()) {
                     Collections.swap(clone.getPlacement(), i, j);    // Lo swap funge come ListOrderMutation di WatchMaker.framework.operators
                 }
             }
             random = Math.random();
-            if (random < 0.01 * config.MUTATION_RATE) {
+            if (random < 0.01 * mutationRate) {
                 clone.getRotation().set(i, randomAngle(clone.placement.get(i)));
             }
         }
@@ -91,7 +94,7 @@ public class GeneticAlgorithm {
         Collections.sort(population);
 
         newpopulation.add(population.get(0));
-        while (newpopulation.size() < config.POPULATION_SIZE) {
+        while (newpopulation.size() < populationSize) {
             Individual male = randomWeightedIndividual(null);
             Individual female = randomWeightedIndividual(male);
             List<Individual> children = mate(male, female);

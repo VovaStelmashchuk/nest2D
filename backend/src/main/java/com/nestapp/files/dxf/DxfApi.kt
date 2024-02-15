@@ -75,10 +75,38 @@ class DxfApi {
     }
 
     private fun isPathInsideAnother(outerPath: Path2D.Double, innerPath: Path2D.Double, tolerance: Double): Boolean {
-        val parent = toNestPath(outerPath, tolerance).toPolygon2D()
-        val child = toNestPath(innerPath, tolerance).toPolygon2D()
+        val parentNestPath = toNestPath(outerPath, tolerance)
+        val childNestPath = toNestPath(innerPath, tolerance)
+        val parent = toPolygon2D(parentNestPath)
+        val child = toPolygon2D(childNestPath)
 
         return parent.contains(child)
+    }
+
+    private fun toPolygon2D(nestPath: NestPath): Polygon2D { ///TODO optimize
+        val newp: Polygon2D
+
+        val xp: MutableList<Float> = ArrayList()
+        val yp: MutableList<Float> = ArrayList()
+        for (s in nestPath.segments) {
+            xp.add(s.getX().toFloat())
+            yp.add(s.getY().toFloat())
+        }
+
+        val xparray = FloatArray(xp.size)
+        val yparray = FloatArray(yp.size)
+        var i = 0
+
+        for (f in xp) {
+            xparray[i++] = f
+        }
+        i = 0
+        for (f in yp) {
+            yparray[i++] = f
+        }
+
+        newp = Polygon2D(xparray, yparray, nestPath.segments.size)
+        return newp
     }
 
     private fun Polygon2D.contains(polygon2D: Polygon2D): Boolean {

@@ -13,7 +13,7 @@ public class Individual  implements Comparable<Individual> {
     List<Integer> rotation;
     private double fitness;
 
-  
+
     Individual(Individual individual) {
     	fitness = individual.fitness;
         placement = new ArrayList<>();
@@ -51,12 +51,6 @@ public class Individual  implements Comparable<Individual> {
 
     public void setPlacement(List<NestPath> placement) {
         this.placement = placement;
-    }
-    
-    public void showNestPaths() {
-    	for(NestPath elem: placement) {
-    		System.out.println(elem.toString());
-    	}
     }
 
     public List<Integer> getRotation() {
@@ -122,5 +116,5 @@ public class Individual  implements Comparable<Individual> {
     public void setFitness(double fitness) {
         this.fitness = fitness;
     }
-    
+
 }

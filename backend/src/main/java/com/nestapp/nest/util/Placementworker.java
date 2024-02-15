@@ -23,38 +23,24 @@ import de.lighti.clipper.Point;
 import de.lighti.clipper.Point.LongPoint;
 
 
-/**
- * @author yisa
- */
 public class Placementworker {
-    private static Gson gson = new GsonBuilder().create();
 
     public NestPath binPolygon;
-    private Config config;
 
-    public Map<String, List<NestPath>> nfpCache;
+    public Map<NfpKey, List<NestPath>> nfpCache;
 
-    /**
-     * @param binPolygon
-     * @param config
-     * @param nfpCache   nfpList
-     */
-    public Placementworker(NestPath binPolygon, Config config, Map<String, List<NestPath>> nfpCache) {
+    public Placementworker(NestPath binPolygon, Map<NfpKey, List<NestPath>> nfpCache) {
         this.binPolygon = binPolygon;
-        this.config = config;
         this.nfpCache = nfpCache;
     }
 
     /**
      * According to the plate list and the rotation angle list, calculate the position of the plate on the
      * bottom plate through nfp, and return the fitness of this population
-     *
-     * @param paths
-     * @return
      */
     public Result placePaths(List<NestPath> paths) {
 
-    	// rotazione dei NestPaths passati (paths)
+        // rotazione dei NestPaths passati (paths)
         List<NestPath> rotated = new ArrayList<>();
         for (int i = 0; i < paths.size(); i++) {
             NestPath r = GeometryUtil.rotatePolygon2Polygon(paths.get(i), paths.get(i).getRotation());
@@ -70,25 +56,22 @@ public class Placementworker {
         // Now the fitness is defined as the width of material used.
         double fitness = 0;
         double binarea = Math.abs(GeometryUtil.polygonArea(this.binPolygon));
-        String key = null;
         List<NestPath> nfp = null;
 
         // Loops over all the Nestpaths passed to the function
-        while (paths.size() > 0) {	//used with multiple bins
+        while (!paths.isEmpty()) {    //used with multiple bins
 
-            List<NestPath> placed = new ArrayList<>();		// polygons (NestPath) to place
-            List<PathPlacement> placements = new ArrayList<>();	// coordinates
+            List<NestPath> placed = new ArrayList<>();        // polygons (NestPath) to place
+            List<PathPlacement> placements = new ArrayList<>();    // coordinates
 
             //fitness += 1;
-            double minwidth = Double.MAX_VALUE;				// valore che verrà assegnato alla fitness
+            double minwidth = Double.MAX_VALUE;                // valore che verrà assegnato alla fitness
 
             // Loops over all the polygons (paths)
             for (int i = 0; i < paths.size(); i++) {
                 NestPath path = paths.get(i);
-
-
                 //inner NFP	***************************************************************
-                key = gson.toJson(new NfpKey(-1, path.getId(), true, 0, path.getRotation()));
+                NfpKey key = new NfpKey(-1, path.getId(), true, 0, path.getRotation());
                 if (!nfpCache.containsKey(key)) {
                     continue;
                 }
@@ -96,29 +79,29 @@ public class Placementworker {
                 // ensure exists
                 boolean error = false;
                 for (NestPath element : placed) {
-                    key = gson.toJson(new NfpKey(element.getId(), path.getId(), false, element.getRotation(), path.getRotation()));
-                    if (nfpCache.containsKey(key)) nfp = nfpCache.get(key);
-                    else {
+                    key = new NfpKey(element.getId(), path.getId(), false, element.getRotation(), path.getRotation());
+                    if (!nfpCache.containsKey(key)) {
                         error = true;
                         break;
                     }
                 }
                 if (error) {
+                    //Stop placing in case nfp cache not available for some pair of polygons
                     continue;
-                }//***************************************************************
+                }
 
 
                 PathPlacement position = null;
                 if (placed.size() == 0) {
                     // first placement , put it on the left
-                   for (NestPath element : binNfp) {
+                    for (NestPath element : binNfp) {
                         for (int k = 0; k < element.size(); k++) {
                             if (position == null || element.get(k).x - path.get(0).x < position.x) {
                                 position = new PathPlacement(
-                                        element.get(k).x - path.get(0).x,
-                                        element.get(k).y - path.get(0).y,
-                                        path.getId(),
-                                        path.getRotation()
+                                    element.get(k).x - path.get(0).x,
+                                    element.get(k).y - path.get(0).y,
+                                    path.getId(),
+                                    path.getRotation()
                                 );
                             }
                         }
@@ -137,7 +120,7 @@ public class Placementworker {
                 Paths combinedNfp = new Paths();
 
                 for (int j = 0; j < placed.size(); j++) {
-                    key = gson.toJson(new NfpKey(placed.get(j).getId(), path.getId(), false, placed.get(j).getRotation(), path.getRotation()));
+                    key = new NfpKey(placed.get(j).getId(), path.getId(), false, placed.get(j).getRotation(), path.getRotation());
                     nfp = nfpCache.get(key);
                     if (nfp == null) {
                         continue;
@@ -182,7 +165,7 @@ public class Placementworker {
                     }
                 }
 
-                if (finalNfp == null || finalNfp.size() == 0) {
+                if (finalNfp.isEmpty()) {
                     continue;
                 }
 
@@ -208,15 +191,15 @@ public class Placementworker {
                         for (int m = 0; m < placed.size(); m++) {
                             for (int n = 0; n < placed.get(m).size(); n++) {
                                 allpoints.add(new Segment(placed.get(m).get(n).x + placements.get(m).x,
-                                        placed.get(m).get(n).y + placements.get(m).y));
+                                    placed.get(m).get(n).y + placements.get(m).y));
                             }
                         }
                         shifvector = new PathPlacement(
-                                nf.get(k).x - path.get(0).x,
-                                nf.get(k).y - path.get(0).y,
-                                path.getId(),
-                                path.getRotation(),
-                                combinedNfp
+                            nf.get(k).x - path.get(0).x,
+                            nf.get(k).y - path.get(0).y,
+                            path.getId(),
+                            path.getRotation(),
+                            combinedNfp
                         );
                         for (int m = 0; m < path.size(); m++) {
                             allpoints.add(new Segment(path.get(m).x + shifvector.x, path.get(m).y + shifvector.y));
@@ -226,9 +209,9 @@ public class Placementworker {
                         area = rectBounds.getWidth() * 2 + rectBounds.getHeight();
 //                        System.out.println("SONO FUORIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII");
                         if (minarea == Double.MIN_VALUE
-                                || area < minarea
-                                || (GeometryUtil.almostEqual(minarea, area)
-                                && (minX == Double.MIN_VALUE || shifvector.x < minX))) {
+                            || area < minarea
+                            || (GeometryUtil.almostEqual(minarea, area)
+                            && (minX == Double.MIN_VALUE || shifvector.x < minX))) {
                             minarea = area;
 //                            System.out.println("HEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEY");
                             minwidth = rectBounds.getWidth();
@@ -239,13 +222,12 @@ public class Placementworker {
                 }
                 if (position != null) {
 
-                    placed.add(path);				// polygon added
+                    placed.add(path);                // polygon added
                     placements.add(position);
                 }
             }
             if (minwidth != Double.MAX_VALUE) {
                 fitness += minwidth; /// binarea;
-            	//fitness = minwidth;
             }
 
             for (int i = 0; i < placed.size(); i++) {
@@ -255,7 +237,7 @@ public class Placementworker {
                 }
             }
 
-            if (placements != null && placements.size() > 0) {
+            if (!placements.isEmpty()) {
                 // Add a new material
                 allplacements.add(placements);
             } else {
@@ -271,9 +253,6 @@ public class Placementworker {
 
     /**
      * coordinate conversion required to interact with the clipper library
-     *
-     * @param polygon
-     * @return
      */
     public static Path scaleUp2ClipperCoordinates(NestPath polygon) {
         Path p = new Path();
@@ -292,5 +271,4 @@ public class Placementworker {
         }
         return clone;
     }
-
 }

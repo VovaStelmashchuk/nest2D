@@ -73,14 +73,6 @@ public class NestPath implements Comparable<NestPath> {
         return true;
     }
 
-    public Config getConfig() {
-        return config;
-    }
-
-    public void setConfig(Config config) {
-        this.config = config;
-    }
-
     /**
      * Discard the last segment
      */
@@ -175,13 +167,6 @@ public class NestPath implements Comparable<NestPath> {
         return -1;
     }
 
-    public void translate(double x, double y) {
-        for (Segment s : segments) {
-            s.setX(s.getX() + x);
-            s.setY(s.getY() + y);
-        }
-    }
-
     public void setPossibleRotations(int[] rotations) {
         this.rotations = rotations;
     }
@@ -193,7 +178,6 @@ public class NestPath implements Comparable<NestPath> {
      * @author Alberto Gambarara
      */
     public void setPossibleNumberRotations(int rots) {
-
         if (rots < 2) return;
         int[] possrots = new int[rots];
         for (int i = 0; i < rots; i++) {
@@ -216,37 +200,4 @@ public class NestPath implements Comparable<NestPath> {
         this.bid = bid;
     }
 
-
-    /**
-     * Convert NestPath to Polygon2D object
-     *
-     * @return
-     * @author Alberto Gambarara
-     */
-    public Polygon2D toPolygon2D() {///TODO optimize
-        Polygon2D newp;
-
-        List<Float> xp = new ArrayList<>();
-        List<Float> yp = new ArrayList<>();
-        for (Segment s : segments) {
-            xp.add((float) s.getX());
-            yp.add((float) s.getY());
-        }
-
-        float[] xparray = new float[xp.size()];
-        float[] yparray = new float[yp.size()];
-        int i = 0;
-
-        for (Float f : xp) {
-            xparray[i++] = (f != null ? f : Float.NaN);
-        }
-        i = 0;
-        for (Float f : yp) {
-            yparray[i++] = (f != null ? f : Float.NaN);
-        }
-
-
-        newp = new Polygon2D(xparray, yparray, segments.size());
-        return newp;
-    }
 }
