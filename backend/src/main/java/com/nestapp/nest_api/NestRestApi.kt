@@ -130,6 +130,8 @@ private fun ApplicationCall.nest(
     val result: Result<List<DxfPartPlacement>> = nestApi.startNest(
         plate = Rectangle(nestInput.plateWidth, nestInput.plateHeight),
         dxfParts = listOfDxfParts,
+        spacing = nestInput.spacing,
+        boundSpacing = nestInput.plateSpacing,
     )
 
     result.onFailure {
@@ -193,6 +195,10 @@ data class NestInput(
     val plateHeight: Int,
     @SerialName("tolerance")
     val tolerance: Double = 0.01,
+    @SerialName("spacing")
+    val spacing: Double = 1.5,
+    @SerialName("place_spacing")
+    val plateSpacing: Double = 0.0,
 )
 
 @Serializable

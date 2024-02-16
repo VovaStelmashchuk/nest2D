@@ -11,19 +11,19 @@ Content-Type: application/json
 {
     "project_id": "laser_gridfinity_boxes_fusion_360",
     "file_counts": {
-        "1x1+0": 1,
-        "1x2+1": 1,
-        "1x3+2": 0,
-        "1x4+3": 0,
-        "2x2+4": 0,
+        "1x1+0": 2,
+        "1x2+1": 2,
+        "1x3+2": 2,
+        "1x4+3": 1,
+        "2x2+4": 1,
         "2x3+5": 0,
-        "2x4+6": 0,
+        "2x4+6": 1,
         "3x3+7": 0,
         "3x4+8": 0,
         "4x4+9": 0
     },
-    "plate_width": "500",
-    "plate_height": "500"
+    "plate_width": "560",
+    "plate_height": "400"
 }
 
 ### nest open scad project

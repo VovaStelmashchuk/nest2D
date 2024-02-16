@@ -173,31 +173,6 @@ public class GeometryUtil {
     }
 
     /**
-     * Ruota il poligono (NestPath) dell'angolo passato
-     * After rotating the polygon by a certain angle, return the bounds of the rotated polygon
-     *
-     * @param polygon
-     * @param angle
-     * @return
-     */
-    public static Bound rotatePolygon(NestPath polygon, int angle) {
-        if (angle == 0) {
-            return getPolygonBounds(polygon);
-        }
-        double Fangle = angle * Math.PI / 180;
-        NestPath rotated = new NestPath();
-        for (int i = 0; i < polygon.size(); i++) {
-            double x = polygon.get(i).x;
-            double y = polygon.get(i).y;
-            double x1 = x * Math.cos(Fangle) - y * Math.sin(Fangle);
-            double y1 = x * Math.sin(Fangle) + y * Math.cos(Fangle);
-            rotated.add(x1, y1);
-        }
-        Bound bounds = getPolygonBounds(rotated);
-        return bounds;
-    }
-
-    /**
      * After rotating the polygon by a certain angle, return the rotated polygon
      *
      * @param polygon
@@ -216,7 +191,6 @@ public class GeometryUtil {
             rotated.add(new Segment(x1, y1));
         }
         rotated.setBid(polygon.getBid());
-        rotated.setId(polygon.getId());
         return rotated;
     }
 
@@ -1138,8 +1112,8 @@ public class GeometryUtil {
      */
 
     public static List<NestPath> minkowskiDifference(NestPath A, NestPath B) {
-        Path Ac = Placementworker.scaleUp2ClipperCoordinates(A);
-        Path Bc = Placementworker.scaleUp2ClipperCoordinates(B);
+        Path Ac = PlacementWorker.scaleUp2ClipperCoordinates(A);
+        Path Bc = PlacementWorker.scaleUp2ClipperCoordinates(B);
         for (LongPoint element : Bc) {
             long X = element.getX();
             long Y = element.getY();
@@ -1151,7 +1125,7 @@ public class GeometryUtil {
         NestPath clipperNfp = null;
         for (Path element : solution) {
 
-            NestPath n = Placementworker.toNestCoordinates(element);
+            NestPath n = PlacementWorker.toNestCoordinates(element);
             double sarea = GeometryUtil.polygonArea(n);
             if (largestArea > sarea) {
                 clipperNfp = n;

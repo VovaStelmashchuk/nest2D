@@ -1,41 +1,24 @@
 package com.nestapp.nest.data;
 
-import com.nestapp.nest.config.Config;
-import org.apache.batik.ext.awt.geom.Polygon2D;
-
 import java.util.ArrayList;
 import java.util.List;
-
-/**
- * @author yisa
- */
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class NestPath implements Comparable<NestPath> {
     private final List<Segment> segments;
     public double offsetX;
     public double offsetY;
-    private int id;
-    private int rotation;    // angolo rotazione
-    public Config config;
+    private int rotation;
     public double area;
-
-    // assgnied incrementally or cloned
     private int bid;
-
-    static private int bid_counter = 1;
+    static private final AtomicInteger bid_counter = new AtomicInteger(1);
 
     public NestPath() {
-        this(new Config());
-    }
-
-    public NestPath(Config config) {
         offsetX = 0;
         offsetY = 0;
         segments = new ArrayList<>();
         area = 0;
-        this.config = config;
-        //
-        bid = bid_counter++;
+        bid = bid_counter.incrementAndGet();
     }
 
     public NestPath(NestPath srcNestPath) {
@@ -44,7 +27,6 @@ public class NestPath implements Comparable<NestPath> {
             segments.add(new Segment(segment));
         }
 
-        this.id = srcNestPath.id;
         this.rotation = srcNestPath.rotation;
         this.offsetX = srcNestPath.offsetX;
         this.offsetY = srcNestPath.offsetY;
@@ -94,7 +76,7 @@ public class NestPath implements Comparable<NestPath> {
     @Override
     public String toString() {
         String res = "";
-        res += "id = " + id + " , rotation = " + rotation + "\n";
+        res += "bid = " + bid + " , rotation = " + rotation + "\n";
         int count = 0;
         for (Segment s : segments) {
             res += "Segment " + count + "\n";
@@ -128,14 +110,6 @@ public class NestPath implements Comparable<NestPath> {
         return segments;
     }
 
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public double getOffsetX() {
         return offsetX;

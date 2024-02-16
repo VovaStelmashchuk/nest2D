@@ -3,10 +3,12 @@ package com.nestapp.nest_api
 import com.nestapp.files.dxf.DxfPart
 import com.nestapp.files.dxf.DxfPartPlacement
 import com.nestapp.nest.Nest
-import com.nestapp.nest.config.Config
 import com.nestapp.nest.data.Bound
 import com.nestapp.nest.data.NestPath
+import com.nestapp.nest.data.Placement
+import com.nestapp.nest.util.CommonUtil
 import com.nestapp.nest.util.GeometryUtil
+import com.nestapp.nest.util.NewCommonUtils.copyNestPaths
 import java.awt.Rectangle
 import kotlin.math.cos
 import kotlin.math.sin
@@ -16,6 +18,8 @@ class NestApi {
     fun startNest(
         plate: Rectangle,
         dxfParts: List<DxfPart>,
+        spacing: Double,
+        boundSpacing: Double,
     ): Result<List<DxfPartPlacement>> {
         if (dxfParts.isEmpty()) {
             return Result.failure(Throwable("Parts is empty"))
@@ -29,23 +33,58 @@ class NestApi {
             return Result.failure(UserInputExecution.TheInputHasPartsThatCannotFitInBin())
         }
 
-        val config = Config()
-        config.SPACING = 1.5
-
         val nestPaths = dxfParts
             .map { it.nestPath }
             .toMutableList()
 
-        val nest = Nest(
-            config
-        )
-        val appliedPlacement = nest.startNest(createNestPath(plate), nestPaths)
+        //Apply offsets
 
-        if (appliedPlacement.size > 1) {
-            return Result.failure(CannotPlaceException())
+        val tree: List<NestPath> = copyNestPaths(nestPaths)
+        println("spacing: $spacing")
+        CommonUtil.offsetTree(tree, 0.5 * spacing)
+
+        var binPolygon = NestPath(createNestPath(plate))
+
+        if (boundSpacing > 0) {
+            val offsetBin = CommonUtil.polygonOffset(binPolygon, -boundSpacing)
+            if (offsetBin.size == 1) {
+                binPolygon = offsetBin[0]
+            }
+        }
+        binPolygon.bid = -1 // Special bid for bin(plate)
+
+        val binMinX = binPolygon.segments.minOfOrNull { it.x } ?: throw IllegalStateException("")
+        val binMinY = binPolygon.segments.minOfOrNull { it.y } ?: throw IllegalStateException("")
+
+        for (i in 0 until binPolygon.size()) {
+            binPolygon[i].x -= binMinX
+            binPolygon[i].y -= binMinY
         }
 
-        val placements = appliedPlacement.first()
+        if (GeometryUtil.polygonArea(binPolygon) > 0) {
+            binPolygon.reverse()
+        }
+
+        /*
+         * Make sure it's counterclockwise (rotazione antioraria) TODO why?
+         * Need for NFP algorithm
+         */
+        for (element in tree) {
+            val start = element[0]
+            val end = element[element.size() - 1]
+            if (GeometryUtil.almostEqual(start.x, end.x) && GeometryUtil.almostEqual(start.y, end.y)) {
+                element.pop()
+            }
+            if (GeometryUtil.polygonArea(element) > 0) {
+                element.reverse()
+            }
+        }
+
+        val nest = Nest()
+        val appliedPlacement: List<Placement> = nest.startNest(binPolygon, tree)
+            ?: return Result.failure(CannotPlaceException())
+
+        val placements = appliedPlacement
             .map { placement ->
                 val dxfPart: DxfPart = dxfParts.find { dxfPart -> dxfPart.bid == placement.bid }!!
                 DxfPartPlacement(

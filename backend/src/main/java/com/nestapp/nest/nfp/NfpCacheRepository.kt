@@ -26,13 +26,13 @@ class NfpCacheRepository {
             val a = if (nfpKey.a == -1) {
                 binPolygon
             } else {
-                nestPaths.find { it.id == nfpKey.a } ?: return false
+                nestPaths.find { it.bid == nfpKey.a } ?: return false
             }
 
             val b = if (nfpKey.b == -1) {
                 binPolygon
             } else {
-                nestPaths.find { it.id == nfpKey.b } ?: return false
+                nestPaths.find { it.bid == nfpKey.b } ?: return false
             }
 
             val nfpPair = NfpPair(
