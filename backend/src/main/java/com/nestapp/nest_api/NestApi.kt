@@ -78,15 +78,7 @@ class NestApi {
     }
 
     private fun createPlateNestPath(plate: Rectangle, boundSpacing: Double): NestPath {
-        var binPolygon = NestPath(createNestPath(plate))
-
-        if (boundSpacing > 0) {
-            val offsetBin = CommonUtil.polygonOffset(binPolygon, -boundSpacing)
-            if (offsetBin.size == 1) {
-                binPolygon = offsetBin[0]
-            }
-        }
-        binPolygon.bid = -1 // Special bid for bin(plate)
+        var binPolygon = NestPath(createBinNestPath(plate, -1, boundSpacing))
 
         val binMinX = binPolygon.segments.minOfOrNull { it.x } ?: throw IllegalStateException("")
         val binMinY = binPolygon.segments.minOfOrNull { it.y } ?: throw IllegalStateException("")
@@ -136,8 +128,8 @@ class NestApi {
         return GeometryUtil.getPolygonBounds(polygon)
     }
 
-    private fun createNestPath(rect: Rectangle): NestPath {
-        val binPolygon = NestPath()
+    private fun createBinNestPath(rect: Rectangle, binId: Int, boundSpacing: Double): NestPath {
+        var binPolygon = NestPath()
         val width = rect.width
         val height = rect.height
 
@@ -145,6 +137,14 @@ class NestApi {
         binPolygon.add(0.0, height.toDouble())
         binPolygon.add(width.toDouble(), height.toDouble())
         binPolygon.add(width.toDouble(), 0.0)
+
+        if (boundSpacing > 0) {
+            val offsetBin = CommonUtil.polygonOffset(binPolygon, -boundSpacing)
+            if (offsetBin.size == 1) {
+                binPolygon = offsetBin[0]
+            }
+        }
+        binPolygon.bid = binId
         return binPolygon
     }
 

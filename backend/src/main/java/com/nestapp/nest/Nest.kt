@@ -17,8 +17,7 @@ class Nest {
         logger: Logger,
     ): List<Placement>? {
         val nfpCache = NfpCacheRepository(
-            nestPaths = tree,
-            binPolygon = binPolygon,
+            nestPaths = tree.plus(binPolygon),
             logger = logger
         )
 

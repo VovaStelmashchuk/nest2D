@@ -9,7 +9,6 @@ import java.util.concurrent.Executors
 
 class NfpCacheRepository(
     private val nestPaths: List<NestPath>,
-    private val binPolygon: NestPath,
     private val logger: Logger,
 ) {
 
@@ -36,17 +35,14 @@ class NfpCacheRepository(
     }
 
     private fun generateNfp(key: NfpKey): List<NestPath> {
-        val a = if (key.a == -1) {
-            binPolygon
-        } else {
-            nestPaths.find { it.bid == key.a } ?: throw IllegalArgumentException("Cannot generate NFP for key: $key")
-        }
+        logger.info("NfpCacheRepository.generateNfp: key = $key")
 
-        val b = if (key.b == -1) {
-            binPolygon
-        } else {
-            nestPaths.find { it.bid == key.b } ?: throw IllegalArgumentException("Cannot generate NFP for key: $key")
-        }
+        val a = nestPaths
+            .find { it.bid == key.a } ?: throw IllegalArgumentException("Cannot generate NFP for key: $key")
+
+        val b =
+            nestPaths
+                .find { it.bid == key.b } ?: throw IllegalArgumentException("Cannot generate NFP for key: $key")
 
         val nfpPair = NfpPair(
             a = a,

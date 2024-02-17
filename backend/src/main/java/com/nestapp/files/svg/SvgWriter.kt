@@ -2,7 +2,7 @@ package com.nestapp.files.svg
 
 import com.nestapp.files.dxf.DxfPart
 import com.nestapp.files.dxf.DxfPartPlacement
-import com.nestapp.nest.data.NestPath
+import com.nestapp.files.dxf.DxfPath
 import java.io.File
 import java.io.FileWriter
 import java.io.Writer
@@ -23,7 +23,7 @@ class SvgWriter {
         var maxY = Double.MIN_VALUE
 
         dxfParts.forEach { dxfPart ->
-            dxfPart.nestPath.segments.forEach { segment ->
+            dxfPart.dxfPath.segments.forEach { segment ->
                 if (minX > segment.x) {
                     minX = segment.x
                 }
@@ -51,9 +51,9 @@ class SvgWriter {
         val rawSvg = buildString {
             for ((index, dxfPart) in dxfParts.withIndex()) {
                 appendLine("""<g transform="translate($translationX, $translationY)">""".trimIndent())
-                appendSvgPath(dxfPart.nestPath, index)
+                appendSvgPath(dxfPart.dxfPath, index)
                 dxfPart.inners.forEach { innerDxfPart ->
-                    appendSvgPath(innerDxfPart.nestPath, index)
+                    appendSvgPath(innerDxfPart.dxfPath, index)
                 }
                 appendLine("</g>")
             }
@@ -74,8 +74,8 @@ class SvgWriter {
                 val oy = part.placement.translate.y
                 val rotate = part.placement.rotate
                 appendLine("""<g transform="translate($ox, $oy) rotate($rotate)">""".trimIndent())
-                part.allNestedPath.forEach { nestPath ->
-                    appendSvgPath(nestPath, index)
+                part.allDxfPaths.forEach { dxfPath ->
+                    appendSvgPath(dxfPath, index)
                 }
                 appendLine("</g>")
             }
@@ -84,10 +84,10 @@ class SvgWriter {
         saveStringsToSvgFile(rawSvg, file, width, height)
     }
 
-    private fun StringBuilder.appendSvgPath(nestPath: NestPath, index: Int) {
+    private fun StringBuilder.appendSvgPath(dxfPath: DxfPath, index: Int) {
         appendLine("""<path d="""".trimIndent())
 
-        nestPath.segments.forEachIndexed { segmentIndex, segment ->
+        dxfPath.segments.forEachIndexed { segmentIndex, segment ->
             if (segmentIndex == 0) {
                 append("M")
             } else {

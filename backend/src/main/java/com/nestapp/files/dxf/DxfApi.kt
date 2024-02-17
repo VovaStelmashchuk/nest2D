@@ -2,11 +2,11 @@ package com.nestapp.files.dxf
 
 import com.nestapp.files.dxf.reader.DXFReader
 import com.nestapp.files.dxf.writter.DXFDocument
-import com.nestapp.nest.data.NestPath
 import org.apache.batik.ext.awt.geom.Polygon2D
 import java.awt.geom.AffineTransform
 import java.awt.geom.Path2D
 import java.awt.geom.PathIterator
+import java.awt.geom.Point2D
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
@@ -63,29 +63,30 @@ class DxfApi {
         val singleGroups: List<DxfPart> =
             connectedEntities.minus(entitiesGroups.keys).minus(entitiesGroups.values.flatten().toSet())
                 .map {
-                    DxfPart(it.entities, toNestPath(it.path, tolerance))
+                    DxfPart(it.entities, toDxfPath(it.path, tolerance))
                 }
 
         val allGroupsToNest: List<DxfPart> = entitiesGroups.map { (parent, children) ->
-            val childrenNestPaths = children.map { child -> DxfPart(child.entities, toNestPath(child.path, tolerance)) }
-            return@map DxfPart(parent.entities, toNestPath(parent.path, tolerance), childrenNestPaths)
+            val childrenNestPaths = children
+                .map { child ->
+                    InnerDxfPart(child.entities, toDxfPath(child.path, tolerance))
+                }
+            return@map DxfPart(parent.entities, toDxfPath(parent.path, tolerance), childrenNestPaths)
         } + singleGroups
 
         return allGroupsToNest
     }
 
     private fun isPathInsideAnother(outerPath: Path2D.Double, innerPath: Path2D.Double, tolerance: Double): Boolean {
-        val parentNestPath = toNestPath(outerPath, tolerance)
-        val childNestPath = toNestPath(innerPath, tolerance)
+        val parentNestPath = toDxfPath(outerPath, tolerance)
+        val childNestPath = toDxfPath(innerPath, tolerance)
         val parent = toPolygon2D(parentNestPath)
         val child = toPolygon2D(childNestPath)
 
         return parent.contains(child)
     }
 
-    private fun toPolygon2D(nestPath: NestPath): Polygon2D { ///TODO optimize
-        val newp: Polygon2D
-
+    private fun toPolygon2D(nestPath: DxfPath): Polygon2D { ///TODO optimize
         val xp: MutableList<Float> = ArrayList()
         val yp: MutableList<Float> = ArrayList()
         for (s in nestPath.segments) {
@@ -105,8 +106,7 @@ class DxfApi {
             yparray[i++] = f
         }
 
-        newp = Polygon2D(xparray, yparray, nestPath.segments.size)
-        return newp
+        return Polygon2D(xparray, yparray, nestPath.segments.size)
     }
 
     private fun Polygon2D.contains(polygon2D: Polygon2D): Boolean {
@@ -119,8 +119,8 @@ class DxfApi {
             }
     }
 
-    private fun toNestPath(path: Path2D, tolerance: Double): NestPath {
-        val nestPath = NestPath()
+    private fun toDxfPath(path: Path2D, tolerance: Double): DxfPath {
+        val list = mutableListOf<Point2D.Double>()
 
         val at = AffineTransform()
         val iter = path.getPathIterator(at, tolerance)
@@ -130,22 +130,20 @@ class DxfApi {
 
             when (type) {
                 PathIterator.SEG_MOVETO, PathIterator.SEG_LINETO -> {
-                    nestPath.add(coords[0], coords[1])
+                    list.add(Point2D.Double(coords[0], coords[1]))
                 }
 
                 PathIterator.SEG_QUADTO -> {
-                    nestPath.add(coords[2], coords[3])
+                    list.add(Point2D.Double(coords[2], coords[3]))
                 }
 
                 PathIterator.SEG_CUBICTO -> {
-                    nestPath.add(coords[4], coords[5])
+                    list.add(Point2D.Double(coords[4], coords[5]))
                 }
             }
             iter.next()
         }
 
-        return nestPath
+        return DxfPath(list)
     }
-
 }
-
