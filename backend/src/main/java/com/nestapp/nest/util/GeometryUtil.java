@@ -206,7 +206,7 @@ public class GeometryUtil {
         Bound bb = getPolygonBounds(poly);
 
         for (int i = 0; i < poly.size(); i++) {
-            if ((!almostEqual(poly.get(i).x, bb.getXmin(), tolerance) && !almostEqual(poly.get(i).x, bb.getXmin() + bb.getWidth(), tolerance)) || (!almostEqual(poly.get(i).y, bb.getYmin(), tolerance) && !almostEqual(poly.get(i).y, bb.getYmin() + bb.getHeight(), tolerance))) {
+            if ((!almostEqual(poly.get(i).x, bb.xmin, tolerance) && !almostEqual(poly.get(i).x, bb.xmin + bb.width, tolerance)) || (!almostEqual(poly.get(i).y, bb.ymin, tolerance) && !almostEqual(poly.get(i).y, bb.ymin + bb.height, tolerance))) {
                 return false;
             }
         }

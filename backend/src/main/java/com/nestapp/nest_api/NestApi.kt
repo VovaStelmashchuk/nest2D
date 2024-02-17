@@ -9,40 +9,75 @@ import com.nestapp.nest.data.Placement
 import com.nestapp.nest.util.CommonUtil
 import com.nestapp.nest.util.GeometryUtil
 import com.nestapp.nest.util.NewCommonUtils.copyNestPaths
+import io.ktor.util.logging.Logger
 import java.awt.Rectangle
 import kotlin.math.cos
 import kotlin.math.sin
 
 class NestApi {
 
-    fun startNest(
+    fun nest(
         plate: Rectangle,
         dxfParts: List<DxfPart>,
         spacing: Double,
         boundSpacing: Double,
+        rotationCount: Int,
+        logger: Logger,
     ): Result<List<DxfPartPlacement>> {
         if (dxfParts.isEmpty()) {
             return Result.failure(Throwable("Parts is empty"))
-        }
-
-        val isAllPartFit = dxfParts.any { part ->
-            !checkIfCanBePlaced(plate, part.nestPath, 4)
-        }
-
-        if (isAllPartFit) {
-            return Result.failure(UserInputExecution.TheInputHasPartsThatCannotFitInBin())
         }
 
         val nestPaths = dxfParts
             .map { it.nestPath }
             .toMutableList()
 
-        //Apply offsets
+        val isAllPartFit = nestPaths.any { part ->
+            !checkIfCanBePlaced(plate, part, rotationCount)
+        }
 
+        if (isAllPartFit) {
+            return Result.failure(UserInputExecution.TheInputHasPartsThatCannotFitInBin())
+        }
+
+        val binPolygon = createPlateNestPath(plate, boundSpacing)
+
+        //Apply offsets
         val tree: List<NestPath> = copyNestPaths(nestPaths)
-        println("spacing: $spacing")
         CommonUtil.offsetTree(tree, 0.5 * spacing)
 
+        /*
+         * Make sure it's counterclockwise (rotazione antioraria) TODO why?
+         * Need for NFP algorithm, may be
+         */
+        for (element in tree) {
+            val start = element[0]
+            val end = element[element.size() - 1]
+            if (GeometryUtil.almostEqual(start.x, end.x) && GeometryUtil.almostEqual(start.y, end.y)) {
+                element.pop()
+            }
+            if (GeometryUtil.polygonArea(element) > 0) {
+                element.reverse()
+            }
+        }
+
+        val nest = Nest()
+        val appliedPlacement: List<Placement> = nest.startNest(binPolygon, tree, logger)
+            ?: return Result.failure(CannotPlaceException())
+
+        val placements = appliedPlacement
+            .map { placement ->
+                val dxfPart: DxfPart = dxfParts.find { dxfPart -> dxfPart.bid == placement.bid }!!
+                DxfPartPlacement(
+                    dxfPart = dxfPart,
+                    placement = placement,
+                )
+            }
+
+        return Result.success(placements)
+    }
+
+    private fun createPlateNestPath(plate: Rectangle, boundSpacing: Double): NestPath {
         var binPolygon = NestPath(createNestPath(plate))
 
         if (boundSpacing > 0) {
@@ -64,36 +99,7 @@ class NestApi {
         if (GeometryUtil.polygonArea(binPolygon) > 0) {
             binPolygon.reverse()
         }
-
-        /*
-         * Make sure it's counterclockwise (rotazione antioraria) TODO why?
-         * Need for NFP algorithm
-         */
-        for (element in tree) {
-            val start = element[0]
-            val end = element[element.size() - 1]
-            if (GeometryUtil.almostEqual(start.x, end.x) && GeometryUtil.almostEqual(start.y, end.y)) {
-                element.pop()
-            }
-            if (GeometryUtil.polygonArea(element) > 0) {
-                element.reverse()
-            }
-        }
-
-        val nest = Nest()
-        val appliedPlacement: List<Placement> = nest.startNest(binPolygon, tree)
-            ?: return Result.failure(CannotPlaceException())
-
-        val placements = appliedPlacement
-            .map { placement ->
-                val dxfPart: DxfPart = dxfParts.find { dxfPart -> dxfPart.bid == placement.bid }!!
-                DxfPartPlacement(
-                    dxfPart = dxfPart,
-                    placement = placement,
-                )
-            }
-
-        return Result.success(placements)
+        return binPolygon
     }
 
     private fun checkIfCanBePlaced(plate: Rectangle, nestPath: NestPath, rotationCount: Int): Boolean {

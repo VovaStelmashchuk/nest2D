@@ -6,33 +6,51 @@ import com.nestapp.nest.data.Result
 import com.nestapp.nest.data.Segment
 import com.nestapp.nest.nfp.NfpCacheRepository
 import com.nestapp.nest.util.PlacementWorker
+import io.ktor.util.logging.Logger
 
 class Nest {
-    private val nfpCache = NfpCacheRepository()
+
 
     fun startNest(
         binPolygon: NestPath,
-        tree: List<NestPath>
+        tree: List<NestPath>,
+        logger: Logger,
     ): List<Placement>? {
-        nfpCache.setNestPaths(tree)
-        nfpCache.setBinPolygon(binPolygon)
+        val nfpCache = NfpCacheRepository(
+            nestPaths = tree,
+            binPolygon = binPolygon,
+            logger = logger
+        )
 
         var best: Result? = null
+        var bestArea = Double.MAX_VALUE
 
         val variants: List<List<NestPath?>> = generateNestListVariants(tree)
 
-        println("startNest(): variants.size() = " + variants.size)
+        logger.info("startNest(): variants.size() = ${variants.size}")
 
-        for (variant in variants) {
-            val worker = PlacementWorker(binPolygon, nfpCache)
-            val result = worker.placePaths(variant)
+        variants.forEachIndexed { index, variant ->
+            logger.info("startNest(): variant $index")
+            val worker = PlacementWorker(nfpCache)
+            val result = worker.placePaths(binPolygon, variant)
 
             if (result == null) {
-                println("resul null cannot place paths")
+                logger.info("startNest(): variant $index failed")
             } else {
-                println("startNest(): current fitness = " + result.fitness)
+                val placementMaxX = result.placements.maxOf { placement ->
+                    val maxPathX = tree.find { path -> path.bid == placement.bid }!!.segments.maxOf { it.x }
+                    return@maxOf placement.x + maxPathX
+                }
 
-                if (best == null || best.fitness > result.fitness) {
+                val placementMaxY = result.placements.maxOf { placement ->
+                    val maxPathY = tree.find { path -> path.bid == placement.bid }!!.segments.maxOf { it.y }
+                    return@maxOf placement.y + maxPathY
+                }
+
+                val area = placementMaxX * placementMaxY
+
+                if (best == null || bestArea > area) {
+                    bestArea = area
                     best = result
                 }
             }
@@ -41,8 +59,8 @@ class Nest {
         if (best == null) {
             return null
         } else {
-            println("startNest(): best fitness = " + best.fitness)
-            return applyPlacement(best)
+            logger.info("startNest(): best fitness = $bestArea")
+            return applyPlacement(best!!)
         }
     }
 

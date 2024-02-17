@@ -14,12 +14,9 @@ import java.util.List;
 
 public class PlacementWorker {
 
-    public NestPath binPolygon;
-
     public NfpCacheRepository nfpCache;
 
-    public PlacementWorker(NestPath binPolygon, NfpCacheRepository nfpCache) {
-        this.binPolygon = binPolygon;
+    public PlacementWorker(NfpCacheRepository nfpCache) {
         this.nfpCache = nfpCache;
     }
 
@@ -27,7 +24,7 @@ public class PlacementWorker {
      * According to the plate list and the rotation angle list, calculate the position of the plate on the
      * bottom plate through nfp, and return the fitness of this population
      */
-    public Result placePaths(List<NestPath> paths) {
+    public Result placePaths(NestPath binPolygon, List<NestPath> paths) {
         // rotazione dei NestPaths passati (paths)
         List<NestPath> rotated = new ArrayList<>();
         for (int i = 0; i < paths.size(); i++) {
@@ -37,43 +34,29 @@ public class PlacementWorker {
         }
         paths = rotated;
 
-
-        // Now the fitness is defined as the width of material used.
-        double fitness = 0;
-        double binarea = Math.abs(GeometryUtil.polygonArea(this.binPolygon));
-        List<NestPath> nfp = null;
-
         //used with multiple bins
 
         List<NestPath> placed = new ArrayList<>();        // polygons (NestPath) to place
         List<PathPlacement> placements = new ArrayList<>();    // coordinates
 
-        //fitness += 1;
-        double minwidth = Double.MAX_VALUE;                // valore che verrà assegnato alla fitness
-
         // Loops over all the polygons (paths)
         for (int i = 0; i < paths.size(); i++) {
             NestPath path = paths.get(i);
+            List<NfpKey> keysToCache = new ArrayList<>();
             //inner NFP	***************************************************************
-            NfpKey key = new NfpKey(-1, path.getBid(), true, 0, path.getRotation());
-            if (!nfpCache.exist(key)) {
-                continue;
-            }
-            List<NestPath> binNfp = nfpCache.get(key);
-            // ensure exists
-            boolean error = false;
+
+            final NfpKey binKey = new NfpKey(binPolygon.getBid(), path.getBid(), true, 0, path.getRotation());
+
+            keysToCache.add(binKey);
+
             for (NestPath element : placed) {
-                key = new NfpKey(element.getBid(), path.getBid(), false, element.getRotation(), path.getRotation());
-                if (!nfpCache.exist(key)) {
-                    error = true;
-                    break;
-                }
-            }
-            if (error) {
-                //Stop placing in case nfp cache not available for some pair of polygons
-                continue;
+                NfpKey key = new NfpKey(element.getBid(), path.getBid(), false, element.getRotation(), path.getRotation());
+                keysToCache.add(key);
             }
 
+            nfpCache.prepareCacheForKeys(keysToCache);
+
+            List<NestPath> binNfp = nfpCache.get(binKey);
 
             PathPlacement position = null;
             if (placed.size() == 0) {
@@ -104,11 +87,14 @@ public class PlacementWorker {
             Paths combinedNfp = new Paths();
 
             for (int j = 0; j < placed.size(); j++) {
-                key = new NfpKey(placed.get(j).getBid(), path.getBid(), false, placed.get(j).getRotation(), path.getRotation());
-                nfp = nfpCache.get(key);
-                if (nfp == null) {
-                    continue;
-                }
+                NfpKey key = new NfpKey(
+                    placed.get(j).getBid(),
+                    path.getBid(),
+                    false,
+                    placed.get(j).getRotation(),
+                    path.getRotation()
+                );
+                List<NestPath> nfp = nfpCache.get(key);
 
                 for (NestPath element : nfp) {
                     Path clone = scaleUp2ClipperCoordinates(element);
@@ -158,19 +144,13 @@ public class PlacementWorker {
                 f.add(toNestCoordinates(element));
             }
 
-            List<NestPath> finalNfpf = f;
-            double minarea = Double.MIN_VALUE;
-            double minX = Double.MAX_VALUE;
-            NestPath nf = null;
-            double area = Double.MIN_VALUE;
-            PathPlacement shifvector = null;
-//                System.out.println("UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
-            for (NestPath element : finalNfpf) {
-                nf = element;
-                if (Math.abs(GeometryUtil.polygonArea(nf)) < 2) {
+            double minarea = Double.MAX_VALUE;
+
+            for (NestPath element : f) {
+                if (Math.abs(GeometryUtil.polygonArea(element)) < 2) {
                     continue;
                 }
-                for (int k = 0; k < nf.size(); k++) {
+                for (int k = 0; k < element.size(); k++) {
                     NestPath allpoints = new NestPath();
                     for (int m = 0; m < placed.size(); m++) {
                         for (int n = 0; n < placed.get(m).size(); n++) {
@@ -178,50 +158,33 @@ public class PlacementWorker {
                                 placed.get(m).get(n).y + placements.get(m).y));
                         }
                     }
-                    shifvector = new PathPlacement(
-                        nf.get(k).x - path.get(0).x,
-                        nf.get(k).y - path.get(0).y,
+                    PathPlacement shifvector = new PathPlacement(
+                        element.get(k).x - path.get(0).x,
+                        element.get(k).y - path.get(0).y,
                         path.getBid(),
-                        path.getRotation(),
-                        combinedNfp
+                        path.getRotation()
                     );
                     for (int m = 0; m < path.size(); m++) {
                         allpoints.add(new Segment(path.get(m).x + shifvector.x, path.get(m).y + shifvector.y));
                     }
                     Bound rectBounds = GeometryUtil.getPolygonBounds(allpoints);
 
-                    area = rectBounds.getWidth() + rectBounds.getHeight();
+                    double area = rectBounds.width * rectBounds.height;
 
-                    if (minarea == Double.MIN_VALUE
-                        || area < minarea
-                        || (GeometryUtil.almostEqual(minarea, area)
-                        && (minX == Double.MIN_VALUE || shifvector.x < minX))) {
+                    if (area < minarea || GeometryUtil.almostEqual(minarea, area)) {
                         minarea = area;
-
-                        minwidth = rectBounds.getWidth();
                         position = shifvector;
-                        minX = shifvector.x;
                     }
                 }
             }
             if (position != null) {
-                placed.add(path);                // polygon added
+                placed.add(path);
                 placements.add(position);
             }
         }
-        if (minwidth != Double.MAX_VALUE) {
-            fitness += minwidth; /// binarea;
-        }
 
-        for (int i = 0; i < placed.size(); i++) {
-            int index = paths.indexOf(placed.get(i));
-            if (index >= 0) {
-                paths.remove(index);
-            }
-        }
-
-        if (!placements.isEmpty() && paths.isEmpty()) {
-            return new Result(placements, fitness, paths, binarea);
+        if (!placements.isEmpty() && placed.size() == paths.size()) {
+            return new Result(placements);
         } else {
             return null;
         }

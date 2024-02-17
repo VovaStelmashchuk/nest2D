@@ -2,54 +2,62 @@ package com.nestapp.nest.nfp
 
 import com.nestapp.nest.data.NestPath
 import com.nestapp.nest.util.NfpUtil
+import io.ktor.util.logging.Logger
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executors
 
-class NfpCacheRepository {
+class NfpCacheRepository(
+    private val nestPaths: List<NestPath>,
+    private val binPolygon: NestPath,
+    private val logger: Logger,
+) {
 
-    private val nfpCache: MutableMap<NfpKey, List<NestPath>> = HashMap()
+    private val nfpCache: MutableMap<NfpKey, List<NestPath>> = ConcurrentHashMap()
 
-    private lateinit var nestPaths: List<NestPath>
-    private lateinit var binPolygon: NestPath
-
-    fun setNestPaths(nestPaths: List<NestPath>) {
-        this.nestPaths = nestPaths
-    }
-
-    fun setBinPolygon(binPolygon: NestPath) {
-        this.binPolygon = binPolygon
-    }
-
-    fun exist(nfpKey: NfpKey): Boolean {
-        if (nfpCache.containsKey(nfpKey)) {
-            println("NFP exist in cache: $nfpKey")
-            return true
-        } else {
-            val a = if (nfpKey.a == -1) {
-                binPolygon
-            } else {
-                nestPaths.find { it.bid == nfpKey.a } ?: return false
+    private val executor = Executors.newFixedThreadPool(
+        Runtime.getRuntime().availableProcessors()
+            .also {
+                logger.info("NfpCacheRepository: availableProcessors = $it")
             }
+    )
 
-            val b = if (nfpKey.b == -1) {
-                binPolygon
-            } else {
-                nestPaths.find { it.bid == nfpKey.b } ?: return false
-            }
-
-            val nfpPair = NfpPair(
-                a = a,
-                b = b,
-                key = nfpKey,
-            )
-
-            val data = NfpUtil.nfpGenerator(nfpPair) ?: return false
-            nfpCache[nfpKey] = data.value
-            println("Add NFP to cache: $nfpKey")
-            return true
+    fun prepareCacheForKeys(keys: List<NfpKey>) {
+        val notExistKeys = keys.minus(nfpCache.keys)
+        val futures = notExistKeys.map { key ->
+            CompletableFuture.supplyAsync({
+                generateNfp(key).also { data ->
+                    nfpCache[key] = data
+                }
+            }, executor)
         }
+        // Wait for all futures to complete
+        CompletableFuture.allOf(*futures.toTypedArray()).join()
+    }
+
+    private fun generateNfp(key: NfpKey): List<NestPath> {
+        val a = if (key.a == -1) {
+            binPolygon
+        } else {
+            nestPaths.find { it.bid == key.a } ?: throw IllegalArgumentException("Cannot generate NFP for key: $key")
+        }
+
+        val b = if (key.b == -1) {
+            binPolygon
+        } else {
+            nestPaths.find { it.bid == key.b } ?: throw IllegalArgumentException("Cannot generate NFP for key: $key")
+        }
+
+        val nfpPair = NfpPair(
+            a = a,
+            b = b,
+            key = key,
+        )
+
+        return NfpUtil.nfpGenerator(nfpPair) ?: throw IllegalArgumentException("Cannot generate NFP for key: $key")
     }
 
     fun get(nfpKey: NfpKey): List<NestPath> {
         return nfpCache[nfpKey] ?: throw IllegalStateException("NfpCacheRepository.get: nfpKey not found")
     }
-
 }

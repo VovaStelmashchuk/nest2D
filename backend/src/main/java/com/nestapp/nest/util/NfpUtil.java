@@ -2,7 +2,6 @@ package com.nestapp.nest.util;
 
 import com.nestapp.nest.data.NestPath;
 import com.nestapp.nest.nfp.NfpPair;
-import com.nestapp.nest.data.ParallelData;
 
 import java.util.List;
 
@@ -11,10 +10,7 @@ import java.util.List;
  */
 public class NfpUtil {
 
-    /**
-     * Get a pair of polygons and generate nfp
-     */
-    public static ParallelData nfpGenerator(NfpPair pair) {
+    public static List<NestPath> nfpGenerator(NfpPair pair) {
         boolean searchEdges = false;
 
         NestPath A = GeometryUtil.rotatePolygon2Polygon(pair.getA(), pair.key.getArotation());
@@ -68,6 +64,6 @@ public class NfpUtil {
             }
 
         }
-        return new ParallelData(pair.key, nfp);
+        return nfp;
     }
 }

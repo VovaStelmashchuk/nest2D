@@ -9,7 +9,6 @@ import com.nestapp.files.dxf.writter.parts.DXFLWPolyline
 import com.nestapp.files.dxf.writter.parts.DXFLine
 import com.nestapp.nest.data.NestPath
 import com.nestapp.nest.data.Placement
-import org.apache.batik.ext.awt.geom.Polygon2D
 
 data class DxfPart(
     val entities: List<Entity>,

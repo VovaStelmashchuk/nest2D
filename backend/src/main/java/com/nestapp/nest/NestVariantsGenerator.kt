@@ -3,7 +3,6 @@ package com.nestapp.nest
 import com.nestapp.nest.data.NestPath
 import com.nestapp.nest.util.GeometryUtil
 
-
 fun generateNestListVariants(tree: List<NestPath>): List<List<NestPath>> {
     val copyOfTree = generateNestListRotation(tree)
 

@@ -23,7 +23,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.awt.Rectangle
 import java.io.File
-import kotlin.math.log
 
 fun Route.nestRestApi(
     configuration: Configuration,
@@ -127,11 +126,13 @@ private fun ApplicationCall.nest(
 
     this.application.environment.log.info("Nesting ${listOfDxfParts.size} parts")
 
-    val result: Result<List<DxfPartPlacement>> = nestApi.startNest(
+    val result: Result<List<DxfPartPlacement>> = nestApi.nest(
         plate = Rectangle(nestInput.plateWidth, nestInput.plateHeight),
         dxfParts = listOfDxfParts,
         spacing = nestInput.spacing,
         boundSpacing = nestInput.plateSpacing,
+        rotationCount = 4,
+        logger = this.application.environment.log,
     )
 
     result.onFailure {
