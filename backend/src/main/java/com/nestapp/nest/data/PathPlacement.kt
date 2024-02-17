@@ -5,6 +5,6 @@ data class PathPlacement(
     val x: Double,
     @JvmField
     val y: Double,
-    val bid: Int,
+    val bid: String,
     val rotation: Int
 )

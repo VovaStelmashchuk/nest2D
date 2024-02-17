@@ -10,15 +10,23 @@ public class NestPath implements Comparable<NestPath> {
     public double offsetY;
     private int rotation;
     public double area;
-    private int bid;
+    private String bid;
     static private final AtomicInteger bid_counter = new AtomicInteger(1);
 
     public NestPath() {
+        this("");
+    }
+
+    public NestPath(String id) {
         offsetX = 0;
         offsetY = 0;
         segments = new ArrayList<>();
         area = 0;
-        bid = bid_counter.incrementAndGet();
+        if (id == null || id.isEmpty()) {
+            bid = String.valueOf(bid_counter.incrementAndGet());
+        } else {
+            bid = id;
+        }
     }
 
     public NestPath(NestPath srcNestPath) {
@@ -139,11 +147,11 @@ public class NestPath implements Comparable<NestPath> {
         return -1;
     }
 
-    public int getBid() {
+    public String getBid() {
         return bid;
     }
 
-    public void setBid(int bid) {
+    public void setBid(String bid) {
         this.bid = bid;
     }
 

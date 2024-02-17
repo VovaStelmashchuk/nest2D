@@ -22,7 +22,7 @@ class NfpCacheRepository(
     )
 
     fun prepareCacheForKeys(keys: List<NfpKey>) {
-        val notExistKeys = keys.minus(nfpCache.keys)
+        val notExistKeys = keys.toSet().minus(nfpCache.keys)
         val futures = notExistKeys.map { key ->
             CompletableFuture.supplyAsync({
                 generateNfp(key).also { data ->
@@ -40,9 +40,8 @@ class NfpCacheRepository(
         val a = nestPaths
             .find { it.bid == key.a } ?: throw IllegalArgumentException("Cannot generate NFP for key: $key")
 
-        val b =
-            nestPaths
-                .find { it.bid == key.b } ?: throw IllegalArgumentException("Cannot generate NFP for key: $key")
+        val b = nestPaths
+            .find { it.bid == key.b } ?: throw IllegalArgumentException("Cannot generate NFP for key: $key")
 
         val nfpPair = NfpPair(
             a = a,

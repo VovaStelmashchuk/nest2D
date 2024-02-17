@@ -2,10 +2,12 @@ package com.nestapp.nest_api
 
 import com.nestapp.files.dxf.DxfPart
 import com.nestapp.files.dxf.DxfPartPlacement
+import com.nestapp.files.dxf.common.RealPoint
 import com.nestapp.nest.Nest
 import com.nestapp.nest.data.Bound
 import com.nestapp.nest.data.NestPath
 import com.nestapp.nest.data.Placement
+import com.nestapp.nest.data.Segment
 import com.nestapp.nest.util.CommonUtil
 import com.nestapp.nest.util.GeometryUtil
 import com.nestapp.nest.util.NewCommonUtils.copyNestPaths
@@ -28,9 +30,15 @@ class NestApi {
             return Result.failure(Throwable("Parts is empty"))
         }
 
-        val nestPaths = dxfParts
-            .map { it.nestPath }
-            .toMutableList()
+        val dxfPartToNestBid = mutableMapOf<String, DxfPart>()
+
+        val nestPaths = mutableListOf<NestPath>()
+
+        dxfParts.forEach { dxfPart ->
+            val nestPath = createNestPath(dxfPart, "$spacing")
+            dxfPartToNestBid[nestPath.bid] = dxfPart
+            nestPaths.add(nestPath)
+        }
 
         val isAllPartFit = nestPaths.any { part ->
             !checkIfCanBePlaced(plate, part, rotationCount)
@@ -67,7 +75,9 @@ class NestApi {
 
         val placements = appliedPlacement
             .map { placement ->
-                val dxfPart: DxfPart = dxfParts.find { dxfPart -> dxfPart.bid == placement.bid }!!
+                val dxfPart = dxfPartToNestBid[placement.bid]
+                    ?: throw IllegalStateException("Cannot find part with bid ${placement.bid}")
+
                 DxfPartPlacement(
                     dxfPart = dxfPart,
                     placement = placement,
@@ -77,8 +87,20 @@ class NestApi {
         return Result.success(placements)
     }
 
+    private fun createNestPath(
+        dxfPart: DxfPart,
+        idSuffix: String,
+    ): NestPath {
+        val segments = dxfPart.dxfPath.segments.map { RealPoint(it.x, it.y) }
+        val nestPath = NestPath("${dxfPart.bId}+$idSuffix")
+        segments.forEach {
+            nestPath.add(Segment(it.x, it.y))
+        }
+        return nestPath
+    }
+
     private fun createPlateNestPath(plate: Rectangle, boundSpacing: Double): NestPath {
-        var binPolygon = NestPath(createBinNestPath(plate, -1, boundSpacing))
+        val binPolygon = NestPath(createBinNestPath(plate, boundSpacing))
 
         val binMinX = binPolygon.segments.minOfOrNull { it.x } ?: throw IllegalStateException("")
         val binMinY = binPolygon.segments.minOfOrNull { it.y } ?: throw IllegalStateException("")
@@ -128,7 +150,7 @@ class NestApi {
         return GeometryUtil.getPolygonBounds(polygon)
     }
 
-    private fun createBinNestPath(rect: Rectangle, binId: Int, boundSpacing: Double): NestPath {
+    private fun createBinNestPath(rect: Rectangle, boundSpacing: Double): NestPath {
         var binPolygon = NestPath()
         val width = rect.width
         val height = rect.height
@@ -144,7 +166,7 @@ class NestApi {
                 binPolygon = offsetBin[0]
             }
         }
-        binPolygon.bid = binId
+        binPolygon.bid = "${rect.width}x${rect.height}+$boundSpacing"
         return binPolygon
     }
 

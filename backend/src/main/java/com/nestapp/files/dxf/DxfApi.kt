@@ -10,6 +10,8 @@ import java.awt.geom.Point2D
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 
 class DxfApi {
 
@@ -34,17 +36,17 @@ class DxfApi {
         fileWriter.close()
     }
 
-    fun readFile(file: File, tolerance: Double): List<DxfPart> {
+    fun readFile(file: File, tolerance: Double, dxfPartIdPrefix: String = ""): List<DxfPart> {
         val dxfReader = DXFReader()
         try {
             dxfReader.parseFile(file)
         } catch (e: IOException) {
             throw RuntimeException(e)
         }
-        return getEntities(dxfReader, tolerance)
+        return getEntities(dxfReader, tolerance, dxfPartIdPrefix)
     }
 
-    private fun getEntities(dxfReader: DXFReader, tolerance: Double): List<DxfPart> {
+    private fun getEntities(dxfReader: DXFReader, tolerance: Double, fileName: String): List<DxfPart> {
         val connectedEntities: List<GroupedEntity> = EntityGrouper.groupEntities(dxfReader.entities, tolerance)
         val entitiesGroups: MutableMap<GroupedEntity, MutableList<GroupedEntity>> = mutableMapOf()
 
@@ -60,10 +62,16 @@ class DxfApi {
             }
         }
 
+        val partId = AtomicInteger(1)
+
         val singleGroups: List<DxfPart> =
             connectedEntities.minus(entitiesGroups.keys).minus(entitiesGroups.values.flatten().toSet())
                 .map {
-                    DxfPart(it.entities, toDxfPath(it.path, tolerance))
+                    DxfPart(
+                        bId = "$fileName+${partId.getAndIncrement()}",
+                        entities = it.entities,
+                        dxfPath = toDxfPath(it.path, tolerance)
+                    )
                 }
 
         val allGroupsToNest: List<DxfPart> = entitiesGroups.map { (parent, children) ->
@@ -71,7 +79,12 @@ class DxfApi {
                 .map { child ->
                     InnerDxfPart(child.entities, toDxfPath(child.path, tolerance))
                 }
-            return@map DxfPart(parent.entities, toDxfPath(parent.path, tolerance), childrenNestPaths)
+            return@map DxfPart(
+                bId = "$fileName+${partId.getAndIncrement()}",
+                entities = parent.entities,
+                dxfPath = toDxfPath(parent.path, tolerance),
+                inners = childrenNestPaths
+            )
         } + singleGroups
 
         return allGroupsToNest

@@ -22,9 +22,14 @@
                 </div>
             </div>
             <div class="right-side">
-                <ControlPanel class="just-card" style="margin-bottom: 10px" :isBuilding="isBuilding"
-                              :downloadDisabled="downloadDisabled"
-                              @build="buildButtonClickHandler" @download="downloadFile"/>
+                <ControlPanel
+                    class="just-card"
+                    style="margin-bottom: 10px"
+                    :isBuilding="isBuilding"
+                    :downloadDisabled="downloadDisabled"
+                    @build="buildButtonClickHandler"
+                    @download="downloadFile"
+                />
                 <SvgImage class="just-card" :imageLink="yourSvgImageUrl"
                           placeholderText="Click build to start nest process"/>
                 <p class="additional-text">You can click the build button again to look for better results.</p>

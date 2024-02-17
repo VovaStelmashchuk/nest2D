@@ -7,28 +7,14 @@ import com.nestapp.files.dxf.reader.LwPolyline
 import com.nestapp.files.dxf.writter.parts.DXFEntity
 import com.nestapp.files.dxf.writter.parts.DXFLWPolyline
 import com.nestapp.files.dxf.writter.parts.DXFLine
-import com.nestapp.nest.data.NestPath
 import com.nestapp.nest.data.Placement
-import com.nestapp.nest.data.Segment
 
 data class DxfPart(
+    val bId: String,
     val entities: List<Entity>,
     val dxfPath: DxfPath,
     val inners: List<InnerDxfPart> = emptyList(),
-) {
-
-    val nestPath: NestPath by lazy {
-        val segments = dxfPath.segments.map { RealPoint(it.x, it.y) }
-        val nestPath = NestPath()
-        segments.forEach {
-            nestPath.add(Segment(it.x, it.y))
-        }
-        return@lazy nestPath
-    }
-
-    val bid: Int
-        get() = nestPath.bid
-}
+)
 
 data class InnerDxfPart(
     val entities: List<Entity>,

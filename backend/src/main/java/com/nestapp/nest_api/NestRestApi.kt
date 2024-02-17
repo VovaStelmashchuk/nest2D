@@ -98,20 +98,25 @@ private fun ApplicationCall.nest(
 
     val files = projectsRepository.getFiles(nestInput.projectId, fileIds)
         .map { (fileId, file) ->
-            File(
+            fileId to File(
                 projectsFolder,
                 "${nestInput.projectId.value}/${fileId.value}/${file.dxfFile}"
-            ) to nestInput.fileCounts[fileId]!!
+            )
         }
         .toMap()
 
-    if (files.any { !it.key.exists() }) {
+    if (files.any { !it.value.exists() }) {
         throw UserInputExecution.SomethingWrongWithUserInput("Some files not found")
     }
 
     val listOfDxfParts = files
-        .flatMap { (file, count) ->
-            val partsFromFile = dxfApi.readFile(file, nestInput.tolerance)
+        .flatMap { (fileId, file) ->
+            val count = nestInput.fileCounts[fileId] ?: 0
+            val partsFromFile = dxfApi.readFile(
+                file = file,
+                tolerance = nestInput.tolerance,
+                dxfPartIdPrefix = "${nestInput.projectId.toString() + fileId.toString()}_"
+            )
 
             val result = buildList {
                 repeat(count) {
