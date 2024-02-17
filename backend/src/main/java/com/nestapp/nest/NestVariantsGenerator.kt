@@ -23,7 +23,7 @@ private fun generateCombinations(
     currentCombination: MutableList<NestPath> = mutableListOf(),
     result: MutableList<List<NestPath>> = mutableListOf()
 ) {
-    if (result.size >= 10) {
+    if (result.size > paths.size) {
         return
     }
     if (index == paths.size) {
