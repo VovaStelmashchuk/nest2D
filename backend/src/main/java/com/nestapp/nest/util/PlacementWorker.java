@@ -24,7 +24,7 @@ public class PlacementWorker {
      * According to the plate list and the rotation angle list, calculate the position of the plate on the
      * bottom plate through nfp, and return the fitness of this population
      */
-    public Result placePaths(NestPath binPolygon, List<NestPath> paths) {
+    public List<PathPlacement> placePaths(NestPath binPolygon, List<NestPath> paths) {
         // rotazione dei NestPaths passati (paths)
         List<NestPath> rotated = new ArrayList<>();
         for (int i = 0; i < paths.size(); i++) {
@@ -184,7 +184,7 @@ public class PlacementWorker {
         }
 
         if (!placements.isEmpty() && placed.size() == paths.size()) {
-            return new Result(placements);
+            return placements;
         } else {
             return null;
         }

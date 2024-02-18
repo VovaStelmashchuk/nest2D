@@ -1,11 +1,37 @@
 <template>
     <div class="article-container">
         <div class="article-title">
+            <p>Project updates, #3, We have the cache</p>
+        </div>
+        <div class="article-meta">
+            <p>Published on
+                <time datetime="2024-18-02">Feb 18, 2024</time>
+                by nest2d
+            </p>
+        </div>
+        <div class="article-body">
+            <h2>New features</h2>
+            <ul>
+                <li>Implement cache for NFP pairs, each nesting add new data to cache and improve future nest quality
+                </li>
+                <li>Added the preview photo to the project card</li>
+            </ul>
+            <h2>Next stages</h2>
+            <ul>
+                <li>Implement CI for deploy docker container, for web and backend</li>
+                <li>Implement progress bar with timing or presented</li>
+                <li>Better look for holes into preview images</li>
+            </ul>
+            <p></p>
+        </div>
+    </div>
+    <div class="article-container">
+        <div class="article-title">
             <p>Project updates, #2</p>
         </div>
         <div class="article-meta">
             <p>Published on
-                <time datetime="2021-08-01">Feb 11, 2024</time>
+                <time datetime="2024-11-02">Feb 11, 2024</time>
                 by nest2d
             </p>
         </div>
@@ -37,7 +63,7 @@
         </div>
         <div class="article-meta">
             <p>Published on
-                <time datetime="2021-08-01">Feb 8, 2024</time>
+                <time datetime="2024-08-02">Feb 8, 2024</time>
                 by nest2d
             </p>
         </div>
@@ -63,7 +89,7 @@
         </div>
         <div class="article-meta">
             <p>Published on
-                <time datetime="2021-08-01">Feb 8, 2024</time>
+                <time datetime="2024-08-01">Feb 8, 2024</time>
                 by nest2d
             </p>
         </div>

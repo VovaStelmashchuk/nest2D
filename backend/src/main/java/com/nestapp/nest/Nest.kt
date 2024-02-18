@@ -1,12 +1,13 @@
 package com.nestapp.nest
 
 import com.nestapp.nest.data.NestPath
+import com.nestapp.nest.data.PathPlacement
 import com.nestapp.nest.data.Placement
-import com.nestapp.nest.data.Result
 import com.nestapp.nest.data.Segment
 import com.nestapp.nest.nfp.NfpCacheRepository
 import com.nestapp.nest.util.PlacementWorker
 import io.ktor.util.logging.Logger
+import java.util.concurrent.TimeUnit
 
 class Nest(
     private val logger: Logger,
@@ -19,50 +20,77 @@ class Nest(
     ): List<Placement>? {
         nfpCache.addNestPaths(tree.plus(binPolygon))
 
-        var best: Result? = null
-        var bestArea = Double.MAX_VALUE
+        var best: NestResult? = null
 
-        val variants: List<List<NestPath?>> = generateNestListVariants(tree)
+        val variants: List<List<NestPath>> = generateNestListVariants(tree)
 
         logger.info("startNest(): variants.size() = ${variants.size}")
 
-        variants.forEachIndexed { index, variant ->
+        val maxTimeForNestProcess = TimeUnit.MINUTES.toMillis(1)
+        val currentTime = System.currentTimeMillis()
+
+        for (index in variants.indices) {
             logger.info("startNest(): variant $index")
+            val variant = variants[index]
             val worker = PlacementWorker(nfpCache)
             val result = worker.placePaths(binPolygon, variant)
 
             if (result == null) {
                 logger.info("startNest(): variant $index failed")
             } else {
-                val placementMaxX = result.placements.maxOf { placement ->
-                    val maxPathX = tree.find { path -> path.bid == placement.bid }!!.segments.maxOf { it.x }
-                    return@maxOf placement.x + maxPathX
-                }
+                val newResult = tryPlacement(binPolygon, variant, tree)
 
-                val placementMaxY = result.placements.maxOf { placement ->
-                    val maxPathY = tree.find { path -> path.bid == placement.bid }!!.segments.maxOf { it.y }
-                    return@maxOf placement.y + maxPathY
+                if (newResult != null) {
+                    if (best == null || best.fitness > newResult.fitness) {
+                        best = newResult
+                    }
                 }
+            }
 
-                val area = placementMaxX * placementMaxY
-
-                if (best == null || bestArea > area) {
-                    bestArea = area
-                    best = result
-                }
+            if (System.currentTimeMillis() - currentTime > maxTimeForNestProcess) {
+                logger.info("startNest(): time limit reached")
+                break
             }
         }
 
         if (best == null) {
             return null
         } else {
-            logger.info("startNest(): best fitness = $bestArea")
-            return applyPlacement(best!!)
+            logger.info("startNest(): best fitness = ${best.fitness}")
+            return applyPlacement(best.placement)
         }
     }
 
-    private fun applyPlacement(best: Result): List<Placement> {
-        return best.placements.map { pathPlacement ->
+    private fun tryPlacement(binPolygon: NestPath, variant: List<NestPath>, tree: List<NestPath>): NestResult? {
+        val worker = PlacementWorker(nfpCache)
+        val result = worker.placePaths(binPolygon, variant)
+
+        if (result == null) {
+            return null
+        } else {
+            val placementMaxX = result.maxOf { placement ->
+                val maxPathX = tree.find { path -> path.bid == placement.bid }!!.segments.maxOf { it.x }
+                return@maxOf placement.x + maxPathX
+            }
+
+            val placementMaxY = result.maxOf { placement ->
+                val maxPathY = tree.find { path -> path.bid == placement.bid }!!.segments.maxOf { it.y }
+                return@maxOf placement.y + maxPathY
+            }
+
+            val area = placementMaxX * placementMaxY
+
+            return NestResult(result, area)
+        }
+    }
+
+    private data class NestResult(
+        val placement: List<PathPlacement>,
+        val fitness: Double,
+    )
+
+    private fun applyPlacement(best: List<PathPlacement>): List<Placement> {
+        return best.map { pathPlacement ->
             Placement(
                 pathPlacement.bid,
                 Segment(pathPlacement.x, pathPlacement.y),

@@ -70,12 +70,12 @@ Content-Type: application/json
 {
     "project_id": "big_box_v2",
     "file_counts": {
-        "big_box_all+0": 1,
+        "big_box_all+0": 0,
         "big_box_all+1": 2,
         "big_box_all+2": 2
     },
-    "plate_width": "1000",
-    "plate_height": "1000"
+    "plate_width": "400",
+    "plate_height": "570"
 }
 
 

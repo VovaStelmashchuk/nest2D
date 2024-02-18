@@ -9,7 +9,7 @@ fun generateNestListVariants(tree: List<NestPath>): List<List<NestPath>> {
     val variants: MutableList<List<NestPath>> = ArrayList()
     generateCombinations(
         paths = copyOfTree,
-        angles = listOf(0, 90, 180, 270),
+        angles = listOf(0, 90),
         result = variants
     )
 
@@ -23,9 +23,6 @@ private fun generateCombinations(
     currentCombination: MutableList<NestPath> = mutableListOf(),
     result: MutableList<List<NestPath>> = mutableListOf()
 ) {
-    if (result.size > paths.size) {
-        return
-    }
     if (index == paths.size) {
         result.add(currentCombination.toList())
         return
@@ -41,14 +38,8 @@ private fun generateCombinations(
 }
 
 private fun generateNestListRotation(tree: List<NestPath>): List<NestPath> {
-    val adam: MutableList<NestPath> = ArrayList()
     for (nestPath in tree) {
-        val clone = NestPath(nestPath)
-        adam.add(clone)
-    }
-    for (nestPath in adam) {
         nestPath.area = GeometryUtil.polygonArea(nestPath)
     }
-    adam.sort()
-    return adam
+    return tree.sorted()
 }
