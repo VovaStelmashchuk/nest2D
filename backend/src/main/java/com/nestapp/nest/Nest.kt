@@ -8,18 +8,16 @@ import com.nestapp.nest.nfp.NfpCacheRepository
 import com.nestapp.nest.util.PlacementWorker
 import io.ktor.util.logging.Logger
 
-class Nest {
-
+class Nest(
+    private val logger: Logger,
+    private val nfpCache: NfpCacheRepository,
+) {
 
     fun startNest(
         binPolygon: NestPath,
         tree: List<NestPath>,
-        logger: Logger,
     ): List<Placement>? {
-        val nfpCache = NfpCacheRepository(
-            nestPaths = tree.plus(binPolygon),
-            logger = logger
-        )
+        nfpCache.addNestPaths(tree.plus(binPolygon))
 
         var best: Result? = null
         var bestArea = Double.MAX_VALUE

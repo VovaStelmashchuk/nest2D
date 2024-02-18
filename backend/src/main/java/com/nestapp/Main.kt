@@ -1,6 +1,9 @@
 package com.nestapp
 
 import com.nestapp.files.SvgFromDxf
+import com.nestapp.nest.Nest
+import com.nestapp.nest.nfp.NfpCacheRepository
+import com.nestapp.nest_api.NestApi
 import com.nestapp.nest_api.NestedRepository
 import com.nestapp.nest_api.UserInputExecution
 import com.nestapp.nest_api.nestRestApi
@@ -11,6 +14,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.call
 import io.ktor.server.application.install
+import io.ktor.server.application.log
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.applicationEngineEnvironment
 import io.ktor.server.engine.embeddedServer
@@ -25,6 +29,7 @@ import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import kotlinx.serialization.json.Json
 import java.io.File
+import kotlin.concurrent.thread
 
 internal object Main {
 
@@ -75,6 +80,11 @@ internal object Main {
                 projectsFolder = File("mount/projects"),
             )
 
+            val nestApi = NestApi(
+                nest = Nest(this.log, NfpCacheRepository(this.log)),
+                logger = this.log,
+            )
+
             routing {
                 route("/api") {
                     projectsRest(
@@ -83,9 +93,10 @@ internal object Main {
                         SvgFromDxf()
                     )
                     nestRestApi(
-                        configuration,
-                        projectsRepository,
-                        nestedRepository,
+                        configuration = configuration,
+                        projectsRepository = projectsRepository,
+                        nestedRepository = nestedRepository,
+                        nestApi = nestApi,
                     )
 
                     get("/version") {

@@ -10,7 +10,6 @@ import java.awt.geom.Point2D
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
 class DxfApi {
@@ -46,7 +45,7 @@ class DxfApi {
         return getEntities(dxfReader, tolerance, dxfPartIdPrefix)
     }
 
-    private fun getEntities(dxfReader: DXFReader, tolerance: Double, fileName: String): List<DxfPart> {
+    private fun getEntities(dxfReader: DXFReader, tolerance: Double, projectFilePrefix: String): List<DxfPart> {
         val connectedEntities: List<GroupedEntity> = EntityGrouper.groupEntities(dxfReader.entities, tolerance)
         val entitiesGroups: MutableMap<GroupedEntity, MutableList<GroupedEntity>> = mutableMapOf()
 
@@ -68,7 +67,7 @@ class DxfApi {
             connectedEntities.minus(entitiesGroups.keys).minus(entitiesGroups.values.flatten().toSet())
                 .map {
                     DxfPart(
-                        bId = "$fileName+${partId.getAndIncrement()}",
+                        bId = "$projectFilePrefix+${partId.getAndIncrement()}",
                         entities = it.entities,
                         dxfPath = toDxfPath(it.path, tolerance)
                     )
@@ -80,7 +79,7 @@ class DxfApi {
                     InnerDxfPart(child.entities, toDxfPath(child.path, tolerance))
                 }
             return@map DxfPart(
-                bId = "$fileName+${partId.getAndIncrement()}",
+                bId = "$projectFilePrefix+${partId.getAndIncrement()}",
                 entities = parent.entities,
                 dxfPath = toDxfPath(parent.path, tolerance),
                 inners = childrenNestPaths

@@ -16,7 +16,10 @@ import java.awt.Rectangle
 import kotlin.math.cos
 import kotlin.math.sin
 
-class NestApi {
+class NestApi(
+    private val nest: Nest,
+    private val logger: Logger,
+) {
 
     fun nest(
         plate: Rectangle,
@@ -24,7 +27,6 @@ class NestApi {
         spacing: Double,
         boundSpacing: Double,
         rotationCount: Int,
-        logger: Logger,
     ): Result<List<DxfPartPlacement>> {
         if (dxfParts.isEmpty()) {
             return Result.failure(Throwable("Parts is empty"))
@@ -69,8 +71,7 @@ class NestApi {
             }
         }
 
-        val nest = Nest()
-        val appliedPlacement: List<Placement> = nest.startNest(binPolygon, tree, logger)
+        val appliedPlacement: List<Placement> = nest.startNest(binPolygon, tree)
             ?: return Result.failure(CannotPlaceException())
 
         val placements = appliedPlacement

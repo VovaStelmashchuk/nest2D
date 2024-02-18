@@ -21,6 +21,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.slf4j.Logger
 import java.awt.Rectangle
 import java.io.File
 
@@ -28,6 +29,7 @@ fun Route.nestRestApi(
     configuration: Configuration,
     projectsRepository: ProjectsRepository,
     nestedRepository: NestedRepository,
+    nestApi: NestApi,
 ) {
     post("/nest") {
         val nestInput = call.receive<NestInput>()
@@ -37,7 +39,7 @@ fun Route.nestRestApi(
         }
 
         val id = nestedRepository.getNextId()
-        val result = call.nest(id, nestInput, projectsRepository, configuration.projectsFolder)
+        val result = call.nest(id, nestInput, projectsRepository, configuration.projectsFolder, nestApi)
         nestedRepository.addNested(result)
 
         val nestedOutput = NestedOutput(id = id)
@@ -81,6 +83,7 @@ private fun ApplicationCall.nest(
     nestInput: NestInput,
     projectsRepository: ProjectsRepository,
     projectsFolder: File,
+    nestApi: NestApi,
 ): Nested {
     val dxfApi = DxfApi()
 
@@ -127,8 +130,6 @@ private fun ApplicationCall.nest(
             return@flatMap result
         }
 
-    val nestApi = NestApi()
-
     this.application.environment.log.info("Nesting ${listOfDxfParts.size} parts")
 
     val result: Result<List<DxfPartPlacement>> = nestApi.nest(
@@ -137,7 +138,6 @@ private fun ApplicationCall.nest(
         spacing = nestInput.spacing,
         boundSpacing = nestInput.plateSpacing,
         rotationCount = 4,
-        logger = this.application.environment.log,
     )
 
     result.onFailure {
