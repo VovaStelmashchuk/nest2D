@@ -26,7 +26,7 @@ class Nest(
 
         logger.info("startNest(): variants.size() = ${variants.size}")
 
-        val maxTimeForNestProcess = TimeUnit.MINUTES.toMillis(1)
+        val maxTimeForNestProcess = TimeUnit.MINUTES.toMillis(2)
         val currentTime = System.currentTimeMillis()
 
         for (index in variants.indices) {

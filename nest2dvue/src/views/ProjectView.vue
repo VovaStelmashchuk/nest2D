@@ -36,7 +36,7 @@
             </div>
         </div>
         <div v-if="isBuilding" class="progress-overlay">
-            <div class="progress-bar"></div>
+            <ProgressBar/>
         </div>
         <div v-if="showErrorMessage" class="error-dialog">
             <p style="color: red">{{ errorMessage }}</p>
@@ -52,6 +52,7 @@ import SvgImage from '@/components/SvgImage.vue';
 import ControlPanel from '@/components/ControlPanel.vue';
 import {API_URL} from "@/constants.js";
 import {useRoute} from "vue-router";
+import ProgressBar from "@/views/ProgressBar.vue";
 
 const route = useRoute();
 const projectId = ref(route.params.id);
@@ -292,13 +293,6 @@ onMounted(fetchProjectData);
     justify-content: center;
     align-items: center;
     background-color: rgba(255, 255, 255, 0.8);
-}
-
-.progress-bar {
-    width: 50%;
-    height: 20px;
-    background-color: green;
-    animation: loading 2s linear infinite;
 }
 
 @keyframes loading {
