@@ -23,13 +23,8 @@ suspend fun ApplicationCall.fileUploader(
         file.parentFile.mkdirs()
         file.createNewFile()
     }
-    val multipartData = this.receiveMultipart()
-
-    multipartData.forEachPart { part ->
+    this.receiveMultipart().forEachPart { part ->
         when (part) {
-            is PartData.FormItem -> {
-            }
-
             is PartData.FileItem -> {
                 val fileBytes = part.streamProvider().readBytes()
                 file.writeBytes(fileBytes)

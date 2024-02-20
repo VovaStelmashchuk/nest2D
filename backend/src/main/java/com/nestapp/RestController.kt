@@ -55,7 +55,7 @@ fun Application.restConfig(appComponent: AppComponent) {
     }
 }
 
-fun Route.setupRouter(appComponent: AppComponent) {
+fun Route.setupRouter(appComponent: AppComponent ) {
     projectsRestController(
         appComponent.configuration,
         appComponent.projectsRepository
@@ -69,7 +69,7 @@ fun Route.setupRouter(appComponent: AppComponent) {
     )
 
     filesRestController(
-        configuration = appComponent.configuration,
+        previewGenerator = appComponent.previewGenerator,
         projectsRepository = appComponent.projectsRepository,
         projectFilesRepository = appComponent.projectFilesRepository,
     )

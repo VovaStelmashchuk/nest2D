@@ -20,3 +20,13 @@ Content-Disposition: form-data; name="file"; filename="big_box_preview.png"
 
 ### Get project preview
 GET http://0.0.0.0:8080/api/project/my_project/preview
+
+### Add dxf file to project
+POST http://0.0.0.0:8080/api/files/my_project/dxf
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="file"; filename="long_side.dxf"
+
+< test-data/big_box_v2/long_side.dxf
+

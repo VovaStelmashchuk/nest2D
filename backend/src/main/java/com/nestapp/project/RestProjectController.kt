@@ -32,7 +32,7 @@ fun Route.projectsRestController(
         call.respond(HttpStatusCode.Created, response)
     }
 
-    post("/project/preview/{project_slug}") {
+    post("/project/{project_slug}/preview") {
         val slug = ProjectSlug(call.parameters["project_slug"] ?: throw Exception("project_slug not found"))
         if (projectsRepository.isProjectExists(slug)) {
             val file = File(configuration.projectsFolder, "${slug.value}/media/preview.png")
