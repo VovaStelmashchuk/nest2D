@@ -1,10 +1,10 @@
-package com.nestapp.projects.rest
+package com.nestapp.project.rest
 
 import com.nestapp.Configuration
-import com.nestapp.projects.FileId
-import com.nestapp.projects.Project
-import com.nestapp.projects.ProjectId
-import com.nestapp.projects.ProjectsRepository
+import com.nestapp.project.FileId
+import com.nestapp.project.Project
+import com.nestapp.project.ProjectSlug
+import com.nestapp.project.ProjectsRepository
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
@@ -20,7 +20,7 @@ fun Route.projectDetails(
     projectsRepository: ProjectsRepository,
 ) {
     get("/project/{project_id}") {
-        val project = project(projectsRepository)
+        /*val project = project(projectsRepository)
         val response = ProjectDetailsResponse(
             id = project.id,
             name = project.name,
@@ -32,15 +32,15 @@ fun Route.projectDetails(
                         svgUrl = "${configuration.baseUrl}/preview/${project.id.value}/${key.value}",
                     )
                 }
-        )
-        call.respond(HttpStatusCode.OK, response)
+        )*/
+        call.respond(HttpStatusCode.OK, /*response*/)
     }
 }
 
 @Serializable
 data class ProjectDetailsResponse(
     @SerialName("id")
-    val id: ProjectId,
+    val id: ProjectSlug,
     @SerialName("name")
     val name: String,
     @SerialName("files")
@@ -60,7 +60,7 @@ data class ProjectDetailsResponse(
 private fun PipelineContext<Unit, ApplicationCall>.project(
     projectsRepository: ProjectsRepository
 ): Project {
-    val id = ProjectId(call.parameters["project_id"] ?: throw Exception("project_id not found"))
+    val id = ProjectSlug(call.parameters["project_id"] ?: throw Exception("project_id not found"))
     val project = projectsRepository.getProject(id)
     return project ?: throw Exception("project not found")
 }

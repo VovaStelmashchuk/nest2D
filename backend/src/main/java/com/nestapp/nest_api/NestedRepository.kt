@@ -1,8 +1,8 @@
 package com.nestapp.nest_api
 
 import com.google.gson.annotations.SerializedName
-import com.nestapp.projects.FileId
-import com.nestapp.projects.ProjectId
+import com.nestapp.project.FileId
+import com.nestapp.project.ProjectSlug
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -61,7 +61,7 @@ data class Nested(
     @SerialName("svg_file")
     val svgFile: String,
     @SerialName("project_id")
-    val projectId: ProjectId,
+    val projectId: ProjectSlug,
     @SerialName("file_counts")
     val fileCounts: Map<FileId, Int>,
     @SerialName("plate_width")

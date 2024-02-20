@@ -1,0 +1,22 @@
+### Get version
+GET http://0.0.0.0:8080/api/version
+
+### Create a new project
+POST http://0.0.0.0:8080/api/project
+Content-Type: application/json
+
+{
+    "name": "My project2"
+}
+
+### Add preview image to project
+POST http://0.0.0.0:8080/api/project/preview/my_project
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="file"; filename="big_box_preview.png"
+
+< test-data/previes/big_box_v1.png
+
+### Get project preview
+GET http://0.0.0.0:8080/api/project/my_project/preview

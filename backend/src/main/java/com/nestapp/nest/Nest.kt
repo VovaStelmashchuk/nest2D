@@ -21,12 +21,11 @@ class Nest(
         nfpCache.addNestPaths(tree.plus(binPolygon))
 
         var best: NestResult? = null
-
         val variants: List<List<NestPath>> = generateNestListVariants(tree)
 
         logger.info("startNest(): variants.size() = ${variants.size}")
 
-        val maxTimeForNestProcess = TimeUnit.MINUTES.toMillis(2)
+        val maxTimeForNestProcess = TimeUnit.MINUTES.toMillis(1)
         val currentTime = System.currentTimeMillis()
 
         for (index in variants.indices) {

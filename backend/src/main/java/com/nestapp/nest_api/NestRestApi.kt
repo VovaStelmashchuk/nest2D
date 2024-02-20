@@ -4,9 +4,10 @@ import com.nestapp.Configuration
 import com.nestapp.files.dxf.DxfApi
 import com.nestapp.files.dxf.DxfPartPlacement
 import com.nestapp.files.svg.SvgWriter
-import com.nestapp.projects.FileId
-import com.nestapp.projects.ProjectId
-import com.nestapp.projects.ProjectsRepository
+import com.nestapp.project.FileId
+import com.nestapp.project.ProjectSlug
+import com.nestapp.project.ProjectsRepository
+import com.nestapp.project.files.ProjectFile
 import io.ktor.http.ContentDisposition
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -21,7 +22,6 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.slf4j.Logger
 import java.awt.Rectangle
 import java.io.File
 
@@ -99,11 +99,11 @@ private fun ApplicationCall.nest(
         .keys
         .toList()
 
-    val files = projectsRepository.getFiles(nestInput.projectId, fileIds)
+    val files = emptyMap<FileId, ProjectFile>()//emptyList<>()// projectsRepository.getFiles(nestInput.projectId, fileIds)
         .map { (fileId, file) ->
             fileId to File(
                 projectsFolder,
-                "${nestInput.projectId.value}/${fileId.value}/${file.dxfFile}"
+                "",//"${nestInput.projectId.value}/${fileId.value}/${file.dxfFile}"
             )
         }
         .toMap()
@@ -155,10 +155,12 @@ private fun ApplicationCall.nest(
     val project = projectsRepository.getProject(nestInput.projectId)
         ?: throw UserInputExecution.SomethingWrongWithUserInput("Project not found")
 
-    val nestedResultFolder = project.files
+    /*val nestedResultFolder = project.files
         .filter { (key, _) -> fileIds.contains(key) }
         .map { (_, value) -> value.name }
-        .joinToString(prefix = "${id}_${project.id.value}_", separator = "_and_", limit = 100) { it }
+        .joinToString(prefix = "${id}_${project.id.value}_", separator = "_and_", limit = 100) { it }*/
+
+    val nestedResultFolder = ""
 
     val folder = File("mount/nested/$nestedResultFolder")
     folder.mkdir()
@@ -192,7 +194,7 @@ private fun ApplicationCall.nest(
 @Serializable
 data class NestInput(
     @SerialName("project_id")
-    val projectId: ProjectId,
+    val projectId: ProjectSlug,
     @SerialName("file_counts")
     val fileCounts: Map<FileId, Int>,
     @SerialName("plate_width")
