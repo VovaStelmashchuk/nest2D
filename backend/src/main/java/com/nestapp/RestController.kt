@@ -72,6 +72,7 @@ fun Route.setupRouter(appComponent: AppComponent ) {
         previewGenerator = appComponent.previewGenerator,
         projectsRepository = appComponent.projectsRepository,
         projectFilesRepository = appComponent.projectFilesRepository,
+        partsRepository = appComponent.partsRepository,
     )
 
     get("/version") {

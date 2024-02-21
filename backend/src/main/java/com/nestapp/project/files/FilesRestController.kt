@@ -3,6 +3,7 @@ package com.nestapp.project.files
 import com.nestapp.files.PreviewGenerator
 import com.nestapp.project.ProjectSlug
 import com.nestapp.project.ProjectsRepository
+import com.nestapp.project.parts.PartsRepository
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
@@ -19,6 +20,7 @@ fun Route.filesRestController(
     previewGenerator: PreviewGenerator,
     projectsRepository: ProjectsRepository,
     projectFilesRepository: ProjectFilesRepository,
+    partsRepository: PartsRepository,
 ) {
 
     post("files/{project_slug}/dxf") {
@@ -28,9 +30,17 @@ fun Route.filesRestController(
         call.receiveMultipart().forEachPart { part ->
             when (part) {
                 is PartData.FileItem -> {
+                    val originFileName =
+                        part.originalFileName ?: throw IllegalArgumentException("File name is not provided")
+                    val fileExtension = originFileName.substringAfterLast(".")
+                    if (fileExtension != "dxf") {
+                        throw IllegalArgumentException("File extension is not supported")
+                    }
+                    val fileNameWithoutExtension = originFileName.substringBeforeLast(".")
+
                     val projectFile = projectFilesRepository.addFile(
                         projectSlug = project.slug,
-                        fileName = part.originalFileName ?: "file.dxf",
+                        fileNameWithoutExtension = fileNameWithoutExtension,
                     )
 
                     val fileBytes = part.streamProvider().readBytes()
@@ -40,6 +50,8 @@ fun Route.filesRestController(
                     file.writeBytes(fileBytes)
 
                     previewGenerator.convertDxfToSvg(file, File(projectFile.svgFilePath))
+
+                    partsRepository.addPartsFromFile(projectFile.id)
                 }
 
                 else -> {}

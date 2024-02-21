@@ -1,8 +1,8 @@
 ### Get version
-GET http://0.0.0.0:8080/api/version
+GET http://localhost:8080/api/version
 
 ### Create a new project
-POST http://0.0.0.0:8080/api/project
+POST http://localhost:8080/api/project
 Content-Type: application/json
 
 {
@@ -10,19 +10,19 @@ Content-Type: application/json
 }
 
 ### Add preview image to project
-POST http://0.0.0.0:8080/api/project/preview/my_project
+POST http://localhost:8080/api/project/my_project2/preview
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
 
 ------WebKitFormBoundary
 Content-Disposition: form-data; name="file"; filename="big_box_preview.png"
 
-< test-data/previes/big_box_v1.png
+< test-data/previes/big_box_v2.png
 
 ### Get project preview
-GET http://0.0.0.0:8080/api/project/my_project/preview
+GET http://localhost:8080/api/project/my_project/preview
 
 ### Add dxf file to project
-POST http://0.0.0.0:8080/api/files/my_project/dxf
+POST http://localhost:8080/api/files/my_project/dxf
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
 
 ------WebKitFormBoundary

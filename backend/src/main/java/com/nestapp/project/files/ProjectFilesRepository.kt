@@ -27,31 +27,25 @@ class ProjectFilesRepository(
         }
     }
 
-    fun addFile(projectSlug: String, fileName: String): ProjectFile {
+    fun addFile(projectSlug: String, fileNameWithoutExtension: String): ProjectFile {
         return transaction {
-            val fileExtension = fileName.substringAfterLast(".")
-            if (fileExtension != "dxf") {
-                throw IllegalArgumentException("File extension is not supported")
-            }
-            val fileNameWithoutExtension = fileName.substringBeforeLast(".")
-
             val project = Project.find { ProjectsTable.slug eq projectSlug }.first()
 
             val file = ProjectFile.find {
                 ProjectFilesTable.projectId eq project.id and (ProjectFilesTable.fileName eq fileNameWithoutExtension)
             }.firstOrNull()
 
-            val fileNameToSave = if (file == null) {
-                fileNameWithoutExtension
-            } else {
-                fileNameWithoutExtension + "_copy"
-            }
+            val folderPath = "${configuration.projectsFolder}/$projectSlug/files"
 
-            ProjectFile.new {
-                this.projectId = project.id
-                this.file = fileNameToSave
-                this.dxfFilePath = "${configuration.projectsFolder}/$projectSlug/files/$fileNameToSave.dxf"
-                this.svgFilePath = "${configuration.projectsFolder}/$projectSlug/files/$fileNameToSave.svg"
+            if (file == null) {
+                ProjectFile.new {
+                    this.projectId = project.id
+                    this.file = fileNameWithoutExtension
+                    this.dxfFilePath = "$folderPath/$fileNameWithoutExtension.dxf"
+                    this.svgFilePath = "$folderPath/$fileNameWithoutExtension.svg"
+                }
+            } else {
+                addFile(projectSlug, "${fileNameWithoutExtension}_copy")
             }
         }
     }

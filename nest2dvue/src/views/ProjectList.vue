@@ -1,5 +1,4 @@
 <template>
-    <h1>Project List</h1>
     <div class="card-container">
         <div v-for="project in projects" :key="project.id" class="project-card" @click="navigateToProject(project.id)">
             <!-- Image tag with dynamic source -->
