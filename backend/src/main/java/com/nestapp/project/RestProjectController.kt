@@ -16,7 +16,6 @@ import io.ktor.server.routing.post
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.io.File
-import kotlin.concurrent.thread
 
 fun Route.projectsRestController(
     configuration: Configuration,
@@ -68,17 +67,6 @@ fun Route.projectsRestController(
                 )
             }
         call.respond(HttpStatusCode.OK, result)
-    }
-
-    get("/project/{project_slug}/preview") {
-        val slug = ProjectSlug(call.parameters["project_slug"] ?: throw Exception("project_slug not found"))
-        val project = projectsRepository.getProject(slug)
-        if (project != null) {
-            val file = File(project.preview)
-            call.respondFile(file)
-        } else {
-            call.respond(HttpStatusCode.NotFound)
-        }
     }
 
     projectDetails(configuration, projectsRepository)
