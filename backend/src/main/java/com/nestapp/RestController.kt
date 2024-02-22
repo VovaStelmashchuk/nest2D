@@ -62,10 +62,11 @@ fun Route.setupRouter(appComponent: AppComponent ) {
     )
 
     nestRestApi(
-        configuration = appComponent.configuration,
         projectsRepository = appComponent.projectsRepository,
+        partsRepository = appComponent.partsRepository,
         nestedRepository = appComponent.nestedRepository,
         nestApi = appComponent.nestApi,
+        json = appComponent.json,
     )
 
     filesRestController(

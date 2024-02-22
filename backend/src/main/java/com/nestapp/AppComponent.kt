@@ -16,7 +16,7 @@ class AppComponent(
     logger: Logger,
 ) {
 
-    private val json = Json {
+    val json = Json {
         prettyPrint = true
         ignoreUnknownKeys = true
     }
@@ -27,7 +27,10 @@ class AppComponent(
     val projectFilesRepository: ProjectFilesRepository = ProjectFilesRepository(configuration)
 
     val projectsRepository = ProjectsRepository()
-    val nestedRepository = NestedRepository(json)
+    val nestedRepository = NestedRepository(
+        partsRepository = partsRepository,
+        json = json
+    )
 
     val nestApi = NestApi(
         nest = Nest(logger, NfpCacheRepository(logger)),

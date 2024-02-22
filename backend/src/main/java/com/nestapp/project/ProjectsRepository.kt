@@ -13,7 +13,6 @@ import org.jetbrains.exposed.sql.update
 import java.util.Locale
 
 class ProjectsRepository {
-
     init {
         transaction {
             SchemaUtils.create(ProjectsTable)
@@ -89,8 +88,8 @@ object DxfPartsTable : IntIdTable(name = "dxf_parts", columnName = "id") {
     val fileName = text("file_name")
 }
 
-class DxfPart(id: EntityID<Int>) : IntEntity(id) {
-    companion object : IntEntityClass<DxfPart>(DxfPartsTable)
+class DatabaseDxfPart(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<DatabaseDxfPart>(DxfPartsTable)
 
     var name by DxfPartsTable.name
     var projectId by DxfPartsTable.projectId

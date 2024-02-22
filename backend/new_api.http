@@ -32,3 +32,19 @@ Content-Disposition: form-data; name="file"; filename="long_side.dxf"
 
 ### Get full project
 GET http://localhost:8080/api/project/my_project
+
+### Nest project
+POST http://localhost:8080/api/nest
+Content-Type: application/json
+
+{
+    "project_slug": "my_project",
+    "file_counts": {
+        "long_side_copy_copy_copy_copy": 2
+    },
+    "plate_width": 1000,
+    "plate_height": 1000,
+    "tolerance": 0.01,
+    "spacing": 1.5,
+    "place_spacing": 1
+}
