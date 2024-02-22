@@ -27,6 +27,7 @@ class AppComponent(
     val projectFilesRepository: ProjectFilesRepository = ProjectFilesRepository(configuration)
 
     val projectsRepository = ProjectsRepository()
+
     val nestedRepository = NestedRepository(
         partsRepository = partsRepository,
         configuration = configuration,
