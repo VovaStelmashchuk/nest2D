@@ -29,7 +29,8 @@ class AppComponent(
     val projectsRepository = ProjectsRepository()
     val nestedRepository = NestedRepository(
         partsRepository = partsRepository,
-        json = json
+        configuration = configuration,
+        json = json,
     )
 
     val nestApi = NestApi(

@@ -73,11 +73,11 @@ fun Route.nestRestApi(
             }
         }
 
-        result.onSuccess { placement ->
-            val nestedId = nestedRepository.saveNestPlacement(placement, nestInput)
-            val nestedOutput = NestedOutput(id = nestedId)
-            call.respond(HttpStatusCode.OK, nestedOutput)
-        }
+        val placement = result.getOrNull() ?: throw Exception("Nest result is null")
+
+        val nestedId = nestedRepository.saveNestPlacement(placement, nestInput)
+        val nestedOutput = NestedOutput(id = nestedId)
+        call.respond(HttpStatusCode.OK, nestedOutput)
     }
 
     get("/nested/{id}") {

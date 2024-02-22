@@ -96,7 +96,7 @@ const buildButtonClickHandler = async ({width, height}) => {
     }
 
     let data = {
-        project_id: project.value.id,
+        project_slug: project.value.slug,
         file_counts: fileCounts.value,
         plate_width: width,
         plate_height: height,

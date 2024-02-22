@@ -1,5 +1,6 @@
 package com.nestapp.nest_api
 
+import com.nestapp.Configuration
 import com.nestapp.files.DxfPartPlacement
 import com.nestapp.files.dxf.DxfWriter
 import com.nestapp.files.svg.SvgWriter
@@ -18,6 +19,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.File
 
 class NestedRepository(
+    private val configuration: Configuration,
     private val partsRepository: PartsRepository,
     private val json: Json,
 ) {
@@ -28,8 +30,10 @@ class NestedRepository(
         }
     }
 
-    fun getNested(id: Int): Nested? {
-        return null
+    fun getNested(id: Int): NestedDatabase? {
+        return transaction {
+            NestedDatabase.findById(id)
+        }
     }
 
     fun saveNestPlacement(
@@ -37,7 +41,7 @@ class NestedRepository(
         nestInput: NestInput,
     ): Int {
         val nested = transaction {
-            NestedDatbase.new {
+            NestedDatabase.new {
                 this.nestInput = json.encodeToString(NestInput.serializer(), nestInput)
             }
         }
@@ -45,24 +49,29 @@ class NestedRepository(
         val nestedId = nested.id.value
 
         val folder = File(
-            "mount/nested/",
+            configuration.nestedFolder,
             "${nestedId}_${nestInput.projectSlug.value}"
         )
-        folder.mkdir()
+        folder.mkdirs()
+        val svgFile = File(folder, "preview.svg")
+        val dxfFile = File(folder, "cad_file.dxf")
 
-        saveFiles(folder, placement, nestInput)
+        saveFiles(svgFile, dxfFile, placement, nestInput)
+
+        transaction {
+            nested.svgFile = svgFile.absolutePath
+            nested.dxfFile = dxfFile.absolutePath
+        }
 
         return nestedId
     }
 
     private fun saveFiles(
-        folder: File,
+        svgFile: File,
+        dxfFile: File,
         placement: List<Placement>,
         nestInput: NestInput
     ) {
-        val dxfFile = File(folder, "cad_file.dxf")
-        val svgFile = File(folder, "preview.svg")
-
         val parts = partsRepository.getPartsByIds(placement.map { it.bid })
         val dxfPartPlacement = placement.map {
             val part = parts[it.bid] ?: throw Exception("Part not found")
@@ -91,28 +100,14 @@ class NestedRepository(
 
 object NestedTable : IntIdTable(name = "nested", columnName = "id") {
     val nestInput = text("nest_input")
+    val svgFile = text("svg_file").default("")
+    val dxfFile = text("dxf_file").default("")
 }
 
-class NestedDatbase(id: EntityID<Int>) : IntEntity(id) {
-    companion object : IntEntityClass<NestedDatbase>(NestedTable)
+class NestedDatabase(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<NestedDatabase>(NestedTable)
 
     var nestInput by NestedTable.nestInput
+    var svgFile by NestedTable.svgFile
+    var dxfFile by NestedTable.dxfFile
 }
-
-@Serializable
-data class Nested(
-    @SerialName("id")
-    val id: Int,
-    @SerialName("dxf_file")
-    val dxfFile: String,
-    @SerialName("svg_file")
-    val svgFile: String,
-    @SerialName("project_id")
-    val projectId: ProjectSlug,
-    @SerialName("file_counts")
-    val fileCounts: Map<String, Int>,
-    @SerialName("plate_width")
-    val plateWidth: Int,
-    @SerialName("plate_height")
-    val plateHeight: Int,
-)

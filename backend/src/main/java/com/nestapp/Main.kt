@@ -35,6 +35,7 @@ internal object Main {
                 val configuration = Configuration(
                     baseUrl = config.property("ktor.app.base_url").getString(),
                     projectsFolder = File("mount/projects"),
+                    nestedFolder = File("mount/nested"),
                     appVersion = appVersion,
                 )
 

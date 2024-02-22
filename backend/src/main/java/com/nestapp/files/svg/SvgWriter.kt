@@ -27,7 +27,7 @@ class SvgWriter {
                 appendLine("""<g transform="translate($translateX, $translateY) rotate($rotation)">""".trimIndent())
 
                 val part = dxfPartPlacement.part
-                val paths = part.inside.map { it.toPath2D() }.plus(makePath2d(dxfPartPlacement.part.root))
+                val paths = listOf(makePath2d(dxfPartPlacement.part.root)).plus(part.inside.map { it.toPath2D() })
 
                 paths.forEach {
                     val listOfPoints = makeListOfPoints(it, 0.001)
