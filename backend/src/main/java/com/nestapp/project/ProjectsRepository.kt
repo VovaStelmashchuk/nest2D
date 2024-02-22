@@ -1,5 +1,7 @@
 package com.nestapp.project
 
+import com.nestapp.project.files.ProjectFile
+import com.nestapp.project.files.ProjectFilesTable
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
@@ -78,6 +80,7 @@ class Project(id: EntityID<Int>) : IntEntity(id) {
     var name by ProjectsTable.name
     var slug by ProjectsTable.slug
     var preview by ProjectsTable.preview
+    val files by ProjectFile referrersOn ProjectFilesTable.projectId
 }
 
 object DxfPartsTable : IntIdTable(name = "dxf_parts", columnName = "id") {

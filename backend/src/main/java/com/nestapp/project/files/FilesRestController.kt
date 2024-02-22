@@ -12,7 +12,9 @@ import io.ktor.server.application.call
 import io.ktor.server.plugins.NotFoundException
 import io.ktor.server.request.receiveMultipart
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondFile
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import java.io.File
 
@@ -22,6 +24,20 @@ fun Route.filesRestController(
     projectFilesRepository: ProjectFilesRepository,
     partsRepository: PartsRepository,
 ) {
+    get("files/{project_slug}/{file_name}/preview") {
+        val slug = ProjectSlug(call.parameters["project_slug"] ?: throw NotFoundException())
+        val project = projectsRepository.getProject(slug) ?: throw NotFoundException()
+        val fileName = call.parameters["file_name"] ?: throw NotFoundException()
+
+        val projectFile = projectFilesRepository.getFile(project.slug, fileName)
+
+        val file = File(projectFile.svgFilePath)
+        if (!file.exists()) {
+            throw NotFoundException()
+        }
+
+        call.respondFile(file)
+    }
 
     post("files/{project_slug}/dxf") {
         val slug = ProjectSlug(call.parameters["project_slug"] ?: throw NotFoundException())

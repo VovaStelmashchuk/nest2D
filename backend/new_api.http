@@ -30,3 +30,5 @@ Content-Disposition: form-data; name="file"; filename="long_side.dxf"
 
 < test-data/big_box_v2/long_side.dxf
 
+### Get full project
+GET http://localhost:8080/api/project/my_project

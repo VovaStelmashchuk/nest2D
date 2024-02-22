@@ -3,6 +3,7 @@ package com.nestapp.project.files
 import com.nestapp.Configuration
 import com.nestapp.project.Project
 import com.nestapp.project.ProjectsTable
+import io.ktor.server.plugins.NotFoundException
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -21,9 +22,12 @@ class ProjectFilesRepository(
         }
     }
 
-    fun getFiles(projectId: Int): List<ProjectFile> {
+    fun getFile(projectSlug: String, fileName: String): ProjectFile {
         return transaction {
-            ProjectFile.find { ProjectFilesTable.projectId eq projectId }.toList()
+            val project = Project.find { ProjectsTable.slug eq projectSlug }.first()
+            return@transaction ProjectFile.find {
+                ProjectFilesTable.projectId eq project.id and (ProjectFilesTable.fileName eq fileName)
+            }.firstOrNull() ?: throw NotFoundException()
         }
     }
 
@@ -40,7 +44,7 @@ class ProjectFilesRepository(
             if (file == null) {
                 ProjectFile.new {
                     this.projectId = project.id
-                    this.file = fileNameWithoutExtension
+                    this.fileName = fileNameWithoutExtension
                     this.dxfFilePath = "$folderPath/$fileNameWithoutExtension.dxf"
                     this.svgFilePath = "$folderPath/$fileNameWithoutExtension.svg"
                 }
@@ -63,7 +67,7 @@ class ProjectFile(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<ProjectFile>(ProjectFilesTable)
 
     var projectId by ProjectFilesTable.projectId
-    var file by ProjectFilesTable.fileName
+    var fileName by ProjectFilesTable.fileName
     var dxfFilePath by ProjectFilesTable.dxfFilePath
     var svgFilePath by ProjectFilesTable.svgFilePath
 }

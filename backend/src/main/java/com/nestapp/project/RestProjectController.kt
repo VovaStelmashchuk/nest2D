@@ -34,7 +34,7 @@ fun Route.projectsRestController(
         val project = projectsRepository.addProject(request.name)
         File(configuration.projectsFolder, project.slug).mkdirs()
 
-        val response = CreatedProject(
+        val response = CreatedProjectResponse(
             slug = project.slug,
             name = project.name,
         )
@@ -95,7 +95,7 @@ data class CreateProjectRequest(
 )
 
 @Serializable
-data class CreatedProject(
+data class CreatedProjectResponse(
     val slug: String,
     val name: String,
 )
