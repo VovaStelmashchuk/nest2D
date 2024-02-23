@@ -3,9 +3,7 @@ package com.nestapp.nest.nfp
 import com.nestapp.nest.data.NestPath
 import com.nestapp.nest.util.NfpUtil
 import io.ktor.util.logging.Logger
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Executors
 
 class NfpCacheRepository(
     private val logger: Logger,
@@ -14,13 +12,6 @@ class NfpCacheRepository(
     private val nestPaths: MutableMap<String, NestPath> = ConcurrentHashMap()
 
     private val nfpCache: MutableMap<NfpKey, List<NestPath>> = ConcurrentHashMap()
-
-    private val executor = Executors.newFixedThreadPool(
-        Runtime.getRuntime().availableProcessors()
-            .also {
-                logger.info("NfpCacheRepository: availableProcessors = $it")
-            }
-    )
 
     fun addNestPaths(nestPaths: List<NestPath>) {
         nestPaths.distinctBy { it.bid }.forEach { path ->
@@ -32,15 +23,11 @@ class NfpCacheRepository(
 
     fun prepareCacheForKeys(keys: List<NfpKey>) {
         val notExistKeys = keys.toSet().minus(nfpCache.keys)
-        val futures = notExistKeys.map { key ->
-            CompletableFuture.supplyAsync({
-                generateNfp(key).also { data ->
-                    nfpCache[key] = data
-                }
-            }, executor)
+        notExistKeys.map { key ->
+            generateNfp(key).also { data ->
+                nfpCache[key] = data
+            }
         }
-        // Wait for all futures to complete
-        CompletableFuture.allOf(*futures.toTypedArray()).join()
     }
 
     private fun generateNfp(key: NfpKey): List<NestPath> {

@@ -9,7 +9,7 @@ fun generateNestListVariants(tree: List<NestPath>): List<List<NestPath>> {
     val variants: MutableList<List<NestPath>> = ArrayList()
     generateCombinations(
         paths = copyOfTree,
-        angles = listOf(0, 90),
+        angles = listOf(0, 90, 180),
         result = variants
     )
 

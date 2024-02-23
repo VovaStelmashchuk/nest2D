@@ -6,29 +6,29 @@ POST http://localhost:8080/api/project
 Content-Type: application/json
 
 {
-    "name": "Laser cut box"
+    "name": "Big box v1"
 }
 
 ### Add preview image to project
-POST http://localhost:8080/api/project/laser-cut-box/preview
+POST http://localhost:8080/api/project/big-box-v1/preview
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
 
 ------WebKitFormBoundary
 Content-Disposition: form-data; name="file"; filename="preview.png"
 
-< test-data/previes/laser_gridfinity_openscad.png
+< test-data/previes/big_box_v1.png
 
 ### Get project preview
 GET http://localhost:8080/api/project/my_project/preview
 
 ### Add dxf file to project
-POST http://localhost:8080/api/files/laser-cut-box/dxf
+POST http://localhost:8080/api/files/big-box-v1/dxf
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
 
 ------WebKitFormBoundary
-Content-Disposition: form-data; name="file"; filename="1x3.dxf"
+Content-Disposition: form-data; name="file"; filename="long_side.dxf"
 
-< test-data/uploads/laser_gridfinity_boxes_open_scad/1x3.dxf
+< test-data/long_side.dxf
 
 ### Get full project
 GET http://localhost:8080/api/project/my_project
