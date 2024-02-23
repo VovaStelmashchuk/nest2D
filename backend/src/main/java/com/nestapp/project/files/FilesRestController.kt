@@ -24,7 +24,7 @@ fun Route.filesRestController(
     projectFilesRepository: ProjectFilesRepository,
     partsRepository: PartsRepository,
 ) {
-    get("files/{project_slug}/{file_name}/preview") {
+    get("preview/{project_slug}/{file_name}") {
         val slug = ProjectSlug(call.parameters["project_slug"] ?: throw NotFoundException())
         val project = projectsRepository.getProject(slug) ?: throw NotFoundException()
         val fileName = call.parameters["file_name"] ?: throw NotFoundException()
@@ -65,9 +65,9 @@ fun Route.filesRestController(
                     file.createNewFile()
                     file.writeBytes(fileBytes)
 
-                    previewGenerator.convertDxfToSvg(file, File(projectFile.svgFilePath))
-
                     partsRepository.addPartsFromFile(projectFile.id)
+
+                    previewGenerator.createFilePreview(projectFile.id.value, File(projectFile.svgFilePath))
                 }
 
                 else -> {}

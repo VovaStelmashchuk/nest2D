@@ -21,10 +21,17 @@ class AppComponent(
         ignoreUnknownKeys = true
     }
 
-    val partsRepository: PartsRepository = PartsRepository(json)
-    val previewGenerator: PreviewGenerator = PreviewGenerator()
+    val partsRepository: PartsRepository = PartsRepository(
+        json = json
+    )
 
-    val projectFilesRepository: ProjectFilesRepository = ProjectFilesRepository(configuration)
+    val previewGenerator: PreviewGenerator = PreviewGenerator(
+        partsRepository = partsRepository
+    )
+
+    val projectFilesRepository: ProjectFilesRepository = ProjectFilesRepository(
+        configuration = configuration
+    )
 
     val projectsRepository = ProjectsRepository()
 

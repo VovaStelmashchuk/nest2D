@@ -55,6 +55,17 @@ class PartsRepository(
         }
     }
 
+    fun getPartByFileId(fileId: Int): List<DxfPart> = transaction {
+        DatabaseDxfPart.find { PartsTable.fileId eq fileId }.toList()
+            .map {
+                DxfPart(
+                    id = it.id.toString(),
+                    root = json.decodeFromString(it.root),
+                    inside = json.decodeFromString(it.inside),
+                )
+            }
+    }
+
     fun getPartsByIds(ids: List<String>): Map<String, DxfPart> {
         return transaction {
             DatabaseDxfPart.find { PartsTable.id inList ids.map { it.toInt() } }

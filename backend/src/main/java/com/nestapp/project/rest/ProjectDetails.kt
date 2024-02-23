@@ -29,7 +29,7 @@ fun Route.projectDetails(
                     .map { file ->
                         ProjectDetailsResponse.ProjectFile(
                             name = file.fileName,
-                            preview = "${configuration.baseUrl}/files/${project.slug}/${file.fileName}/preview",
+                            preview = "${configuration.baseUrl}/preview/${project.slug}/${file.fileName}",
                         )
                     }
             )
