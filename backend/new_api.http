@@ -38,12 +38,12 @@ POST http://localhost:8080/api/nest
 Content-Type: application/json
 
 {
-    "project_slug": "my_project",
+    "project_slug": "laser-cut-box",
     "file_counts": {
-        "long_side_copy_copy_copy_copy": 2
+        "1x1": 2
     },
-    "plate_width": 1000,
-    "plate_height": 1000,
+    "plate_width": 200,
+    "plate_height": 200,
     "tolerance": 0.01,
     "spacing": 1.5,
     "place_spacing": 1

@@ -47,7 +47,7 @@ fun Route.nestRestApi(
                 }
                 .map { (id, parts) ->
                     val path = makePath2d(parts)
-                    val nestPath = makeNestPath(id.toString(), path, nestInput.tolerance)
+                    val nestPath = makeNestPath("$id+${nestInput.spacing}", path, nestInput.tolerance)
 
                     nestPath
                 }

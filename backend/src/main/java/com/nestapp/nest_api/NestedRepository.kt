@@ -72,9 +72,9 @@ class NestedRepository(
         placement: List<Placement>,
         nestInput: NestInput
     ) {
-        val parts = partsRepository.getPartsByIds(placement.map { it.bid })
+        val parts = partsRepository.getPartsByIds(placement.map { it.bid.substringBefore("+") })
         val dxfPartPlacement = placement.map {
-            val part = parts[it.bid] ?: throw Exception("Part not found")
+            val part = parts[it.bid.substringBefore("+")] ?: throw Exception("Part not found ${it.bid}")
 
             DxfPartPlacement(
                 placement = it,

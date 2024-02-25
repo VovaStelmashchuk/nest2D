@@ -17,7 +17,7 @@ class AppComponent(
 ) {
 
     val json = Json {
-        prettyPrint = true
+        prettyPrint = false
         ignoreUnknownKeys = true
     }
 
@@ -42,7 +42,13 @@ class AppComponent(
     )
 
     val nestApi = NestApi(
-        nest = Nest(logger, NfpCacheRepository(logger)),
+        nest = Nest(
+            logger = logger,
+            nfpCache = NfpCacheRepository(
+                logger = logger,
+                json = json
+            )
+        ),
         logger = logger,
     )
 }
