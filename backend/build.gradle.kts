@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.nestapp"
-version = "0.4.6"
+version = "0.5.2"
 
 application {
     mainClass.set("com.nestapp.Main")

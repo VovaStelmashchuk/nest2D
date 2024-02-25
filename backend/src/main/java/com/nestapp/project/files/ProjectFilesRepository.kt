@@ -58,7 +58,7 @@ class ProjectFilesRepository(
 
 object ProjectFilesTable : IntIdTable(name = "project_files", columnName = "id") {
     val projectId = reference("project_id", ProjectsTable)
-    val fileName = text("file_name").uniqueIndex()
+    val fileName = text("file_name").index()
     val dxfFilePath = text("dxf_file_path")
     val svgFilePath = text("svg_file_path")
 }

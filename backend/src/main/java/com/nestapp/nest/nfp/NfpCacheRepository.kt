@@ -2,27 +2,18 @@ package com.nestapp.nest.nfp
 
 import com.nestapp.nest.data.NestPath
 import com.nestapp.nest.data.Segment
-import com.nestapp.nest.nfp.NestPathTable.entityId
-import com.nestapp.nest.nfp.NfpCacheTable.uniqueIndex
 import com.nestapp.nest.util.NfpUtil
 import io.ktor.util.logging.Logger
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.dao.EntityClass
-import org.jetbrains.exposed.dao.IntEntity
-import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IdTable
-import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.util.concurrent.ConcurrentHashMap
 
 class NfpCacheRepository(
     private val logger: Logger,
@@ -60,39 +51,45 @@ class NfpCacheRepository(
         }
     }
 
-    private fun getNestPathByBid(bid: String): NestPath {
-        return transaction {
-            val databasePath = NestPathDatabase.findById(bid) ?: throw IllegalArgumentException("NestPath not found")
-
-            val nestPath = NestPath(bid)
-            databasePath.segments.split(";").map {
-                val (x, y) = it.split(",")
-                nestPath.add(Segment(x.toDouble(), y.toDouble()))
+    private fun getNestPathsByBids(bids: List<String>): Map<String, NestPath> {
+        return NestPathDatabase.find { NestPathTable.id inList bids }
+            .map {
+                val nestPath = NestPath(it.id.value)
+                it.segments.split(";").map {
+                    val (x, y) = it.split(",")
+                    nestPath.add(Segment(x.toDouble(), y.toDouble()))
+                }
+                nestPath
             }
+            .associateBy { it.bid }
 
-            nestPath
-        }
     }
 
     fun prepareCacheForKeys(keys: List<NfpKey>) {
-        val keysInDatabaseFormat = keys.map {
+        val keysInDatabaseFormat = keys.toSet().map {
             json.encodeToString(it)
-        }
+        }.distinct()
 
         val existedKeys = transaction {
-            NfpCacheDatabase.find { NfpCacheTable.id inList keysInDatabaseFormat }
+            NfpCacheDatabase
+                .find { NfpCacheTable.id inList keysInDatabaseFormat }
                 .map { it.id.value }
                 .map { json.decodeFromString<NfpKey>(it) }
         }
 
-        keys.minus(existedKeys.toSet()).map { key ->
-            generateNfp(key).also { data ->
-                transaction {
-                    NfpCacheDatabase.new(json.encodeToString(key)) {
-                        nfp = data.joinToString("|") { nestPath ->
-                            nestPath.segments.joinToString(";") { segment ->
-                                "${segment.x},${segment.y}"
-                            }
+        val keyWithoutNfpCache = keys.minus(existedKeys.toSet()).toSet()
+
+        val allNestPathIdsNeedForNfpGeneration = keyWithoutNfpCache.flatMap { key ->
+            listOf(key.aBid, key.bBid)
+        }.distinct()
+
+        transaction {
+            val nestPaths = getNestPathsByBids(allNestPathIdsNeedForNfpGeneration)
+            keyWithoutNfpCache.map { key ->
+                NfpCacheDatabase.new(id = json.encodeToString(key)) {
+                    this.nfp = generateNfp(key, nestPaths).joinToString("|") { path ->
+                        path.segments.joinToString(";") { segment ->
+                            "${segment.x},${segment.y}"
                         }
                     }
                 }
@@ -100,11 +97,11 @@ class NfpCacheRepository(
         }
     }
 
-    private fun generateNfp(key: NfpKey): List<NestPath> {
+    private fun generateNfp(key: NfpKey, nestPaths: Map<String, NestPath>): List<NestPath> {
         logger.info("NfpCacheRepository.generateNfp: key = $key")
 
-        val a = getNestPathByBid(key.aBid)
-        val b = getNestPathByBid(key.bBid)
+        val a = nestPaths[key.aBid] ?: throw IllegalArgumentException("NestPath not found for bid: ${key.aBid}")
+        val b = nestPaths[key.bBid] ?: throw IllegalArgumentException("NestPath not found for bid: ${key.bBid}")
 
         val nfpPair = NfpPair(
             a = a,
@@ -113,25 +110,6 @@ class NfpCacheRepository(
         )
 
         return NfpUtil.nfpGenerator(nfpPair) ?: throw IllegalArgumentException("Cannot generate NFP for key: $key")
-    }
-
-    fun get(nfpKey: NfpKey): List<NestPath> {
-        val databaseResult = transaction {
-            NfpCacheDatabase.findById(json.encodeToString(nfpKey))
-        }
-
-        databaseResult ?: throw IllegalStateException("NfpCacheRepository.get: $nfpKey not found")
-
-        val nestPaths = databaseResult.nfp.split("|").map { path ->
-            val nestPath = NestPath()
-            path.split(";").map {
-                val (x, y) = it.split(",")
-                nestPath.add(Segment(x.toDouble(), y.toDouble()))
-            }
-            nestPath
-        }
-
-        return nestPaths
     }
 }
 
@@ -160,5 +138,3 @@ class NfpCacheDatabase(id: EntityID<String>) : Entity<String>(id) {
     //The format of nfp is "x11,y11;x12,y12;x13,y13;|x21,y21;x22,y22;x23,y23;|..."
     var nfp by NfpCacheTable.nfp
 }
-
-

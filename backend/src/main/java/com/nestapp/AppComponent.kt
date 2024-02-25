@@ -2,6 +2,7 @@ package com.nestapp
 
 import com.nestapp.files.PreviewGenerator
 import com.nestapp.nest.Nest
+import com.nestapp.nest.nfp.NfpCacheReader
 import com.nestapp.nest.nfp.NfpCacheRepository
 import com.nestapp.nest_api.NestApi
 import com.nestapp.nest_api.NestedRepository
@@ -47,7 +48,12 @@ class AppComponent(
             nfpCache = NfpCacheRepository(
                 logger = logger,
                 json = json
-            )
+            ),
+            nfpCacheReaderGetter = {
+                NfpCacheReader(
+                    json = json
+                )
+            }
         ),
         logger = logger,
     )

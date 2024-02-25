@@ -2,6 +2,7 @@ package com.nestapp.nest.util;
 
 import com.nestapp.nest.config.Config;
 import com.nestapp.nest.data.*;
+import com.nestapp.nest.nfp.NfpCacheReader;
 import com.nestapp.nest.nfp.NfpCacheRepository;
 import com.nestapp.nest.nfp.NfpKey;
 import com.nestapp.nest.util.coor.ClipperCoor;
@@ -10,14 +11,21 @@ import de.lighti.clipper.Point.LongPoint;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 public class PlacementWorker {
 
-    public NfpCacheRepository nfpCache;
+    private final NfpCacheRepository nfpCache;
 
-    public PlacementWorker(NfpCacheRepository nfpCache) {
+    private final NfpCacheReader nfpCacheReader;
+
+    public PlacementWorker(
+        NfpCacheRepository nfpCache,
+        NfpCacheReader nfpCacheReader
+    ) {
         this.nfpCache = nfpCache;
+        this.nfpCacheReader = nfpCacheReader;
     }
 
     /**
@@ -56,7 +64,7 @@ public class PlacementWorker {
 
             nfpCache.prepareCacheForKeys(keysToCache);
 
-            List<NestPath> binNfp = nfpCache.get(binKey);
+            List<NestPath> binNfp = nfpCacheReader.get(binKey);
 
             PathPlacement position = null;
             if (placed.size() == 0) {
@@ -94,7 +102,7 @@ public class PlacementWorker {
                     placed.get(j).getRotation(),
                     path.getRotation()
                 );
-                List<NestPath> nfp = nfpCache.get(key);
+                List<NestPath> nfp = nfpCacheReader.get(key);
 
                 for (NestPath element : nfp) {
                     Path clone = scaleUp2ClipperCoordinates(element);
