@@ -6,16 +6,16 @@
                     <h1>{{ project.name }}</h1>
                 </div>
                 <div class="card-container">
-                    <div v-for="file in project.files" :key="file.id" class="card">
-                        <img :src="file.svg_url" alt="SVG Image">
+                    <div v-for="file in project.files" :key="file.name" class="card">
+                        <img :src="file.preview" alt="SVG Image">
                         <div class="card-content">
                             <h3>{{ file.name }}</h3>
                             <div class="counter">
-                                <button :class="{ inactive: fileCounts[file.id] === 0 }"
-                                        @click="decrementCount(file.id)">-
+                                <button :class="{ inactive: fileCounts[file.name] === 0 }"
+                                        @click="decrementCount(file.name)">-
                                 </button>
-                                <p class="counter-input">{{ fileCounts[file.id] }}</p>
-                                <button @click="incrementCount(file.id)">+</button>
+                                <p class="counter-input">{{ fileCounts[file.name] }}</p>
+                                <button @click="incrementCount(file.name)">+</button>
                             </div>
                         </div>
                     </div>
@@ -55,7 +55,7 @@ import {useRoute} from "vue-router";
 import ProgressBar from "@/views/ProgressBar.vue";
 
 const route = useRoute();
-const projectId = ref(route.params.id);
+const projectSlug = ref(route.params.slug);
 
 const yourSvgImageUrl = ref('');
 const project = ref({});
@@ -72,10 +72,10 @@ const closeErrorDialog = async () => {
 
 const fetchProjectData = async () => {
     try {
-        const response = await axios.get(`${API_URL}/project/${projectId.value}`);
+        const response = await axios.get(`${API_URL}/project/${projectSlug.value}`);
         project.value = response.data;
         console.log(response.data.files)
-        response.data.files.forEach((file) => fileCounts.value[file.id] = 0)
+        response.data.files.forEach((file) => fileCounts.value[file.name] = 0)
     } catch (error) {
         console.error('Error:', error);
         errorMessage.value = error || "Something went wrong. Please try again later.";
@@ -96,7 +96,7 @@ const buildButtonClickHandler = async ({width, height}) => {
     }
 
     let data = {
-        project_id: project.value.id,
+        project_slug: project.value.slug,
         file_counts: fileCounts.value,
         plate_width: width,
         plate_height: height,

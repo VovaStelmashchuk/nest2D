@@ -1,109 +1,61 @@
 package com.nestapp
 
-import com.nestapp.files.SvgFromDxf
-import com.nestapp.nest.Nest
-import com.nestapp.nest.nfp.NfpCacheRepository
-import com.nestapp.nest_api.NestApi
-import com.nestapp.nest_api.NestedRepository
-import com.nestapp.nest_api.UserInputExecution
-import com.nestapp.nest_api.nestRestApi
-import com.nestapp.projects.ProjectsRepository
-import com.nestapp.projects.projectsRest
-import io.ktor.http.HttpMethod.Companion.DefaultMethods
-import io.ktor.http.HttpStatusCode
-import io.ktor.serialization.kotlinx.json.json
-import io.ktor.server.application.call
-import io.ktor.server.application.install
+import com.typesafe.config.ConfigFactory
 import io.ktor.server.application.log
 import io.ktor.server.cio.CIO
+import io.ktor.server.config.HoconApplicationConfig
 import io.ktor.server.engine.applicationEngineEnvironment
+import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
-import io.ktor.server.plugins.autohead.AutoHeadResponse
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.server.plugins.cors.routing.CORS
-import io.ktor.server.plugins.statuspages.StatusPages
-import io.ktor.server.response.respond
-import io.ktor.server.response.respondText
-import io.ktor.server.routing.get
-import io.ktor.server.routing.route
-import io.ktor.server.routing.routing
-import kotlinx.serialization.json.Json
+import org.jetbrains.exposed.sql.Database
 import java.io.File
-import kotlin.concurrent.thread
 
 internal object Main {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val json = Json {
-            prettyPrint = true
-            ignoreUnknownKeys = true
-        }
-        val projectsRepository = ProjectsRepository(json)
-        val nestedRepository = NestedRepository(json)
+        embeddedServer(CIO, environment = applicationEngineEnvironment {
+            config = HoconApplicationConfig(ConfigFactory.load())
+            developmentMode = true
 
-        embeddedServer(CIO, port = 8080) {
-            applicationEngineEnvironment {
-                developmentMode = true
-            }
-            install(StatusPages) {
-                exception<UserInputExecution> { call, userInputExecution ->
-                    println(userInputExecution.printStackTrace())
-                    call.respond(HttpStatusCode.BadRequest, userInputExecution.getBody())
-                }
-                exception<Throwable> { cause, throwable ->
-                    println(throwable.printStackTrace())
-                    cause.respond(HttpStatusCode.InternalServerError, "Error: $throwable")
-                }
-            }
+            module {
+                val appVersion = config.property("ktor.app.version").getString()
 
-            install(AutoHeadResponse)
+                val databaseUrl = config.property("ktor.database.url").getString()
+                val databaseName = config.property("ktor.database.name").getString()
+                val user = config.property("ktor.database.user").getString()
+                val password = config.propertyOrNull("ktor.database.password")?.getString().orEmpty()
 
-            install(CORS) {
-                anyHost()
-                allowHeaders { true }
-                allowCredentials = true
-                DefaultMethods.forEach(::allowMethod)
+                Database.connect(
+                    url = "jdbc:postgresql://$databaseUrl/$databaseName",
+                    user = user,
+                    password = password,
+                )
 
-                allowNonSimpleContentTypes = true
-            }
+                val configuration = Configuration(
+                    baseUrl = config.property("ktor.app.base_url").getString(),
+                    projectsFolder = File("mount/projects"),
+                    nestedFolder = File("mount/nested"),
+                    appVersion = appVersion,
+                )
 
-            install(ContentNegotiation) {
-                json()
+                val appComponent = AppComponent(
+                    configuration,
+                    this.log,
+                )
+
+                println("Starting server on ${configuration.baseUrl}")
+
+                restConfig(appComponent)
             }
 
-            val baseUrl = "https://nest2d.online/api"
-            //val baseUrl = "http://localhost:8080/api"
+            val port = config.property("ktor.connector.port").getString().toInt()
+            val host = config.property("ktor.connector.host").getString()
 
-            val configuration = Configuration(
-                baseUrl = baseUrl,
-                projectsFolder = File("mount/projects"),
-            )
-
-            val nestApi = NestApi(
-                nest = Nest(this.log, NfpCacheRepository(this.log)),
-                logger = this.log,
-            )
-
-            routing {
-                route("/api") {
-                    projectsRest(
-                        configuration,
-                        projectsRepository,
-                        SvgFromDxf()
-                    )
-                    nestRestApi(
-                        configuration = configuration,
-                        projectsRepository = projectsRepository,
-                        nestedRepository = nestedRepository,
-                        nestApi = nestApi,
-                    )
-
-                    get("/version") {
-                        call.respondText("Some version")
-                    }
-                }
+            connector {
+                this.port = port
+                this.host = host
             }
-        }.start(wait = true)
+        }).start(wait = true)
     }
 }

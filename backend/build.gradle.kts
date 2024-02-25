@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.nestapp"
-version = "0.4.6"
+version = "0.5.2"
 
 application {
     mainClass.set("com.nestapp.Main")
@@ -64,6 +64,13 @@ dependencies {
     implementation("org.dom4j:dom4j:2.1.3")
     implementation("org.uncommons.watchmaker:watchmaker-swing:0.7.1")
     implementation("io.jenetics:jenetics:5.2.0")
+
+    implementation("org.jetbrains.exposed", "exposed-core", "0.47.0")
+    implementation("org.jetbrains.exposed", "exposed-dao", "0.47.0")
+    implementation("org.jetbrains.exposed", "exposed-jdbc", "0.47.0")
+    implementation("org.jetbrains.exposed", "exposed-kotlin-datetime", "0.47.0")
+    implementation("com.h2database", "h2", "2.2.224")
+    implementation("org.postgresql:postgresql:42.7.1")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.1")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.1")

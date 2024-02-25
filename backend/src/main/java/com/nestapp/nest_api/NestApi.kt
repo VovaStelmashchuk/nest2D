@@ -1,18 +1,14 @@
 package com.nestapp.nest_api
 
-import com.nestapp.files.dxf.DxfPart
-import com.nestapp.files.dxf.DxfPartPlacement
-import com.nestapp.files.dxf.common.RealPoint
 import com.nestapp.nest.Nest
 import com.nestapp.nest.data.Bound
 import com.nestapp.nest.data.NestPath
 import com.nestapp.nest.data.Placement
-import com.nestapp.nest.data.Segment
 import com.nestapp.nest.util.CommonUtil
 import com.nestapp.nest.util.GeometryUtil
 import com.nestapp.nest.util.NewCommonUtils.copyNestPaths
 import io.ktor.util.logging.Logger
-import java.awt.Rectangle
+import java.awt.geom.Rectangle2D
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -22,26 +18,12 @@ class NestApi(
 ) {
 
     fun nest(
-        plate: Rectangle,
-        dxfParts: List<DxfPart>,
+        plate: Rectangle2D.Double,
+        nestPaths: List<NestPath>,
         spacing: Double,
         boundSpacing: Double,
         rotationCount: Int,
-    ): Result<List<DxfPartPlacement>> {
-        if (dxfParts.isEmpty()) {
-            return Result.failure(Throwable("Parts is empty"))
-        }
-
-        val dxfPartToNestBid = mutableMapOf<String, DxfPart>()
-
-        val nestPaths = mutableListOf<NestPath>()
-
-        dxfParts.forEach { dxfPart ->
-            val nestPath = createNestPath(dxfPart, "$spacing")
-            dxfPartToNestBid[nestPath.bid] = dxfPart
-            nestPaths.add(nestPath)
-        }
-
+    ): Result<List<Placement>> {
         val isAllPartFit = nestPaths.any { part ->
             !checkIfCanBePlaced(plate, part, rotationCount)
         }
@@ -74,33 +56,10 @@ class NestApi(
         val appliedPlacement: List<Placement> = nest.startNest(binPolygon, tree)
             ?: return Result.failure(CannotPlaceException())
 
-        val placements = appliedPlacement
-            .map { placement ->
-                val dxfPart = dxfPartToNestBid[placement.bid]
-                    ?: throw IllegalStateException("Cannot find part with bid ${placement.bid}")
-
-                DxfPartPlacement(
-                    dxfPart = dxfPart,
-                    placement = placement,
-                )
-            }
-
-        return Result.success(placements)
+        return Result.success(appliedPlacement)
     }
 
-    private fun createNestPath(
-        dxfPart: DxfPart,
-        idSuffix: String,
-    ): NestPath {
-        val segments = dxfPart.dxfPath.segments.map { RealPoint(it.x, it.y) }
-        val nestPath = NestPath("${dxfPart.bId}+$idSuffix")
-        segments.forEach {
-            nestPath.add(Segment(it.x, it.y))
-        }
-        return nestPath
-    }
-
-    private fun createPlateNestPath(plate: Rectangle, boundSpacing: Double): NestPath {
+    private fun createPlateNestPath(plate: Rectangle2D.Double, boundSpacing: Double): NestPath {
         val binPolygon = NestPath(createBinNestPath(plate, boundSpacing))
 
         val binMinX = binPolygon.segments.minOfOrNull { it.x } ?: throw IllegalStateException("")
@@ -117,7 +76,7 @@ class NestApi(
         return binPolygon
     }
 
-    private fun checkIfCanBePlaced(plate: Rectangle, nestPath: NestPath, rotationCount: Int): Boolean {
+    private fun checkIfCanBePlaced(plate: Rectangle2D.Double, nestPath: NestPath, rotationCount: Int): Boolean {
         if (rotationCount == 0) {
             val bound = GeometryUtil.getPolygonBounds(nestPath)
             if (plate.width < bound.width || plate.height < bound.height) {
@@ -151,15 +110,15 @@ class NestApi(
         return GeometryUtil.getPolygonBounds(polygon)
     }
 
-    private fun createBinNestPath(rect: Rectangle, boundSpacing: Double): NestPath {
+    private fun createBinNestPath(rect: Rectangle2D.Double, boundSpacing: Double): NestPath {
         var binPolygon = NestPath()
         val width = rect.width
         val height = rect.height
 
         binPolygon.add(0.0, 0.0)
-        binPolygon.add(0.0, height.toDouble())
-        binPolygon.add(width.toDouble(), height.toDouble())
-        binPolygon.add(width.toDouble(), 0.0)
+        binPolygon.add(0.0, height)
+        binPolygon.add(width, height)
+        binPolygon.add(width, 0.0)
 
         if (boundSpacing > 0) {
             val offsetBin = CommonUtil.polygonOffset(binPolygon, -boundSpacing)

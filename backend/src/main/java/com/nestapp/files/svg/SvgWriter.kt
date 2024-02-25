@@ -1,82 +1,39 @@
 package com.nestapp.files.svg
 
-import com.nestapp.files.dxf.DxfPart
-import com.nestapp.files.dxf.DxfPartPlacement
-import com.nestapp.files.dxf.DxfPath
+import com.nestapp.converts.makeListOfPoints
+import com.nestapp.converts.makePath2d
+import com.nestapp.files.DxfPartPlacement
+import java.awt.geom.Point2D
 import java.io.File
 import java.io.FileWriter
 import java.io.Writer
 
 class SvgWriter {
-
     private companion object {
         val COLORS = listOf("#7bafd1", "#fc8d8d", "#a6d854", "#ffd92f", "#e78ac3", "#66c2a5")
     }
 
-    fun writeDxfPathsToSvg(
-        dxfParts: List<DxfPart>,
-        file: File,
-    ) {
-        var minX = Double.MAX_VALUE
-        var minY = Double.MAX_VALUE
-        var maxX = Double.MIN_VALUE
-        var maxY = Double.MIN_VALUE
-
-        dxfParts.forEach { dxfPart ->
-            dxfPart.dxfPath.segments.forEach { segment ->
-                if (minX > segment.x) {
-                    minX = segment.x
-                }
-
-                if (minY > segment.y) {
-                    minY = segment.y
-                }
-
-                if (maxX < segment.x) {
-                    maxX = segment.x
-                }
-
-                if (maxY < segment.y) {
-                    maxY = segment.y
-                }
-            }
-        }
-
-        val translationX = -minX
-        val translationY = -minY
-
-        val width = maxX - minX
-        val height = maxY - minY
-
-        val rawSvg = buildString {
-            for ((index, dxfPart) in dxfParts.withIndex()) {
-                appendLine("""<g transform="translate($translationX, $translationY)">""".trimIndent())
-                appendSvgPath(dxfPart.dxfPath, index)
-                dxfPart.inners.forEach { innerDxfPart ->
-                    appendSvgPath(innerDxfPart.dxfPath, index)
-                }
-                appendLine("</g>")
-            }
-        }
-
-        saveStringsToSvgFile(rawSvg, file, width, height)
-    }
-
-    fun writeNestPathsToSvg(
-        list: List<DxfPartPlacement>,
+    fun writePlacement(
+        dxfParts: List<DxfPartPlacement>,
         file: File,
         width: Double,
         height: Double,
     ) {
         val rawSvg = buildString {
-            for ((index, part) in list.withIndex()) {
-                val ox = part.placement.translate.x
-                val oy = part.placement.translate.y
-                val rotate = part.placement.rotate
-                appendLine("""<g transform="translate($ox, $oy) rotate($rotate)">""".trimIndent())
-                part.allDxfPaths.forEach { dxfPath ->
-                    appendSvgPath(dxfPath, index)
+            dxfParts.forEachIndexed { partIndex, dxfPartPlacement ->
+                val translateX = dxfPartPlacement.placement.translate.x
+                val translateY = dxfPartPlacement.placement.translate.y
+                val rotation = dxfPartPlacement.placement.rotate
+                appendLine("""<g transform="translate($translateX, $translateY) rotate($rotation)">""".trimIndent())
+
+                val part = dxfPartPlacement.part
+                val paths = listOf(makePath2d(dxfPartPlacement.part.root)).plus(part.inside.map { it.toPath2D() })
+
+                paths.forEach {
+                    val listOfPoints = makeListOfPoints(it, 0.001)
+                    appendSvgPath(listOfPoints, partIndex)
                 }
+
                 appendLine("</g>")
             }
         }
@@ -84,10 +41,10 @@ class SvgWriter {
         saveStringsToSvgFile(rawSvg, file, width, height)
     }
 
-    private fun StringBuilder.appendSvgPath(dxfPath: DxfPath, index: Int) {
+    private fun StringBuilder.appendSvgPath(points: List<Point2D.Double>, index: Int) {
         appendLine("""<path d="""".trimIndent())
 
-        dxfPath.segments.forEachIndexed { segmentIndex, segment ->
+        points.forEachIndexed { segmentIndex, segment ->
             if (segmentIndex == 0) {
                 append("M")
             } else {

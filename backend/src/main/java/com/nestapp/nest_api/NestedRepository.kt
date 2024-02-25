@@ -1,71 +1,113 @@
 package com.nestapp.nest_api
 
-import com.google.gson.annotations.SerializedName
-import com.nestapp.projects.FileId
-import com.nestapp.projects.ProjectId
-import kotlinx.serialization.ExperimentalSerializationApi
+import com.nestapp.Configuration
+import com.nestapp.files.DxfPartPlacement
+import com.nestapp.files.dxf.DxfWriter
+import com.nestapp.files.svg.SvgWriter
+import com.nestapp.nest.data.Placement
+import com.nestapp.project.ProjectSlug
+import com.nestapp.project.parts.PartsRepository
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromStream
+import org.jetbrains.exposed.dao.IntEntity
+import org.jetbrains.exposed.dao.IntEntityClass
+import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.File
 
 class NestedRepository(
+    private val configuration: Configuration,
+    private val partsRepository: PartsRepository,
     private val json: Json,
 ) {
 
-    companion object {
-        private const val FILE = "mount/app_data/nested.json"
+    init {
+        transaction {
+            SchemaUtils.create(NestedTable)
+        }
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Synchronized
-    private fun getNested(): NestedList {
-        return json.decodeFromStream<NestedList>(File(FILE).inputStream())
+    fun getNested(id: Int): NestedDatabase? {
+        return transaction {
+            NestedDatabase.findById(id)
+        }
     }
 
-    @Synchronized
-    private fun saveNested(nestedList: NestedList) {
-        File(FILE).writeText(json.encodeToString(nestedList))
+    fun saveNestPlacement(
+        placement: List<Placement>,
+        nestInput: NestInput,
+    ): Int {
+        val nested = transaction {
+            NestedDatabase.new {
+                this.nestInput = json.encodeToString(NestInput.serializer(), nestInput)
+            }
+        }
+
+        val nestedId = nested.id.value
+
+        val folder = File(
+            configuration.nestedFolder,
+            "${nestedId}_${nestInput.projectSlug.value}"
+        )
+        folder.mkdirs()
+        val svgFile = File(folder, "preview.svg")
+        val dxfFile = File(folder, "cad_file.dxf")
+
+        saveFiles(svgFile, dxfFile, placement, nestInput)
+
+        transaction {
+            nested.svgFile = svgFile.absolutePath
+            nested.dxfFile = dxfFile.absolutePath
+        }
+
+        return nestedId
     }
 
-    fun getNextId(): Int {
-        return (getNested().nested.maxOfOrNull { it.id } ?: 0) + 1
-    }
+    private fun saveFiles(
+        svgFile: File,
+        dxfFile: File,
+        placement: List<Placement>,
+        nestInput: NestInput
+    ) {
+        val parts = partsRepository.getPartsByIds(placement.map { it.bid.substringBefore("+") })
+        val dxfPartPlacement = placement.map {
+            val part = parts[it.bid.substringBefore("+")] ?: throw Exception("Part not found ${it.bid}")
 
-    fun addNested(nestedOutput: Nested): Int {
-        val nested = getNested().nested.toMutableList()
-        nested.add(nestedOutput)
-        saveNested(NestedList(nested))
-        return nestedOutput.id
-    }
+            DxfPartPlacement(
+                placement = it,
+                part = part,
+            )
+        }
 
-    fun getNested(id: Int): Nested? {
-        return getNested().nested.firstOrNull { it.id == id }
+        val svgWriter = SvgWriter()
+        svgWriter.writePlacement(
+            dxfPartPlacement,
+            svgFile,
+            nestInput.plateWidth,
+            nestInput.plateHeight,
+        )
+
+        val dxfWriter = DxfWriter()
+        dxfWriter.writeFile(
+            dxfPartPlacement,
+            dxfFile,
+        )
     }
 }
 
-@Serializable
-data class NestedList(
-    @SerializedName("nested")
-    val nested: List<Nested>
-)
+object NestedTable : IntIdTable(name = "nested", columnName = "id") {
+    val nestInput = text("nest_input")
+    val svgFile = text("svg_file").default("")
+    val dxfFile = text("dxf_file").default("")
+}
 
-@Serializable
-data class Nested(
-    @SerialName("id")
-    val id: Int,
-    @SerialName("dxf_file")
-    val dxfFile: String,
-    @SerialName("svg_file")
-    val svgFile: String,
-    @SerialName("project_id")
-    val projectId: ProjectId,
-    @SerialName("file_counts")
-    val fileCounts: Map<FileId, Int>,
-    @SerialName("plate_width")
-    val plateWidth: Int,
-    @SerialName("plate_height")
-    val plateHeight: Int,
-)
+class NestedDatabase(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<NestedDatabase>(NestedTable)
+
+    var nestInput by NestedTable.nestInput
+    var svgFile by NestedTable.svgFile
+    var dxfFile by NestedTable.dxfFile
+}

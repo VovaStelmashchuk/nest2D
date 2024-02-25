@@ -1,0 +1,25 @@
+### Create a new project
+POST https://nest2d.online/api/project
+Content-Type: application/json
+
+{
+    "name": "Big Box"
+}
+
+### Add preview image to project
+POST https://nest2d.online/api/project/big-box/preview
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="file"; filename="preview.png"
+
+< test-data/previes/big_box_v2.png
+
+### Add dxf file to project
+POST https://nest2d.online/api/files/big-box/dxf
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="file"; filename="long side.dxf"
+
+< test-data/old/big_box_v2/big_box_all+2/big_box_all.dxf

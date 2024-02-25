@@ -1,7 +1,7 @@
 <template>
-    <h1>Project List</h1>
     <div class="card-container">
-        <div v-for="project in projects" :key="project.id" class="project-card" @click="navigateToProject(project.id)">
+        <div v-for="project in projects" :key="project.id" class="project-card"
+             @click="navigateToProject(project.slug)">
             <!-- Image tag with dynamic source -->
             <img :src="project.preview" alt="Project Image" class="project-image"/>
             <div class="card-content">
@@ -20,8 +20,8 @@ import {API_URL} from "@/constants.js";
 const projects = ref([]);
 const router = useRouter();
 
-const navigateToProject = (projectId) => {
-    router.push({name: 'ProjectView', params: {id: projectId}});
+const navigateToProject = (projectSlug) => {
+    router.push({name: 'ProjectView', params: {slug: projectSlug}});
 };
 
 onMounted(async () => {

@@ -4,6 +4,7 @@ import com.nestapp.nest.data.NestPath
 import com.nestapp.nest.data.PathPlacement
 import com.nestapp.nest.data.Placement
 import com.nestapp.nest.data.Segment
+import com.nestapp.nest.nfp.NfpCacheReader
 import com.nestapp.nest.nfp.NfpCacheRepository
 import com.nestapp.nest.util.PlacementWorker
 import io.ktor.util.logging.Logger
@@ -12,6 +13,7 @@ import java.util.concurrent.TimeUnit
 class Nest(
     private val logger: Logger,
     private val nfpCache: NfpCacheRepository,
+    private val nfpCacheReaderGetter: () -> NfpCacheReader,
 ) {
 
     fun startNest(
@@ -21,29 +23,24 @@ class Nest(
         nfpCache.addNestPaths(tree.plus(binPolygon))
 
         var best: NestResult? = null
-
         val variants: List<List<NestPath>> = generateNestListVariants(tree)
 
         logger.info("startNest(): variants.size() = ${variants.size}")
 
-        val maxTimeForNestProcess = TimeUnit.MINUTES.toMillis(2)
+        val maxTimeForNestProcess = TimeUnit.MINUTES.toMillis(1)
         val currentTime = System.currentTimeMillis()
+
+        val nfpCacheReader: NfpCacheReader = nfpCacheReaderGetter()
 
         for (index in variants.indices) {
             logger.info("startNest(): variant $index")
             val variant = variants[index]
-            val worker = PlacementWorker(nfpCache)
-            val result = worker.placePaths(binPolygon, variant)
 
-            if (result == null) {
-                logger.info("startNest(): variant $index failed")
-            } else {
-                val newResult = tryPlacement(binPolygon, variant, tree)
+            val newResult = tryPlacement(binPolygon, variant, tree, nfpCacheReader)
 
-                if (newResult != null) {
-                    if (best == null || best.fitness > newResult.fitness) {
-                        best = newResult
-                    }
+            if (newResult != null) {
+                if (best == null || best.fitness > newResult.fitness) {
+                    best = newResult
                 }
             }
 
@@ -61,8 +58,13 @@ class Nest(
         }
     }
 
-    private fun tryPlacement(binPolygon: NestPath, variant: List<NestPath>, tree: List<NestPath>): NestResult? {
-        val worker = PlacementWorker(nfpCache)
+    private fun tryPlacement(
+        binPolygon: NestPath,
+        variant: List<NestPath>,
+        tree: List<NestPath>,
+        nfpCacheReader: NfpCacheReader,
+    ): NestResult? {
+        val worker = PlacementWorker(nfpCache, nfpCacheReader)
         val result = worker.placePaths(binPolygon, variant)
 
         if (result == null) {

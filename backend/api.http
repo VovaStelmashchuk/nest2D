@@ -1,3 +1,9 @@
+### version
+GET http://0.0.0.0:8080/version
+
+### version
+GET http://localhost:80/version
+
 ### get all project
 GET http://localhost:8080/api/all_projects
 
@@ -33,19 +39,21 @@ Content-Type: application/json
 {
     "project_id": "laser_gridfinity_boxes_open_scad",
     "file_counts": {
-        "1x1+0": 1,
-        "1x2+1": 1,
-        "1x3+2": 1,
+        "1x1+0": 0,
+        "1x2+1": 0,
+        "1x3+2": 0,
         "1x4+3": 0,
         "2x2+4": 0,
-        "2x3+5": 0,
+        "2x3+5": 2,
         "2x4+6": 0,
         "3x3+7": 0,
         "3x4+8": 0,
         "4x4+9": 0
     },
-    "plate_width": "250",
-    "plate_height": "250"
+    "plate_width": "570",
+    "plate_height": "400",
+    "spacing": 1,
+    "place_spacing": 1
 }
 
 ### nest big box
