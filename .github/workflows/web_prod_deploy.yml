@@ -2,14 +2,20 @@ name: Prod deploy
 
 on:
   push:
-    branches:
-      - 'main'
+    tags:
+      - '*'
 
 jobs:
   prod_deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Generate tags
+        id: docker_tags
+        uses: dnaka91/action-docker-tags@v0.1
+        with:
+          registries: |
+            docker.io/nest2d-web
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -19,10 +25,14 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Extract metadata for the Docker image
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
+          context: nest2dvue
           push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/mixdrinks-web:0.5.0
-            ${{ secrets.DOCKERHUB_USERNAME }}/mixdrinks-web:latest
+          tags: ${{ steps.docker_tags.outputs.tags }}
