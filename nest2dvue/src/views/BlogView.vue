@@ -1,6 +1,38 @@
 <template>
     <div class="article-container">
         <div class="article-title">
+            <p>Project updates, #5, I learn how to do the database, also CI</p>
+        </div>
+        <div class="article-meta">
+            <p>Published on
+                <time datetime="2024-08-03">Mar 8, 2024</time>
+                by nest2d
+            </p>
+        </div>
+        <div class="article-body">
+            <h2>New feature</h2>
+            <ul>
+                <li>Move max nesting time to config</li>
+            </ul>
+            <h2>Bug fix</h2>
+            <ul>
+                <li>Fix the database query</li>
+                <li>Speed up the new NFP cache</li>
+            </ul>
+            <h2>Tech task</h2>
+            <ul>
+                <li>Make the CI which build docker image of the web app</li>
+            </ul>
+            <h2>Next stages</h2>
+            <ul>
+                <li>Add CI for backend app</li>
+                <li>Add support for more DXF tags</li>
+                <li>Make possible to and new project for end user</li>
+            </ul>
+        </div>
+    </div>
+    <div class="article-container">
+        <div class="article-title">
             <p>Project updates, #4, We have the database</p>
         </div>
         <div class="article-meta">
