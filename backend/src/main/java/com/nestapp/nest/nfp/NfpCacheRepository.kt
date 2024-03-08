@@ -30,9 +30,8 @@ class NfpCacheRepository(
         val distinctBids = nestPaths.map { it.bid }.distinct()
 
         val existIds = transaction {
-            NestPathTable.select(NestPathTable.id)
-                .where { NestPathTable.id inList distinctBids }
-                .map { it[NestPathTable.id].value }
+            NestPathDatabase.forIds(distinctBids)
+                .map { it.id.value }
         }
 
         val notExistsIds: List<String> = distinctBids.minus(existIds.toSet())
@@ -52,7 +51,7 @@ class NfpCacheRepository(
     }
 
     private fun getNestPathsByBids(bids: List<String>): Map<String, NestPath> {
-        return NestPathDatabase.find { NestPathTable.id inList bids }
+        return NestPathDatabase.forIds(bids)
             .map {
                 val nestPath = NestPath(it.id.value)
                 it.segments.split(";").map {

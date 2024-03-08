@@ -37,6 +37,7 @@ internal object Main {
                     projectsFolder = File("mount/projects"),
                     nestedFolder = File("mount/nested"),
                     appVersion = appVersion,
+                    maxNestTimeInSeconds = config.property("ktor.app.nest.max_nesting_time").getString().toLong()
                 )
 
                 val appComponent = AppComponent(

@@ -53,7 +53,8 @@ class AppComponent(
                 NfpCacheReader(
                     json = json
                 )
-            }
+            },
+            configuration = configuration,
         ),
         logger = logger,
     )

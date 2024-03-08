@@ -1,5 +1,6 @@
 package com.nestapp.nest
 
+import com.nestapp.Configuration
 import com.nestapp.nest.data.NestPath
 import com.nestapp.nest.data.PathPlacement
 import com.nestapp.nest.data.Placement
@@ -14,6 +15,7 @@ class Nest(
     private val logger: Logger,
     private val nfpCache: NfpCacheRepository,
     private val nfpCacheReaderGetter: () -> NfpCacheReader,
+    private val configuration: Configuration,
 ) {
 
     fun startNest(
@@ -27,10 +29,12 @@ class Nest(
 
         logger.info("startNest(): variants.size() = ${variants.size}")
 
-        val maxTimeForNestProcess = TimeUnit.MINUTES.toMillis(1)
+        val maxTimeForNestProcess = TimeUnit.SECONDS.toMillis(configuration.maxNestTimeInSeconds)
         val currentTime = System.currentTimeMillis()
 
         val nfpCacheReader: NfpCacheReader = nfpCacheReaderGetter()
+
+        var compliteVariantCount = 0
 
         for (index in variants.indices) {
             logger.info("startNest(): variant $index")
@@ -48,12 +52,13 @@ class Nest(
                 logger.info("startNest(): time limit reached")
                 break
             }
+            compliteVariantCount++
         }
 
         if (best == null) {
             return null
         } else {
-            logger.info("startNest(): best fitness = ${best.fitness}")
+            logger.info("startNest(): best fitness = ${best.fitness}, complete variant count = $compliteVariantCount")
             return applyPlacement(best.placement)
         }
     }

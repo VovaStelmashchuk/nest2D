@@ -1,6 +1,35 @@
 <template>
     <div class="article-container">
         <div class="article-title">
+            <p>Project updates, #4, We have the database</p>
+        </div>
+        <div class="article-meta">
+            <p>Published on
+                <time datetime="2024-27-02">Feb 27, 2024</time>
+                by nest2d
+            </p>
+        </div>
+        <div class="article-body">
+            <h2>New features</h2>
+            <ul>
+                <li>Implement data base</li>
+                <li>Move NFP pairs cache to postgres database</li>
+                <li>Move all json file base storage to postgres SQL, like a good developers in real app</li>
+                <li>Move all path to files into database</li>
+                <li>Add the progress bar to web page. I hope it's improve the user experience</li>
+            </ul>
+            <h2>Next stages</h2>
+            <ul>
+                <li>Implement CI for deploy docker container, for web and backend</li>
+                <li>Better look for holes into preview images</li>
+                <li>Speed up the new NFP cache</li>
+                <li>Add support for more DXF tags</li>
+            </ul>
+            <p></p>
+        </div>
+    </div>
+    <div class="article-container">
+        <div class="article-title">
             <p>Project updates, #3, We have the cache</p>
         </div>
         <div class="article-meta">

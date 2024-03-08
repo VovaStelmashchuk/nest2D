@@ -7,4 +7,5 @@ class Configuration(
     val projectsFolder: File,
     val nestedFolder: File,
     val appVersion: String,
+    val maxNestTimeInSeconds: Long,
 )

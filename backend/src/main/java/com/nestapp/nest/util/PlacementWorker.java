@@ -1,7 +1,10 @@
 package com.nestapp.nest.util;
 
 import com.nestapp.nest.config.Config;
-import com.nestapp.nest.data.*;
+import com.nestapp.nest.data.Bound;
+import com.nestapp.nest.data.NestPath;
+import com.nestapp.nest.data.PathPlacement;
+import com.nestapp.nest.data.Segment;
 import com.nestapp.nest.nfp.NfpCacheReader;
 import com.nestapp.nest.nfp.NfpCacheRepository;
 import com.nestapp.nest.nfp.NfpKey;
@@ -11,7 +14,6 @@ import de.lighti.clipper.Point.LongPoint;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 
 public class PlacementWorker {
