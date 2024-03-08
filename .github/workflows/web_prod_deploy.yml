@@ -10,12 +10,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Generate tags
-        id: docker_tags
-        uses: dnaka91/action-docker-tags@v0.1
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
         with:
-          registries: |
-            docker.io/nest2d-web
+          images: |
+            vovochkastelmashchuk/nest2d-web
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -34,5 +42,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: nest2dvue
-          push: true
-          tags: ${{ steps.docker_tags.outputs.tags }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
