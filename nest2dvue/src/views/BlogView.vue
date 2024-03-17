@@ -1,6 +1,33 @@
 <template>
     <div class="article-container">
         <div class="article-title">
+            <p>Project updates, #6, Uploads from the web</p>
+        </div>
+        <div class="article-meta">
+            <p>Published on
+                <time datetime="2024-17-03">Mar 17, 2024</time>
+                by nest2d
+            </p>
+        </div>
+        <div class="article-body">
+            <h2>New feature</h2>
+            <ul>
+                <li>Implement creating project from webpage, user friendly</li>
+            </ul>
+            <h2>Tech task</h2>
+            <ul>
+                <li>Try to make CI for the backend app. (in progress)</li>
+            </ul>
+            <h2>Next stages</h2>
+            <ul>
+                <li>Implement the nested history page</li>
+                <li>Finish CI for backend app</li>
+                <li>Add support for more DXF tags</li>
+            </ul>
+        </div>
+    </div>
+    <div class="article-container">
+        <div class="article-title">
             <p>Project updates, #5, I learn how to do the database, also CI</p>
         </div>
         <div class="article-meta">
@@ -265,4 +292,5 @@
 }
 </style>
 <script setup>
+import ProgressBar from "@/views/ProgressBar.vue";
 </script>

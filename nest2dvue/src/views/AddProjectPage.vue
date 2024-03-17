@@ -26,7 +26,6 @@
 import {ref} from 'vue';
 import {API_URL} from "@/constants.js";
 
-const route = useRoute();
 const projectName = ref('');
 const mediaPreview = ref(null);
 const dxfFiles = ref([]);
@@ -42,51 +41,7 @@ const handleDXFFilesChange = (event) => {
 };
 
 import axios from 'axios';
-import {useRoute} from "vue-router";
 import router from "@/router/index.js";
-
-const createProject = async (projectName) => {
-    try {
-        const response = await axios.post(`${API_URL}/project`, {
-            name: projectName
-        });
-        return response.data;
-    } catch (error) {
-        console.error('Error creating project:', error);
-    }
-};
-
-const uploadPreviewImage = async (projectSlug, imageFile) => {
-    try {
-        const formData = new FormData();
-        formData.append('file', imageFile);
-
-        const response = await axios.post(`${API_URL}/project/${projectSlug}/preview`, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
-        return response.data; // Handle or display the response appropriately
-    } catch (error) {
-        console.error('Error uploading preview image:', error);
-    }
-};
-
-const uploadDXFFile = async (projectSlug, dxfFile) => {
-    try {
-        const formData = new FormData();
-        formData.append('file', dxfFile);
-
-        const response = await axios.post(`${API_URL}/files/${projectSlug}/dxf`, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
-        return response.data;
-    } catch (error) {
-        console.error('Error uploading DXF file:', error);
-    }
-};
 
 const updateProgress = (completed, total) => {
     progress.value = Math.round((completed / total) * 100);
@@ -155,5 +110,20 @@ button {
     color: white;
     border: none;
     border-radius: 5px;
+}
+.progress-bar {
+    background-color: #f3f3f3;
+    border-radius: 5px;
+    position: relative;
+    margin-top: 20px;
+    height: 20px;
+    width: 100%;
+}
+
+.progress-bar-fill {
+    background-color: #4caf50;
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.4s ease-in-out;
 }
 </style>
