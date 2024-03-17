@@ -25,6 +25,15 @@ ktor {
             )
         )
     }
+    jib {
+        from {
+            image = "openjdk:17-jdk-alpine"
+        }
+        to {
+            image = "vovochkastelmashchuk/nest2d"
+            tags = setOf("${project.version}")
+        }
+    }
 }
 
 repositories {
