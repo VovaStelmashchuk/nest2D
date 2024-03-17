@@ -17,20 +17,21 @@
             <button type="submit">Upload Project</button>
         </form>
     </div>
-    <div v-if="uploadInProgress" class="progress-overlay">
-        <ProgressBar/>
+    <div v-if="loading" class="progress-bar">
+        <div class="progress-bar-fill" :style="{ width: progress + '%' }"></div>
     </div>
 </template>
 
 <script setup>
 import {ref} from 'vue';
 import {API_URL} from "@/constants.js";
-import ProgressBar from "@/views/ProgressBar.vue";
 
+const route = useRoute();
 const projectName = ref('');
 const mediaPreview = ref(null);
 const dxfFiles = ref([]);
-const uploadInProgress = ref(false);
+const loading = ref(false);
+const progress = ref(0);
 
 const handleMediaPreviewChange = (event) => {
     mediaPreview.value = event.target.files[0];
@@ -41,6 +42,8 @@ const handleDXFFilesChange = (event) => {
 };
 
 import axios from 'axios';
+import {useRoute} from "vue-router";
+import router from "@/router/index.js";
 
 const createProject = async (projectName) => {
     try {
@@ -85,24 +88,47 @@ const uploadDXFFile = async (projectSlug, dxfFile) => {
     }
 };
 
+const updateProgress = (completed, total) => {
+    progress.value = Math.round((completed / total) * 100);
+};
+
+const navigateToProject = (projectSlug) => {
+    router.push({name: 'ProjectView', params: {slug: projectSlug}});
+};
 
 const submitForm = async () => {
-    // Step 1: Create a new project
-    const project = await createProject(projectName.value);
-    if (!project) return;
+    loading.value = true;
+    progress.value = 0;
+    let projectSlug = '';
 
-    // Assuming project.slug is returned from the createProject call
-    const projectSlug = project.slug;
+    try {
+        // Step 1: Create a new project
+        updateProgress(1, 4);
+        const projectResponse = await axios.post(`${API_URL}/project`, {name: projectName.value});
+        projectSlug = projectResponse.data.slug;
 
-    // Step 2: Upload preview image
-    await uploadPreviewImage(projectSlug, mediaPreview.value);
+        // Step 2: Add preview image
+        updateProgress(2, 4);
+        let formData = new FormData();
+        formData.append('file', mediaPreview.value);
+        await axios.post(`${API_URL}/project/${projectSlug}/preview`, formData);
 
-    // Step 3: Upload each DXF file
-    for (const dxfFile of dxfFiles.value) {
-        await uploadDXFFile(projectSlug, dxfFile);
+        // Step 3: Add DXF files
+        updateProgress(3, 4);
+        formData = new FormData();
+        dxfFiles.value.forEach(file => {
+            formData.append('file', file);
+        });
+        await axios.post(`${API_URL}/files/${projectSlug}/dxf`, formData);
+
+        updateProgress(4, 4);
+        navigateToProject(projectSlug);
+    } catch (error) {
+        console.error('Submission error:', error);
+    } finally {
+        loading.value = false;
     }
 
-    // Optionally, navigate the user to a confirmation page or display success message
 };
 </script>
 
