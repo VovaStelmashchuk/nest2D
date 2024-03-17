@@ -40,7 +40,7 @@ class Nest(
             logger.info("startNest(): variant $index")
             val variant = variants[index]
 
-            val newResult = tryPlacement(binPolygon, variant, tree, nfpCacheReader)
+            val newResult: NestResult? = tryPlacement(binPolygon, variant, tree, nfpCacheReader)
 
             if (newResult != null) {
                 if (best == null || best.fitness > newResult.fitness) {

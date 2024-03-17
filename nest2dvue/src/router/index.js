@@ -3,6 +3,7 @@ import ProjectList from "@/views/ProjectList.vue";
 import TermsAndConditions from "@/views/TermsAndConditions.vue";
 import BlogView from "@/views/BlogView.vue";
 import ProjectView from "@/views/ProjectView.vue";
+import AddProjectPage from "@/views/AddProjectPage.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -27,7 +28,12 @@ const router = createRouter({
             path: '/blog',
             name: 'blog',
             component: BlogView
-        }
+        },
+        {
+            path: '/add-project',
+            name: 'AddProjectPage',
+            component: AddProjectPage
+        },
     ]
 })
 

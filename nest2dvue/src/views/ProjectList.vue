@@ -1,8 +1,13 @@
 <template>
     <div class="card-container">
+        <div class="project-card upload-project-card" @click="navigateToUpload">
+            <div class="card-content">
+                <div class="plus-sign"></div>
+                <h2>Upload Your Project</h2>
+            </div>
+        </div>
         <div v-for="project in projects" :key="project.id" class="project-card"
              @click="navigateToProject(project.slug)">
-            <!-- Image tag with dynamic source -->
             <img :src="project.preview" alt="Project Image" class="project-image"/>
             <div class="card-content">
                 <h2>{{ project.name }}</h2>
@@ -20,6 +25,10 @@ import {API_URL} from "@/constants.js";
 const projects = ref([]);
 const router = useRouter();
 
+const navigateToUpload = () => {
+    router.push({name: 'AddProjectPage'});
+};
+
 const navigateToProject = (projectSlug) => {
     router.push({name: 'ProjectView', params: {slug: projectSlug}});
 };
@@ -35,6 +44,36 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.upload-project-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    width: 300px;
+    margin: 8px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    overflow: hidden;
+}
+
+.plus-sign {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 6rem;
+    height: 200px;
+    width: 100%;
+}
+
+.plus-sign:before {
+    content: '+';
+    color: var(--color-text);
+}
+
 .card-container {
     display: flex;
     flex-wrap: wrap;

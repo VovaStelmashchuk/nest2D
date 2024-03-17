@@ -1,0 +1,19 @@
+name: Publish backend image
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  publish_backend_image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project sources
+        uses: actions/checkout@v3
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Go to backend folder
+        run: cd backend
+      - name: Run build with Gradle Wrapper
+        run: ./gradlew publishImage
