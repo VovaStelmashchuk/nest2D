@@ -5,10 +5,13 @@ import com.nestapp.files.dxf.EntityGrouper
 import com.nestapp.files.dxf.GroupedEntity
 import com.nestapp.files.dxf.common.LSegment
 import com.nestapp.files.dxf.common.RealPoint
+import com.nestapp.files.dxf.reader.Circle
 import com.nestapp.files.dxf.reader.DXFReader
 import com.nestapp.files.dxf.reader.Entity
 import com.nestapp.files.dxf.reader.Line
 import com.nestapp.files.dxf.reader.LwPolyline
+import com.nestapp.files.dxf.reader.Polyline
+import com.nestapp.files.dxf.writter.parts.DXFCircle
 import com.nestapp.files.dxf.writter.parts.DXFEntity
 import com.nestapp.files.dxf.writter.parts.DXFLWPolyline
 import com.nestapp.files.dxf.writter.parts.DXFLine
@@ -31,6 +34,7 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.awt.geom.Arc2D
+import java.awt.geom.Ellipse2D
 import java.awt.geom.Path2D
 import java.awt.geom.Point2D
 import java.io.File
@@ -139,7 +143,7 @@ class PartsRepository(
             is LwPolyline -> {
                 DataBaseDxfEntity.LwPolyline(
                     segments = entity.segments.map { segment ->
-                        DataBaseDxfEntity.LwPolyline.Segment(
+                        DataBaseDxfEntity.Segment(
                             point = DataBaseDxfEntity.Point(
                                 x = segment.dx,
                                 y = segment.dy,
@@ -147,6 +151,30 @@ class PartsRepository(
                             bulge = segment.bulge,
                         )
                     }
+                )
+            }
+
+            is Polyline -> {
+                DataBaseDxfEntity.LwPolyline(
+                    segments = entity.points.map { segment ->
+                        DataBaseDxfEntity.Segment(
+                            point = DataBaseDxfEntity.Point(
+                                x = segment.xx,
+                                y = segment.yy,
+                            ),
+                            bulge = segment.bulge,
+                        )
+                    }
+                )
+            }
+
+            is Circle -> {
+                DataBaseDxfEntity.Circle(
+                    center = DataBaseDxfEntity.Point(
+                        x = entity.cx,
+                        y = entity.cy,
+                    ),
+                    radius = entity.radius,
                 )
             }
 
@@ -242,6 +270,31 @@ sealed class DataBaseDxfEntity {
     abstract fun toWritableEntity(placement: Placement): DXFEntity
 
     @Serializable
+    @SerialName("circle")
+    data class Circle(
+        @SerialName("center")
+        val center: Point,
+        @SerialName("radius")
+        val radius: Double,
+    ) : DataBaseDxfEntity() {
+        override fun toPath2D(): Path2D.Double {
+            val circle: Ellipse2D.Double = Ellipse2D.Double()
+            circle.setFrame(center.x - radius, center.y - radius, radius * 2, radius * 2)
+
+            val path = Path2D.Double()
+            path.append(circle, false)
+            return path
+        }
+
+        override fun toWritableEntity(placement: Placement): DXFEntity {
+            return DXFCircle(
+                RealPoint(center.x, center.y).transform(placement),
+                radius
+            )
+        }
+    }
+
+    @Serializable
     @SerialName("line")
     data class Line(
         @SerialName("start")
@@ -269,17 +322,6 @@ sealed class DataBaseDxfEntity {
         @SerialName("segments")
         val segments: List<Segment>,
     ) : DataBaseDxfEntity() {
-        @Serializable
-        data class Segment(
-            @SerialName("point")
-            val point: Point,
-            @SerialName("bulge")
-            val bulge: Double,
-        ) {
-            fun transform(placement: Placement): Segment {
-                return Segment(point.transform(placement), bulge)
-            }
-        }
 
         override fun toPath2D(): Path2D.Double {
             val path = Path2D.Double()
@@ -361,6 +403,18 @@ sealed class DataBaseDxfEntity {
             val extentAngle = if (bulge >= 0) -extent else extent
             val ul = Point2D.Double(cp.x - radius, cp.y - radius)
             return Arc2D.Double(ul.x, ul.y, radius * 2, radius * 2, startAngle, extentAngle, Arc2D.OPEN)
+        }
+    }
+
+    @Serializable
+    data class Segment(
+        @SerialName("point")
+        val point: Point,
+        @SerialName("bulge")
+        val bulge: Double,
+    ) {
+        fun transform(placement: Placement): Segment {
+            return Segment(point.transform(placement), bulge)
         }
     }
 

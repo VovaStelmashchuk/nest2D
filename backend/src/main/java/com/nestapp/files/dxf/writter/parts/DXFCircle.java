@@ -30,39 +30,20 @@ import com.nestapp.files.dxf.common.RealPoint;
 import java.awt.*;
 
 
-/**
- * Class representing a DXF circle.
- * @author jsevy
- *
- */
-public class DXFCircle extends DXFEntity
-{
+public class DXFCircle extends DXFEntity {
     protected RealPoint center;
     protected double radius;
-    protected Color color;
-    protected BasicStroke stroke;
 
-
-    /**
-     *  * Create a circular arc from the specified parameters.
-     * @param center		Center of the circle, as a RealPoint
-     * @param radius		Radius of the circle
-     * @param graphics          The graphics object specifying parameters for the arc (color, thickness)
-     */
-    public DXFCircle(RealPoint center, double radius, Graphics2D graphics)
-    {
+    public DXFCircle(RealPoint center, double radius) {
         this.center = new RealPoint(center);
         this.radius = radius;
-        this.color = graphics.getColor();
-        this.stroke = (BasicStroke)graphics.getStroke();
     }
 
 
     /**
      * Implementation of DXFObject interface method; creates DXF text representing the circle.
      */
-    public String toDXFString()
-    {
+    public String toDXFString() {
         String result = "0\nCIRCLE\n";
 
         // print out handle and superclass marker(s)
@@ -78,19 +59,11 @@ public class DXFCircle extends DXFEntity
         // radius
         result += "40\n" + setPrecision(radius) + "\n";
 
-        // add thickness; specified in Java in pixels at 72 pixels/inch; needs to be in 1/100 of mm for DXF, and restricted range of values
-        result += "370\n" + getDXFLineWeight(stroke.getLineWidth()) + "\n";
-
-        // add color number
-        result += "62\n" + DXFColor.getClosestDXFColor(color.getRGB()) + "\n";
-
         return result;
     }
 
 
-
-    public String getDXFHatchInfo()
-    {
+    public String getDXFHatchInfo() {
         // circular arc
         String result = "72\n" + "2" + "\n";
 

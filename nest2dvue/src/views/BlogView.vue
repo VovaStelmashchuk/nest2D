@@ -1,6 +1,34 @@
 <template>
     <div class="article-container">
         <div class="article-title">
+            <p>Project updates, #7, More DXF tag</p>
+        </div>
+        <div class="article-meta">
+            <p>Published on
+                <time datetime="2024-30-03">Mar 30, 2024</time>
+                by nest2d
+            </p>
+        </div>
+        <div class="article-body">
+            <h2>New feature</h2>
+            <ul>
+                <li>Add support for more DXF tags:</li>
+                <li>- Add support for circle tag</li>
+                <li>- Add support for circle Polyline</li>
+            </ul>
+            <h2>Fun news</h2>
+            <p>Project has first native upload, thank you!!!</p><a href="https://nest2d.online/project/nome">Project
+            here</a>
+            <p>Project was fixed by my self, the bug fixed in future the model will works fine</p>
+            <h2>Next stages</h2>
+            <ul>
+                <li>Implement the nested history page</li>
+                <li>Add support for more DXF tags</li>
+            </ul>
+        </div>
+    </div>
+    <div class="article-container">
+        <div class="article-title">
             <p>Project updates, #6, Uploads from the web</p>
         </div>
         <div class="article-meta">

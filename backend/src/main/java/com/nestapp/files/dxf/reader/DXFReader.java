@@ -412,35 +412,6 @@ public class DXFReader {
         }
     }
 
-    class Circle extends Entity implements AutoPop {
-        Ellipse2D.Double circle = new Ellipse2D.Double();
-        private double cx, cy, radius;
-
-        Circle(String type) {
-            super(type);
-        }
-
-        @Override
-        public void addParam(int gCode, String value) {
-            switch (gCode) {
-                case 10:                                  // Center Point X1
-                    cx = Double.parseDouble(value);
-                    break;
-                case 20:                                  // Center Point Y2
-                    cy = Double.parseDouble(value);
-                    break;
-                case 40:                                  // Radius
-                    radius = Double.parseDouble(value);
-                    break;
-            }
-        }
-
-        @Override
-        public void close() {
-            circle.setFrame(cx - radius, cy - radius, radius * 2, radius * 2);
-        }
-    }
-
     /**
      * Crude implementation of ELLIPSE
      */
@@ -541,89 +512,6 @@ public class DXFReader {
         }
     }
 
-
-
-    class Polyline extends Entity {
-        private Path2D.Double path;
-        private List<Vertex> points;
-        private double firstX, firstY, lastX, lastY;
-        private boolean firstPoint = true;
-        private boolean close;
-
-        Polyline(String type) {
-            super(type);
-        }
-
-        @Override
-        public void addParam(int gCode, String value) {
-            if (gCode == 70) {
-                int flags = Integer.parseInt(value);
-                close = (flags & 1) != 0;
-            }
-        }
-
-        @Override
-        public void addChild(Entity child) {
-            if (child instanceof Vertex) {
-                if (points == null) {
-                    points = new ArrayList<>();
-                }
-                points.add((Vertex) child);
-            }
-        }
-
-        @Override
-        public void close() {
-            path = new Path2D.Double();
-            double bulge = 0.0;
-            for (Vertex vertex : points) {
-                if (firstPoint) {
-                    firstPoint = false;
-                    path.moveTo(firstX = lastX = vertex.xx, firstY = lastY = vertex.yy);
-                } else {
-                    if (bulge != 0) {
-                        path.append(getArcBulge(lastX, lastY, vertex.xx, vertex.yy, bulge), true);
-                        lastX = vertex.xx;
-                        lastY = vertex.yy;
-                    } else {
-                        path.lineTo(lastX = vertex.xx, lastY = vertex.yy);
-                    }
-                }
-                bulge = vertex.bulge;
-            }
-            if (close) {
-                if (bulge != 0) {
-                    path.append(getArcBulge(lastX, lastY, firstX, firstY, bulge), true);
-                } else {
-                    path.closePath();
-                }
-            }
-        }
-    }
-
-    class Vertex extends Entity {
-        double xx, yy, bulge;
-
-        Vertex(String type) {
-            super(type);
-        }
-
-        @Override
-        public void addParam(int gCode, String value) {
-            switch (gCode) {
-                case 10:                                    // Vertex X
-                    xx = Double.parseDouble(value);
-                    break;
-                case 20:                                    // Vertex Y
-                    yy = Double.parseDouble(value);
-                    break;
-                case 42:                                    // Vertex Bulge factor
-                    bulge = Double.parseDouble(value);
-                    break;
-            }
-        }
-    }
-
     class Spline extends Entity implements AutoPop {
         Path2D.Double path = new Path2D.Double();
         List<Point2D.Double> cPoints = new ArrayList<>();
@@ -683,37 +571,6 @@ public class DXFReader {
                 }
             }
         }
-    }
-
-
-    /**
-     * See: http://darrenirvine.blogspot.com/2015/08/polylines-radius-bulge-turnaround.html
-     *
-     * @param sx    Starting x for Arc
-     * @param sy    Starting y for Arc
-     * @param ex    Ending x for Arc
-     * @param ey    Ending y for Arc
-     * @param bulge bulge factor (bulge > 0 = clockwise, else counterclockwise)
-     * @return Arc2D.Double object
-     */
-    private Arc2D.Double getArcBulge(double sx, double sy, double ex, double ey, double bulge) {
-        Point2D.Double p1 = new Point2D.Double(sx, sy);
-        Point2D.Double p2 = new Point2D.Double(ex, ey);
-        Point2D.Double mp = new Point2D.Double((p2.x + p1.x) / 2, (p2.y + p1.y) / 2);
-        Point2D.Double bp = new Point2D.Double(mp.x - (p1.y - mp.y) * bulge, mp.y + (p1.x - mp.x) * bulge);
-        double u = p1.distance(p2);
-        double b = (2 * mp.distance(bp)) / u;
-        double radius = u * ((1 + b * b) / (4 * b));
-        double dx = mp.x - bp.x;
-        double dy = mp.y - bp.y;
-        double mag = Math.sqrt(dx * dx + dy * dy);
-        Point2D.Double cp = new Point2D.Double(bp.x + radius * (dx / mag), bp.y + radius * (dy / mag));
-        double startAngle = 180 - Math.toDegrees(Math.atan2(cp.y - p1.y, cp.x - p1.x));
-        double opp = u / 2;
-        double extent = Math.toDegrees(Math.asin(opp / radius)) * 2;
-        double extentAngle = bulge >= 0 ? -extent : extent;
-        Point2D.Double ul = new Point2D.Double(cp.x - radius, cp.y - radius);
-        return new Arc2D.Double(ul.x, ul.y, radius * 2, radius * 2, startAngle, extentAngle, Arc2D.OPEN);
     }
 
     private void push() {

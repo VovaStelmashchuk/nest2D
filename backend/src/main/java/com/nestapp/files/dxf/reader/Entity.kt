@@ -13,6 +13,6 @@ open class Entity internal constructor(@JvmField var type: String) {
     }
 
     open fun toPath2D(): Path2D.Double {
-        throw UnsupportedOperationException("Not implemented")
+        throw UnsupportedOperationException("Not implemented in ${this.javaClass.simpleName}")
     }
 }

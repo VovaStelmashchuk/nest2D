@@ -6,29 +6,29 @@ POST http://localhost:8080/api/project
 Content-Type: application/json
 
 {
-    "name": "Big box v1"
+    "name": "From prod 1"
 }
 
 ### Add preview image to project
-POST http://localhost:8080/api/project/big-box-v1/preview
+POST http://localhost:8080/api/project/from-prod-1/preview
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
 
 ------WebKitFormBoundary
 Content-Disposition: form-data; name="file"; filename="preview.png"
 
-< test-data/previes/big_box_v1.png
+< test-data/from_prod/Preview.png
 
 ### Get project preview
 GET http://localhost:8080/api/project/my_project/preview
 
 ### Add dxf file to project
-POST http://localhost:8080/api/files/big-box-v1/dxf
+POST http://localhost:8080/api/files/from-prod-1/dxf
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
 
 ------WebKitFormBoundary
-Content-Disposition: form-data; name="file"; filename="long_side.dxf"
+Content-Disposition: form-data; name="file"; filename="test_dow.dxf"
 
-< test-data/long_side.dxf
+< test-data/from_prod/test_dow.dxf
 
 ### Get full project
 GET http://localhost:8080/api/project/my_project
