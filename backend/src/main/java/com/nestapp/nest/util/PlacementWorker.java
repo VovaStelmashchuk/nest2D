@@ -64,7 +64,9 @@ public class PlacementWorker {
                 keysToCache.add(key);
             }
 
-            nfpCache.prepareCacheForKeys(keysToCache);
+            if (!nfpCache.prepareCacheForKeys(keysToCache)) {
+                continue;
+            }
 
             List<NestPath> binNfp = nfpCacheReader.get(binKey);
 

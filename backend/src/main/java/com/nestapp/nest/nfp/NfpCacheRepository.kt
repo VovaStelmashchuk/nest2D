@@ -64,7 +64,7 @@ class NfpCacheRepository(
 
     }
 
-    fun prepareCacheForKeys(keys: List<NfpKey>) {
+    fun prepareCacheForKeys(keys: List<NfpKey>): Boolean {
         val keysInDatabaseFormat = keys.toSet().map {
             json.encodeToString(it)
         }.distinct()
@@ -82,17 +82,26 @@ class NfpCacheRepository(
             listOf(key.aBid, key.bBid)
         }.distinct()
 
-        transaction {
+        return transaction {
             val nestPaths = getNestPathsByBids(allNestPathIdsNeedForNfpGeneration)
-            keyWithoutNfpCache.map { key ->
-                NfpCacheDatabase.new(id = json.encodeToString(key)) {
-                    this.nfp = generateNfp(key, nestPaths).joinToString("|") { path ->
+            keyWithoutNfpCache.forEach { key ->
+
+                val generatedNfp = try {
+                    generateNfp(key, nestPaths).joinToString("|") { path ->
                         path.segments.joinToString(";") { segment ->
                             "${segment.x},${segment.y}"
                         }
                     }
+                } catch (e: CannotCreateNfpException) {
+                    logger.error("Cannot generate NFP for key: $key")
+                    return@transaction false
+                }
+
+                NfpCacheDatabase.new(id = json.encodeToString(key)) {
+                    this.nfp = generatedNfp
                 }
             }
+            return@transaction true
         }
     }
 
@@ -108,8 +117,10 @@ class NfpCacheRepository(
             key = key,
         )
 
-        return NfpUtil.nfpGenerator(nfpPair) ?: throw IllegalArgumentException("Cannot generate NFP for key: $key")
+        return NfpUtil.nfpGenerator(nfpPair) ?: throw CannotCreateNfpException(key)
     }
+
+    class CannotCreateNfpException(key: NfpKey) : Exception("Cannot generate NFP for key: $key")
 }
 
 object NestPathTable : IdTable<String>(name = "nest_paths") {

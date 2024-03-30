@@ -79,19 +79,17 @@ class NestApi(
     private fun checkIfCanBePlaced(plate: Rectangle2D.Double, nestPath: NestPath, rotationCount: Int): Boolean {
         if (rotationCount == 0) {
             val bound = GeometryUtil.getPolygonBounds(nestPath)
-            if (plate.width < bound.width || plate.height < bound.height) {
-                return false
-            }
+            return !(plate.width < bound.width || plate.height < bound.height)
         } else {
             for (j in 0 until rotationCount) {
                 val rotatedBound = rotatePolygon(nestPath, (360 / rotationCount) * j)
-                if (plate.width < rotatedBound.width || plate.height < rotatedBound.height) {
-                    return false
+                if (plate.width > rotatedBound.width && plate.height > rotatedBound.height) {
+                    return true
                 }
             }
         }
 
-        return true
+        return false
     }
 
     private fun rotatePolygon(polygon: NestPath, angle: Int): Bound {
@@ -107,7 +105,7 @@ class NestApi(
             val y1 = x * sin(Fangle) + y * cos(Fangle)
             rotated.add(x1, y1)
         }
-        return GeometryUtil.getPolygonBounds(polygon)
+        return GeometryUtil.getPolygonBounds(rotated)
     }
 
     private fun createBinNestPath(rect: Rectangle2D.Double, boundSpacing: Double): NestPath {
