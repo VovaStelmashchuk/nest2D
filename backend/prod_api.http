@@ -16,10 +16,10 @@ Content-Disposition: form-data; name="file"; filename="preview.png"
 < test-data/previes/big_box_v2.png
 
 ### Add dxf file to project
-POST https://nest2d.online/api/files/big-box/dxf
+POST https://nest2d.online/api/files/nome/dxf
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
 
 ------WebKitFormBoundary
-Content-Disposition: form-data; name="file"; filename="long side.dxf"
+Content-Disposition: form-data; name="file"; filename="test_dow.dxf"
 
-< test-data/old/big_box_v2/big_box_all+2/big_box_all.dxf
+< test-data/from_prod/test_dow.dxf
