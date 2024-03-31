@@ -30,6 +30,10 @@ ktor {
             to {
                 image = "vovochkastelmashchuk/nest2d"
                 tags = setOf("${project.version}")
+                auth {
+                    setUsername(providers.environmentVariable("DOCKER_HUB_USERNAME"))
+                    setPassword(providers.environmentVariable("DOCKER_HUB_PASSWORD"))
+                }
             }
         }
     }
