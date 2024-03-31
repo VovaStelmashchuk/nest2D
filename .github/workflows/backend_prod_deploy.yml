@@ -14,4 +14,4 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
       - name: Run build with Gradle Wrapper
-        run: cd backend && gradle jib
+        run: cd backend && gradle jib --image vovochkastelmashchuk/nest2d

@@ -17,9 +17,14 @@
                 <li>- Add support for circle Polyline</li>
             </ul>
             <h2>Fun news</h2>
-            <p>Project has first native upload, thank you!!!</p><a href="https://nest2d.online/project/nome">Project
+            <p>The project has the first organic upload, thank you!!!</p><a href="https://nest2d.online/project/nome">Project
             here</a>
-            <p>Project was fixed by my self, the bug fixed in future the model will works fine</p>
+            <p>The bugs fixes for support the project. The project was fixed by my self, in future DXF will works
+                fine.</p>
+            <h2>Tech task</h2>
+            <ul>
+                <li>Implement CI for the backend project</li>
+            </ul>
             <h2>Next stages</h2>
             <ul>
                 <li>Implement the nested history page</li>
