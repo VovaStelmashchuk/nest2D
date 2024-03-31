@@ -83,12 +83,12 @@ const fetchProjectData = async () => {
     }
 };
 
-const buildButtonClickHandler = async ({width, height}) => {
+const buildButtonClickHandler = async ({width, height, spacingInput}) => {
     isBuilding.value = true;
     downloadDisabled.value = true;
     errorMessage.value = '';
 
-    if (width === "" || height === "" || isNaN(width) || isNaN(height)) {
+    if (width === "" || height === "" || isNaN(width) || isNaN(height) || isNaN(spacingInput)) {
         isBuilding.value = false;
         errorMessage.value = "Width and height should be a valid number.";
         showErrorMessage.value = true;
@@ -100,6 +100,7 @@ const buildButtonClickHandler = async ({width, height}) => {
         file_counts: fileCounts.value,
         plate_width: width,
         plate_height: height,
+        spacing: spacingInput,
     };
 
     try {

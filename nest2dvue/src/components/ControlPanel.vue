@@ -6,10 +6,15 @@
 
             <label for="height-input">Height</label>
             <input type="number" id="height-input" class="number-input" v-model="height"/>
+
+            <label for="width-input">Spacing</label>
+            <input type="number" id="spacing-input" class="number-input" v-model="spacingInput"/>
+
         </div>
         <div class="buttons-column">
             <button class="action-button" @click="onBuildClick" :disabled="isBuilding">Build</button>
-            <button class="action-button-download" @click="onDownloadClick" :disabled="downloadDisabled">Download</button>
+            <button class="action-button-download" @click="onDownloadClick" :disabled="downloadDisabled">Download
+            </button>
         </div>
     </div>
 </template>
@@ -25,11 +30,12 @@ export default {
         return {
             width: 400,
             height: 570,
+            spacingInput: 1.5,
         };
     },
     methods: {
         onBuildClick() {
-            this.$emit('build', { width: this.width, height: this.height });
+            this.$emit('build', {width: this.width, height: this.height, spacingInput: this.spacingInput});
         },
         onDownloadClick() {
             this.$emit('download');
