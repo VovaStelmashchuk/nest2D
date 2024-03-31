@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.nestapp"
-version = "0.6.0"
+version = "0.6.2"
 
 application {
     mainClass.set("com.nestapp.Main")
@@ -15,8 +15,7 @@ application {
 ktor {
     docker {
         jreVersion.set(JavaVersion.VERSION_17)
-        localImageName.set("nest2d")
-        imageTag.set(project.version.toString())
+        imageTag.set("${project.version}")
         externalRegistry.set(
             io.ktor.plugin.features.DockerImageRegistry.dockerHub(
                 appName = provider { "nest2d" },
@@ -24,6 +23,15 @@ ktor {
                 password = providers.environmentVariable("DOCKER_HUB_PASSWORD")
             )
         )
+        jib {
+            from {
+                image = "openjdk:17-jdk-alpine"
+            }
+            to {
+                image = "vovochkastelmashchuk/nest2d"
+                tags = setOf("${project.version}")
+            }
+        }
     }
 }
 
