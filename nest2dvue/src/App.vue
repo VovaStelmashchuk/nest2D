@@ -1,19 +1,19 @@
 <template>
     <div class="app-container">
-        <AppHeader/>
+        <AppHeader />
 
         <div class="main-content">
-            <RouterView/>
+            <RouterView />
         </div>
 
-        <AppFooter/>
+        <AppFooter />
     </div>
 </template>
 
 <script setup>
-import {RouterView} from 'vue-router'
-import AppHeader from "@/components/AppHeader.vue";
-import AppFooter from "@/components/AppFooter.vue";
+import { RouterView } from 'vue-router';
+import AppHeader from '@/components/AppHeader.vue';
+import AppFooter from '@/components/AppFooter.vue';
 </script>
 
 <style scoped>
@@ -21,7 +21,6 @@ import AppFooter from "@/components/AppFooter.vue";
     display: flex;
     flex-direction: column;
     min-height: calc(100vh - 120px);
-    width: 100vw;
     margin: 0;
     padding: 0;
 }
