@@ -1,12 +1,10 @@
 <template>
-    <div class="app-container">
-        <Header />
-
-        <div class="main-content">
+    <div class="app">
+        <Header class="app__header" />
+        <main class="app__main">
             <RouterView />
-        </div>
-
-        <Footer />
+        </main>
+        <Footer class="app__footer" />
     </div>
 </template>
 
@@ -16,18 +14,17 @@ import Header from '@/components/Header.vue';
 import Footer from '@/components/Footer.vue';
 </script>
 
-<style scoped>
-.app-container {
-    display: flex;
-    flex-direction: column;
-    min-height: calc(100vh - 120px);
-    margin: 0;
-    padding: 0;
-}
-
-.main-content {
-    padding: 0 2rem;
-    flex: 1;
-    margin-top: 60px;
+<style lang="scss" scoped>
+.app {
+    &__header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1;
+    }
+    &__main {
+        margin-top: 100px;
+    }
 }
 </style>
