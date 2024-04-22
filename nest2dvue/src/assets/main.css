@@ -1,18 +1,5 @@
+@import './normalize.css';
 @import './base.css';
-
-#app {
-    margin: 0;
-    padding: 0;
-    font-weight: normal;
-}
-
-html,
-body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-}
-
 a,
 .green {
     text-decoration: none;
@@ -20,7 +7,6 @@ a,
     transition: 0.4s;
     padding: 3px;
 }
-
 @media (hover: hover) {
     a:hover {
         background-color: hsla(160, 100%, 37%, 0.2);
