@@ -1,30 +1,71 @@
 <template>
-    <div class="add-project-page">
-        <h1>Add New Project</h1>
-        <form @submit.prevent="submitForm">
-            <div class="form-group">
-                <label for="projectName">Project Name</label>
-                <input type="text" id="projectName" v-model="projectName" required>
-            </div>
-            <div class="form-group">
-                <label for="mediaPreview">Media Preview (Image)</label>
-                <input type="file" id="mediaPreview" @change="handleMediaPreviewChange" accept="image/*" required>
-            </div>
-            <div class="form-group">
-                <label for="dxfFiles">DXF Files</label>
-                <input type="file" id="dxfFiles" @change="handleDXFFilesChange" accept=".dxf" multiple required>
-            </div>
-            <button type="submit">Upload Project</button>
+    <div class="project">
+        <h1 class="project__title">Add New Project</h1>
+        <form
+            class="project__form form"
+            @submit.prevent="submitForm"
+        >
+            <label class="form__item form-item">
+                <span class="form-item__label"> Project Name </span>
+                <span class="form-item__wrapper">
+                    <span class="form-item__hint"> Text </span>
+                    <input
+                        class="form-item__input"
+                        type="text"
+                        v-model="projectName"
+                        required
+                    />
+                </span>
+            </label>
+            <label class="form__item form-item">
+                <span class="form-item__label"> Media Preview </span>
+                <span class="form-item__wrapper">
+                    <span class="form-item__hint"> Image </span>
+                    <input
+                        class="form-item__input"
+                        type="file"
+                        @change="handleMediaPreviewChange"
+                        accept="image/*"
+                        required
+                    />
+                </span>
+            </label>
+            <label class="form__item form-item">
+                <span class="form-item__label"> DXF Files </span>
+                <span class="form-item__wrapper">
+                    <span class="form-item__hint"> DXF </span>
+                    <input
+                        class="form-item__input"
+                        type="file"
+                        @change="handleDXFFilesChange"
+                        accept=".dxf"
+                        multiple
+                        required
+                    />
+                </span>
+            </label>
+            <button
+                class="form-item__btn"
+                type="submit"
+            >
+                Upload Project
+            </button>
         </form>
-    </div>
-    <div v-if="loading" class="progress-bar">
-        <div class="progress-bar-fill" :style="{ width: progress + '%' }"></div>
+        <div
+            v-if="loading"
+            class="project__progress-bar progress-bar"
+        >
+            <div
+                class="progress-bar__inner"
+                :style="{ width: progress + '%' }"
+            ></div>
+        </div>
     </div>
 </template>
 
 <script setup>
-import {ref} from 'vue';
-import {API_URL} from "@/constants.js";
+import { ref } from 'vue';
+import { API_URL } from '@/constants.js';
 
 const projectName = ref('');
 const mediaPreview = ref(null);
@@ -41,14 +82,14 @@ const handleDXFFilesChange = (event) => {
 };
 
 import axios from 'axios';
-import router from "@/router/index.js";
+import router from '@/router/index.js';
 
 const updateProgress = (completed, total) => {
     progress.value = Math.round((completed / total) * 100);
 };
 
 const navigateToProject = (projectSlug) => {
-    router.push({name: 'ProjectView', params: {slug: projectSlug}});
+    router.push({ name: 'ProjectView', params: { slug: projectSlug } });
 };
 
 const submitForm = async () => {
@@ -59,7 +100,9 @@ const submitForm = async () => {
     try {
         // Step 1: Create a new project
         updateProgress(1, 4);
-        const projectResponse = await axios.post(`${API_URL}/project`, {name: projectName.value});
+        const projectResponse = await axios.post(`${API_URL}/project`, {
+            name: projectName.value,
+        });
         projectSlug = projectResponse.data.slug;
 
         // Step 2: Add preview image
@@ -71,7 +114,7 @@ const submitForm = async () => {
         // Step 3: Add DXF files
         updateProgress(3, 4);
         formData = new FormData();
-        dxfFiles.value.forEach(file => {
+        dxfFiles.value.forEach((file) => {
             formData.append('file', file);
         });
         await axios.post(`${API_URL}/files/${projectSlug}/dxf`, formData);
@@ -83,47 +126,81 @@ const submitForm = async () => {
     } finally {
         loading.value = false;
     }
-
 };
 </script>
 
-<style scoped>
-.form-group {
-    margin-bottom: 20px;
+<style lang="scss" scoped>
+.project {
+    max-width: 840px;
+    margin-right: auto;
+    margin-left: auto;
+    padding: 20px;
+    &__title {
+        margin-bottom: 40px;
+    }
+    &__form {
+        margin-bottom: 40px;
+    }
+    &__progress-bar {
+        height: 20px;
+    }
 }
-
-label {
-    display: block;
-    margin-bottom: 5px;
+.form {
+    display: flex;
+    flex-direction: column;
+    &__item {
+        width: 300px;
+        margin-bottom: 40px;
+    }
 }
+.form-item {
+    display: flex;
+    flex-direction: column;
+    &__wrapper {
+        position: relative;
+    }
+    &__label {
+        margin-bottom: 10px;
+    }
+    &__hint {
+        position: absolute;
+        left: calc(100% + 10px);
+        top: 0;
+        font-size: 12px;
+    }
+    &__input {
+        display: block;
+        width: 100%;
+        background-color: var(--color-background-soft);
+        padding: 10px;
+        box-shadow: none;
+        border: 2px solid var(--color-border);
+        border-radius: 5px;
+        color: var(--color-text);
+    }
+    &__btn {
+        width: 300px;
+        border-radius: 5px;
+        padding: 10px;
+        border: 2px solid hsla(160, 100%, 37%, 1);
+        color: hsla(160, 100%, 37%, 1);
+        background-color: hsla(160, 100%, 37%, 0.2);
+        transition: background-color 0.3s;
 
-input[type="text"], input[type="file"] {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-}
-
-button {
-    cursor: pointer;
-    padding: 10px 15px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
+        &:hover {
+            background-color: hsla(160, 100%, 37%, 0.3);
+        }
+    }
 }
 .progress-bar {
     background-color: #f3f3f3;
-    border-radius: 5px;
-    position: relative;
-    margin-top: 20px;
-    height: 20px;
-    width: 100%;
-}
-
-.progress-bar-fill {
-    background-color: #4caf50;
-    height: 100%;
-    border-radius: 5px;
-    transition: width 0.4s ease-in-out;
+    border-radius: 10px;
+    overflow: hidden;
+    &__inner {
+        background-color: #4caf50;
+        height: 100%;
+        border-radius: 10px;
+        transition: width 0.4s linear;
+    }
 }
 </style>

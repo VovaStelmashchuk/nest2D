@@ -16,6 +16,9 @@ import Footer from '@/components/Footer.vue';
 
 <style lang="scss" scoped>
 .app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
     &__header {
         position: fixed;
         top: 0;
@@ -24,6 +27,7 @@ import Footer from '@/components/Footer.vue';
         z-index: 1;
     }
     &__main {
+        flex-grow: 1;
         margin-top: 100px;
     }
 }
