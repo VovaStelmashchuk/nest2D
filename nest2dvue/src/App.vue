@@ -1,6 +1,6 @@
 <template>
     <div class="app-container">
-        <AppHeader />
+        <Header />
 
         <div class="main-content">
             <RouterView />
@@ -12,7 +12,7 @@
 
 <script setup>
 import { RouterView } from 'vue-router';
-import AppHeader from '@/components/AppHeader.vue';
+import Header from '@/components/Header.vue';
 import Footer from '@/components/Footer.vue';
 </script>
 
