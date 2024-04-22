@@ -1,11 +1,9 @@
 <template>
     <footer class="footer">
         <nav class="footer__nav footer-nav">
-            <div
-                class="footer-nav__link footer-nav-link footer-nav-link--terms"
-            >
+            <div class="footer-nav__link footer-nav-link">
                 <RouterLink
-                    class="footer-nav-link__label"
+                    class="footer-nav-link__label footer-nav-link__label--terms"
                     to="/terms-and-conditions"
                 >
                     Terms and Conditions
@@ -42,6 +40,7 @@ export default {
     padding: 20px;
     display: flex;
     align-items: center;
+
     &__nav {
         flex-grow: 1;
     }
@@ -51,23 +50,26 @@ export default {
 }
 .footer-nav {
     display: flex;
+
     &__link {
         width: 50%;
     }
 }
 .footer-nav-link {
-    &--terms {
-        color: green;
-    }
     &--github {
         text-align: center;
     }
     &__label {
         display: inline-block;
+
+        &--terms {
+            color: green;
+        }
     }
 }
 .footer-copy {
     text-align: right;
+
     &__label {
         font-size: 14px;
         color: #666;

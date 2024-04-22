@@ -41,10 +41,8 @@ export default {
         flex-grow: 1;
         padding: 1rem 2rem;
     }
-}
 
-@media (min-width: 1024px) {
-    .header-nav {
+    @media (min-width: 1024px) {
         font-size: 2rem;
     }
 }
