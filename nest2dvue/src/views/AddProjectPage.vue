@@ -5,47 +5,31 @@
             class="project__form form"
             @submit.prevent="submitForm"
         >
-            <label class="form__item form-item">
-                <span class="form-item__label"> Project Name </span>
-                <span class="form-item__wrapper">
-                    <span class="form-item__hint"> Text </span>
-                    <input
-                        class="form-item__input"
-                        type="text"
-                        v-model="projectName"
-                        required
-                    />
-                </span>
-            </label>
-            <label class="form__item form-item">
-                <span class="form-item__label"> Media Preview </span>
-                <span class="form-item__wrapper">
-                    <span class="form-item__hint"> Image </span>
-                    <input
-                        class="form-item__input"
-                        type="file"
-                        @change="handleMediaPreviewChange"
-                        accept="image/*"
-                        required
-                    />
-                </span>
-            </label>
-            <label class="form__item form-item">
-                <span class="form-item__label"> DXF Files </span>
-                <span class="form-item__wrapper">
-                    <span class="form-item__hint"> DXF </span>
-                    <input
-                        class="form-item__input"
-                        type="file"
-                        @change="handleDXFFilesChange"
-                        accept=".dxf"
-                        multiple
-                        required
-                    />
-                </span>
-            </label>
+            <TextInput
+                class="form__item"
+                label="Project Name"
+                hint="Text"
+                v-model="projectName"
+                required
+            />
+            <FileInput
+                class="form__item"
+                label="Media Preview"
+                hint="Image"
+                required
+                @change="handleMediaPreviewChange"
+            />
+            <FileInput
+                class="form__item"
+                label="DXF Files"
+                hint="DXF"
+                accept=".dxf"
+                required
+                multiple
+                @change="handleDXFFilesChange"
+            />
             <button
-                class="form-item__btn"
+                class="form__btn"
                 type="submit"
             >
                 Upload Project
@@ -66,6 +50,10 @@
 <script setup>
 import { ref } from 'vue';
 import { API_URL } from '@/constants.js';
+import axios from 'axios';
+import router from '@/router/index.js';
+import TextInput from '@/views/TextInput.vue';
+import FileInput from '@/views/FileInput.vue';
 
 const projectName = ref('');
 const mediaPreview = ref(null);
@@ -76,18 +64,12 @@ const progress = ref(0);
 const handleMediaPreviewChange = (event) => {
     mediaPreview.value = event.target.files[0];
 };
-
 const handleDXFFilesChange = (event) => {
     dxfFiles.value = Array.from(event.target.files);
 };
-
-import axios from 'axios';
-import router from '@/router/index.js';
-
 const updateProgress = (completed, total) => {
     progress.value = Math.round((completed / total) * 100);
 };
-
 const navigateToProject = (projectSlug) => {
     router.push({ name: 'ProjectView', params: { slug: projectSlug } });
 };
@@ -136,6 +118,7 @@ const submitForm = async () => {
     margin-left: auto;
     padding: 20px;
     &__title {
+        text-align: center;
         margin-bottom: 40px;
     }
     &__form {
@@ -148,36 +131,12 @@ const submitForm = async () => {
 .form {
     display: flex;
     flex-direction: column;
+    align-items: center;
     &__item {
         width: 300px;
-        margin-bottom: 40px;
+        margin-bottom: 30px;
     }
-}
-.form-item {
-    display: flex;
-    flex-direction: column;
-    &__wrapper {
-        position: relative;
-    }
-    &__label {
-        margin-bottom: 10px;
-    }
-    &__hint {
-        position: absolute;
-        left: calc(100% + 10px);
-        top: 0;
-        font-size: 12px;
-    }
-    &__input {
-        display: block;
-        width: 100%;
-        background-color: var(--color-background-soft);
-        padding: 10px;
-        box-shadow: none;
-        border: 2px solid var(--color-border);
-        border-radius: 5px;
-        color: var(--color-text);
-    }
+
     &__btn {
         width: 300px;
         border-radius: 5px;
@@ -192,6 +151,7 @@ const submitForm = async () => {
         }
     }
 }
+
 .progress-bar {
     background-color: #f3f3f3;
     border-radius: 10px;
