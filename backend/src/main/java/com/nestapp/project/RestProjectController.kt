@@ -1,14 +1,16 @@
 package com.nestapp.project
 
 import com.nestapp.Configuration
-import com.nestapp.fileUploader
+import com.nestapp.minio.ProjectRepository
 import com.nestapp.project.rest.projectDetails
 import com.nestapp.respondFile
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.PartData
+import io.ktor.http.content.forEachPart
+import io.ktor.http.content.streamProvider
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
-import io.ktor.server.plugins.NotFoundException
-import io.ktor.server.request.receive
+import io.ktor.server.request.receiveMultipart
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
@@ -20,6 +22,7 @@ import java.util.Locale
 
 fun Route.projectsRestController(
     configuration: Configuration,
+    projectRepository: ProjectRepository,
 ) {
     fun createProjectSlug(inputString: String): String {
         if (inputString.isBlank()) {
@@ -30,50 +33,88 @@ fun Route.projectsRestController(
         return slug
     }
 
-    fun ApplicationCall.getProjectSlug(): ProjectSlug {
-        return ProjectSlug(this.parameters["project_slug"] ?: throw Exception("project_slug not found"))
-    }
-
     post("/project") {
-        val request = call.receive<CreateProjectRequest>()
-        val slug = createProjectSlug(request.name)
-        File(configuration.projectsFolder, slug).mkdirs()
+        val multipart = call.receiveMultipart()
+        var projectName: String? = null
+        var previewFile: File? = null
+        val dxfFiles = mutableListOf<File>()
+
+        multipart.forEachPart { part ->
+            when (part) {
+                is PartData.FormItem -> {
+                    if (part.name == "name") {
+                        projectName = part.value
+                    }
+                }
+
+                is PartData.FileItem -> {
+                    val fileName = part.originalFileName ?: throw IllegalArgumentException("File name is not provided")
+                    val fileExtension = fileName.substringAfterLast(".")
+                    val slug = projectName?.let { createProjectSlug(it) }
+                        ?: throw IllegalArgumentException("Project name is required")
+
+                    val projectFolder = File(configuration.projectsFolder, slug)
+                    if (!projectFolder.exists()) {
+                        projectFolder.mkdirs()
+                    }
+
+                    when (fileExtension) {
+                        "png", "jpg", "jpeg" -> {
+                            if (previewFile != null) {
+                                throw IllegalArgumentException("Multiple preview files are not allowed")
+                            }
+                            previewFile = File(projectFolder, "media/preview.$fileExtension").apply {
+                                parentFile.mkdirs()
+                                createNewFile()
+                                writeBytes(part.streamProvider().readBytes())
+                            }
+                        }
+
+                        "dxf" -> {
+                            val dxfFile = File(projectFolder, "files/$fileName").apply {
+                                parentFile.mkdirs()
+                                createNewFile()
+                                writeBytes(part.streamProvider().readBytes())
+                            }
+                            dxfFiles.add(dxfFile)
+                        }
+
+                        else -> {
+                            throw IllegalArgumentException("Unsupported file type: $fileExtension")
+                        }
+                    }
+                }
+
+                else -> Unit
+            }
+            part.dispose()
+        }
+
+        if (projectName == null || dxfFiles.isEmpty()) {
+            throw IllegalArgumentException("Project name and at least one DXF file are required")
+        }
 
         val response = CreatedProjectResponse(
-            slug = slug,
-            name = slug,
+            slug = createProjectSlug(projectName!!),
+            name = projectName!!,
         )
 
         call.respond(HttpStatusCode.Created, response)
     }
 
-    post("/project/{project_slug}/preview") {
-        val slug = ProjectSlug(call.parameters["project_slug"] ?: throw Exception("project_slug not found"))
-        val file = File(configuration.projectsFolder, "${slug.value}/media/preview.png")
-        call.fileUploader(file)
-        call.respond(HttpStatusCode.Created)
-    }
-
-    get("/project/{project_slug}/preview") {
-        val slug = call.getProjectSlug()
-
-        val file = File(configuration.projectsFolder, "${slug.value}/media/preview.png")
-        call.respondFile(file)
-    }
-
     get("/all_projects") {
-        val result = configuration.projectsFolder.list().orEmpty()
-            .map { projectFolderName ->
+        val result = projectRepository.getProjectList()
+            .map { project ->
                 AllProjectsResponse.Project(
-                    slug = ProjectSlug(projectFolderName),
-                    name = projectFolderName,
-                    preview = "${configuration.baseUrl}/project/${projectFolderName}/preview",
+                    slug = project.name,
+                    name = project.name,
+                    preview = configuration.baseUrl + project.preview,
                 )
             }
         call.respond(HttpStatusCode.OK, result)
     }
 
-    projectDetails(configuration)
+    projectDetails(configuration, projectRepository)
 }
 
 @Serializable
@@ -84,19 +125,13 @@ data class AllProjectsResponse(
     @Serializable
     data class Project(
         @SerialName("slug")
-        val slug: ProjectSlug,
+        val slug: String,
         @SerialName("name")
         val name: String,
         @SerialName("preview")
         val preview: String,
     )
 }
-
-@Serializable
-data class CreateProjectRequest(
-    @SerialName("name")
-    val name: String,
-)
 
 @Serializable
 data class CreatedProjectResponse(

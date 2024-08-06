@@ -18,7 +18,7 @@ internal object Main {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        //val dxfFile = File("mount/projects/laser-cut-box/files/1x1.dxf")
+        /*//val dxfFile = File("mount/projects/laser-cut-box/files/1x1.dxf")
         val dxfFile = File("mount/projects/from-prod-2/files/from-prod-1.dxf")
 
         val dxfReader = DXFReader()
@@ -37,7 +37,7 @@ internal object Main {
         DxfWriter().writeFile(res, File("mount/test.dxf"))
 
         JaguarRequest().buildJson(res)
-
+*/
         embeddedServer(CIO, environment = applicationEngineEnvironment {
             config = HoconApplicationConfig(ConfigFactory.load())
             developmentMode = true
@@ -49,6 +49,10 @@ internal object Main {
                     baseUrl = config.property("ktor.app.base_url").getString(),
                     projectsFolder = File("mount/projects"),
                     appVersion = appVersion,
+                    endpoint = config.property("ktor.minio.endpoint").getString(),
+                    port = config.property("ktor.minio.port").getString().toInt(),
+                    accessKey = config.property("ktor.minio.access_key").getString(),
+                    secretKey = config.property("ktor.minio.secret_key").getString(),
                 )
 
                 val appComponent = AppComponent(

@@ -17,7 +17,9 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 
-fun Application.restConfig(appComponent: AppComponent) {
+fun Application.restConfig(
+    appComponent: AppComponent,
+    ) {
     install(AutoHeadResponse)
 
     install(CORS) {
@@ -41,9 +43,7 @@ fun Application.restConfig(appComponent: AppComponent) {
 }
 
 fun Route.setupRouter(appComponent: AppComponent) {
-    projectsRestController(
-        appComponent.configuration,
-    )
+    projectsRestController(appComponent.configuration, appComponent.projectRepository)
 
     nestRestApi()
 

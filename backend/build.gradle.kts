@@ -69,11 +69,9 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
 
     implementation("com.github.jchamlin:clipper-java:b4dcd50c51")
-    implementation("org.uncommons.watchmaker:watchmaker-framework:0.7.1")
     implementation("org.apache.xmlgraphics:batik-svg-dom:1.17")
     implementation("org.apache.xmlgraphics:batik-swing:1.17")
     implementation("org.dom4j:dom4j:2.1.3")
-    implementation("org.uncommons.watchmaker:watchmaker-swing:0.7.1")
     implementation("io.jenetics:jenetics:5.2.0")
 
     implementation("io.minio:minio:8.5.11")
