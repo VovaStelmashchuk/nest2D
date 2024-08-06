@@ -63,6 +63,12 @@ internal class Polyline(type: String?) : Entity(type!!) {
         return path!!
     }
 
+    override fun isClose(): Boolean {
+        return points.isNotEmpty() && points.first().let { firstPoint ->
+            points.last().let { lastPoint -> firstPoint.xx == lastPoint.xx && firstPoint.yy == lastPoint.yy }
+        }
+    }
+
     /**
      * See: http://darrenirvine.blogspot.com/2015/08/polylines-radius-bulge-turnaround.html
      *

@@ -1,38 +1,44 @@
 package com.nestapp.files.svg
 
-import com.nestapp.converts.makeListOfPoints
-import com.nestapp.converts.makePath2d
-import com.nestapp.files.DxfPartPlacement
+import com.nestapp.nest.ClosePolygon
 import java.awt.geom.Point2D
 import java.io.File
 import java.io.FileWriter
 import java.io.Writer
 
 class SvgWriter {
+
     private companion object {
         val COLORS = listOf("#7bafd1", "#fc8d8d", "#a6d854", "#ffd92f", "#e78ac3", "#66c2a5")
     }
 
     fun writePlacement(
-        dxfParts: List<DxfPartPlacement>,
+        polygons: List<ClosePolygon>,
         file: File,
-        width: Double,
-        height: Double,
     ) {
+        val minX = polygons.flatMap { it.points }.minOf { it.x }
+        val minY = polygons.flatMap { it.points }.minOf { it.y }
+        val maxX = polygons.flatMap { it.points }.maxOf { it.x }
+        val maxY = polygons.flatMap { it.points }.maxOf { it.y }
+
+        val width = maxX - minX
+        val height = maxY - minY
+
         val rawSvg = buildString {
-            dxfParts.forEachIndexed { partIndex, dxfPartPlacement ->
-                val translateX = dxfPartPlacement.placement.translate.x
-                val translateY = dxfPartPlacement.placement.translate.y
-                val rotation = dxfPartPlacement.placement.rotate
+            polygons.forEachIndexed { partIndex, dxfPartPlacement ->
+                // make translation x and y to make all coods > 0
+                val translateX = -minX
+                val translateY = -minY
+
+                /*val translateX = dxfPartPlacement.placement.translate.x
+                val translateY = dxfPartPlacement.placement.translate.y*/
+
+                val rotation = 0.0//dxfPartPlacement.placement.rotate
                 appendLine("""<g transform="translate($translateX, $translateY) rotate($rotation)">""".trimIndent())
 
-                val part = dxfPartPlacement.part
-                val paths = listOf(makePath2d(dxfPartPlacement.part.root)).plus(part.inside.map { it.toPath2D() })
+                val points = dxfPartPlacement.points
 
-                paths.forEach {
-                    val listOfPoints = makeListOfPoints(it, 0.001)
-                    appendSvgPath(listOfPoints, partIndex)
-                }
+                appendSvgPath(points, partIndex)
 
                 appendLine("</g>")
             }

@@ -90,6 +90,12 @@ class LwPolyline internal constructor(type: String) : Entity(type), AutoPop {
         }
     }
 
+    override fun isClose(): Boolean {
+        return segments.isNotEmpty() && segments.first().let { firstSeg ->
+            segments.last().let { lastSeg -> firstSeg.dx == lastSeg.dx && firstSeg.dy == lastSeg.dy }
+        }
+    }
+
     /**
      * See: http://darrenirvine.blogspot.com/2015/08/polylines-radius-bulge-turnaround.html
      *

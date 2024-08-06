@@ -38,7 +38,7 @@ POST http://localhost:8080/api/nest
 Content-Type: application/json
 
 {
-    "project_slug": "laser-cut-box",
+    "project_slug": "laser-gridfinityopen-scad",
     "file_counts": {
         "1x1": 2,
         "1x2": 3

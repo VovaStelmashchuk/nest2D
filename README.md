@@ -18,8 +18,6 @@ we also want to minimize the number of squares used.
 In the CNC world this is called "nesting", and software that does this is typically targeted at industrial customers and
 very expensive.
 
-![example](./png/nest.png)
-
 for more detail , please go to [SVGNest](https://github.com/Jack000/SVGnest)
 
 ## The repository based on few github project, I keep the original history of commits.
@@ -62,4 +60,5 @@ For those hollow polgyons, Nest4J provides a simple way to express by 2d coordin
 another by their coordinates, the Nest4J will detact it automaticly.
 
 ### Backend doc
+
 Backend read me is [here](./backend/ReadMe.md)

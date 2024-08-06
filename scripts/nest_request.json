@@ -1,0 +1,12 @@
+{
+  "project_slug": "laser-cut-box",
+  "file_counts": {
+    "1x1": 2,
+    "1x2": 3
+  },
+  "plate_width": 500,
+  "plate_height": 500,
+  "tolerance": 0.01,
+  "spacing": 1.5,
+  "place_spacing": 1
+}

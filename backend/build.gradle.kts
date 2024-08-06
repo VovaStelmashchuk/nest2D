@@ -69,7 +69,6 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
 
     implementation("com.github.jchamlin:clipper-java:b4dcd50c51")
-    implementation("com.google.code.gson:gson:2.10")
     implementation("org.uncommons.watchmaker:watchmaker-framework:0.7.1")
     implementation("org.apache.xmlgraphics:batik-svg-dom:1.17")
     implementation("org.apache.xmlgraphics:batik-swing:1.17")
@@ -77,16 +76,7 @@ dependencies {
     implementation("org.uncommons.watchmaker:watchmaker-swing:0.7.1")
     implementation("io.jenetics:jenetics:5.2.0")
 
-    implementation("org.jetbrains.exposed", "exposed-core", "0.47.0")
-    implementation("org.jetbrains.exposed", "exposed-dao", "0.47.0")
-    implementation("org.jetbrains.exposed", "exposed-jdbc", "0.47.0")
-    implementation("org.jetbrains.exposed", "exposed-kotlin-datetime", "0.47.0")
-    implementation("com.h2database", "h2", "2.2.224")
-    implementation("org.postgresql:postgresql:42.7.1")
-
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.1")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.1")
-    implementation(kotlin("stdlib-jdk8"))
+    implementation("io.minio:minio:8.5.11")
 }
 
 kotlin {

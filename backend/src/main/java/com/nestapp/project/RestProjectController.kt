@@ -16,27 +16,32 @@ import io.ktor.server.routing.post
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.io.File
+import java.util.Locale
 
 fun Route.projectsRestController(
     configuration: Configuration,
-    projectsRepository: ProjectsRepository,
 ) {
-    fun ApplicationCall.getProjectSlug(): ProjectSlug {
-        val slug = ProjectSlug(this.parameters["project_slug"] ?: throw Exception("project_slug not found"))
-
-        if (!projectsRepository.isProjectExists(slug)) {
-            throw NotFoundException("Project not found")
+    fun createProjectSlug(inputString: String): String {
+        if (inputString.isBlank()) {
+            throw IllegalArgumentException("Project name cannot be blank")
         }
+        val filteredString = inputString.filter { it.isLetter() || it.isWhitespace() || it.isDigit() }
+        val slug = filteredString.replace(" ", "-").lowercase(Locale.getDefault())
         return slug
     }
+
+    fun ApplicationCall.getProjectSlug(): ProjectSlug {
+        return ProjectSlug(this.parameters["project_slug"] ?: throw Exception("project_slug not found"))
+    }
+
     post("/project") {
         val request = call.receive<CreateProjectRequest>()
-        val project = projectsRepository.addProject(request.name)
-        File(configuration.projectsFolder, project.slug).mkdirs()
+        val slug = createProjectSlug(request.name)
+        File(configuration.projectsFolder, slug).mkdirs()
 
         val response = CreatedProjectResponse(
-            slug = project.slug,
-            name = project.name,
+            slug = slug,
+            name = slug,
         )
 
         call.respond(HttpStatusCode.Created, response)
@@ -46,7 +51,6 @@ fun Route.projectsRestController(
         val slug = ProjectSlug(call.parameters["project_slug"] ?: throw Exception("project_slug not found"))
         val file = File(configuration.projectsFolder, "${slug.value}/media/preview.png")
         call.fileUploader(file)
-        projectsRepository.addPreview(slug, file.path)
         call.respond(HttpStatusCode.Created)
     }
 
@@ -58,18 +62,18 @@ fun Route.projectsRestController(
     }
 
     get("/all_projects") {
-        val result = projectsRepository.getProjects()
-            .map { project ->
+        val result = configuration.projectsFolder.list().orEmpty()
+            .map { projectFolderName ->
                 AllProjectsResponse.Project(
-                    slug = ProjectSlug(project.slug),
-                    name = project.name,
-                    preview = "${configuration.baseUrl}/project/${project.slug}/preview",
+                    slug = ProjectSlug(projectFolderName),
+                    name = projectFolderName,
+                    preview = "${configuration.baseUrl}/project/${projectFolderName}/preview",
                 )
             }
         call.respond(HttpStatusCode.OK, result)
     }
 
-    projectDetails(configuration, projectsRepository)
+    projectDetails(configuration)
 }
 
 @Serializable

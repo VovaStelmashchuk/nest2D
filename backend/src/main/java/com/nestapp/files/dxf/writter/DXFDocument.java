@@ -285,61 +285,9 @@ public class DXFDocument {
     /**
      * Utility method used by the associated DXFGraphics object.
      *
-     * @param table A DXFTable instance
-     */
-    public void addTable(DXFTable table) {
-        tables.add(table);
-    }
-
-
-    /**
-     * Utility method used by the associated DXFGraphics object.
-     *
      * @param entity A DXFEntity instance
      */
     public void addEntity(DXFEntity entity) {
         entities.add(entity);
     }
-
-
-    /**
-     * Utility method used by the associated DXFGraphics object.
-     *
-     * @param style A DXFStyle instance
-     * @return the associated DXFStyle in the style table
-     */
-    public DXFStyle addStyle(DXFStyle style) {
-        // first see if style already represented in tables; if so, return it
-        for (int i = 0; i < tables.size(); i++) {
-            DXFTable table = (DXFTable) tables.elementAt(i);
-            if (table.name.equals("STYLE")) {
-                // see if we have the style in the table
-                int index = table.indexOf(style);
-                if (index > 0) {
-                    return (DXFStyle) table.elementAt(index);
-                }
-            }
-        }
-
-
-        // didn't find it; add to one of the STYLE tables, adding one if necessary, and return the style passed in
-        DXFTable styleTable = null;
-        for (int i = 0; i < tables.size(); i++) {
-            DXFTable table = (DXFTable) tables.elementAt(i);
-            if (table.name.equals("STYLE")) {
-                styleTable = table;
-                break;
-            }
-        }
-
-        if (styleTable == null) {
-            styleTable = new DXFTable("STYLE");
-            tables.add(styleTable);
-        }
-
-        styleTable.add(style);
-
-        return style;
-    }
-
 }

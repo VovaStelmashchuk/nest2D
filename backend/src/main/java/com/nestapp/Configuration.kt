@@ -5,7 +5,7 @@ import java.io.File
 class Configuration(
     val baseUrl: String,
     val projectsFolder: File,
-    val nestedFolder: File,
     val appVersion: String,
-    val maxNestTimeInSeconds: Long,
 )
+
+const val TOLERANCE = 1e-2

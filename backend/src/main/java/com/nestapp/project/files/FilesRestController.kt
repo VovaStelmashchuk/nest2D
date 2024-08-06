@@ -1,9 +1,5 @@
 package com.nestapp.project.files
 
-import com.nestapp.files.PreviewGenerator
-import com.nestapp.project.ProjectSlug
-import com.nestapp.project.ProjectsRepository
-import com.nestapp.project.parts.PartsRepository
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
@@ -18,20 +14,10 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import java.io.File
 
-fun Route.filesRestController(
-    previewGenerator: PreviewGenerator,
-    projectsRepository: ProjectsRepository,
-    projectFilesRepository: ProjectFilesRepository,
-    partsRepository: PartsRepository,
-) {
-    get("preview/{project_slug}/{file_name}") {
-        val slug = ProjectSlug(call.parameters["project_slug"] ?: throw NotFoundException())
-        val project = projectsRepository.getProject(slug) ?: throw NotFoundException()
-        val fileName = call.parameters["file_name"] ?: throw NotFoundException()
-
-        val projectFile = projectFilesRepository.getFile(project.slug, fileName)
-
-        val file = File(projectFile.svgFilePath)
+fun Route.filesRestController() {
+    get("files/{file_path...}") {
+        val filePath = call.parameters["file_path"] ?: throw NotFoundException()
+        val file = File("mount/projects/$filePath")
         if (!file.exists()) {
             throw NotFoundException()
         }
@@ -40,8 +26,7 @@ fun Route.filesRestController(
     }
 
     post("files/{project_slug}/dxf") {
-        val slug = ProjectSlug(call.parameters["project_slug"] ?: throw NotFoundException())
-        val project = projectsRepository.getProject(slug) ?: throw NotFoundException()
+        val slug = call.parameters["project_slug"] ?: throw NotFoundException()
 
         call.receiveMultipart().forEachPart { part ->
             when (part) {
@@ -52,22 +37,18 @@ fun Route.filesRestController(
                     if (fileExtension != "dxf") {
                         throw IllegalArgumentException("File extension is not supported")
                     }
-                    val fileNameWithoutExtension = originFileName.substringBeforeLast(".")
 
-                    val projectFile = projectFilesRepository.addFile(
-                        projectSlug = project.slug,
-                        fileNameWithoutExtension = fileNameWithoutExtension,
-                    )
+                    val projectFolder = File("mount/projects/$slug")
+                    if (!projectFolder.exists()) {
+                        projectFolder.mkdirs()
+                    }
+                    // create sub folder 'files' if not exists
+                    File(projectFolder, "files").mkdirs()
 
-                    val fileBytes = part.streamProvider().readBytes()
-                    val file = File(projectFile.dxfFilePath)
-                    file.parentFile.mkdirs()
+                    // save request file into files folder
+                    val file = File(projectFolder, "files/$originFileName")
                     file.createNewFile()
-                    file.writeBytes(fileBytes)
-
-                    partsRepository.addPartsFromFile(projectFile.id)
-
-                    previewGenerator.createFilePreview(projectFile.id.value, File(projectFile.svgFilePath))
+                    file.writeBytes(part.streamProvider().readBytes())
                 }
 
                 else -> {}

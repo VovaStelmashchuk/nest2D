@@ -4,12 +4,15 @@ services:
         container_name: nest2d-backend
         restart: always
         environment:
-            - NEST2D_APP_VERSION=0.5.2
+            - NEST2D_APP_VERSION=0.6.5
             - NEST2D_DB_URL=postgres
             - NEST2D_DB_NAME=nest2d
-            - NEST2D_DB_USER=nest2d
-            - NEST2D_DB_PASSWORD=<test_pass>
+            - NEST2D_DB_USER=user_nest2d
+            - NEST2D_DB_PASSWORD=<nest2d_db_password>
             - NEST2D_APP_BASE_URL=https://nest2d.online/api
+            - NEST2D_APP_MAX_NEST_TIME=10
+            - ACCESS_KEY_ID=<access_key_id>
+            - SECRET_ACCESS_KEY=<secret_access_key>
         ports:
             - 5000:8080
         volumes:
@@ -25,6 +28,6 @@ services:
         volumes:
             - ./pgdata:/var/lib/postgresql/data
         environment:
-            - POSTGRES_PASSWORD=<test_pass>
+            - POSTGRES_PASSWORD=<nest2d_db_password>
             - POSTGRES_USER=nest2d
             - POSTGRES_DB=nest2d

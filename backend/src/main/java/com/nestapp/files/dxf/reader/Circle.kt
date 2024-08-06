@@ -4,10 +4,11 @@ import java.awt.geom.Ellipse2D
 import java.awt.geom.Path2D
 
 internal class Circle(type: String?) : Entity(type!!), AutoPop {
+
     private var circle: Ellipse2D.Double = Ellipse2D.Double()
-    var cx: Double = 0.0
-    var cy: Double = 0.0
-    var radius: Double = 0.0
+    private var cx: Double = 0.0
+    private var cy: Double = 0.0
+    private var radius: Double = 0.0
 
     override fun addParam(gCode: Int, value: String) {
         when (gCode) {
@@ -25,5 +26,9 @@ internal class Circle(type: String?) : Entity(type!!), AutoPop {
         val path = Path2D.Double()
         path.append(circle, false)
         return path
+    }
+
+    override fun isClose(): Boolean {
+        return true
     }
 }

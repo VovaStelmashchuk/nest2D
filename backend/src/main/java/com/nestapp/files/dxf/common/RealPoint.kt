@@ -1,6 +1,6 @@
 package com.nestapp.files.dxf.common
 
-import com.nestapp.nest.data.Placement
+import com.nestapp.nest.Placement
 import java.io.Serializable
 import kotlin.math.cos
 import kotlin.math.sin
@@ -23,7 +23,11 @@ open class RealPoint : Serializable {
     }
 
     fun transform(placement: Placement): RealPoint {
-        val angle: Double = placement.rotate * Math.PI / 180
+        val angle = if (placement.rotate != 0.0) {
+            placement.rotate * Math.PI / 180
+        } else {
+            0.0
+        }
         val translateX = placement.translate.x
         val translateY = placement.translate.y
 
