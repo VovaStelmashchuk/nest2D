@@ -1,7 +1,6 @@
 package com.nestapp
 
 import com.nestapp.nest.nestRestApi
-import com.nestapp.project.files.filesRestController
 import com.nestapp.project.projectsRestController
 import io.ktor.http.HttpMethod
 import io.ktor.serialization.kotlinx.json.json
@@ -19,7 +18,7 @@ import io.ktor.server.routing.routing
 
 fun Application.restConfig(
     appComponent: AppComponent,
-    ) {
+) {
     install(AutoHeadResponse)
 
     install(CORS) {
@@ -47,7 +46,6 @@ fun Route.setupRouter(appComponent: AppComponent) {
 
     nestRestApi()
 
-    filesRestController()
     get("/version") {
         call.respondText(appComponent.configuration.appVersion)
     }

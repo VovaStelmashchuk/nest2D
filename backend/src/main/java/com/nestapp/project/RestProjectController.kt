@@ -2,13 +2,10 @@ package com.nestapp.project
 
 import com.nestapp.Configuration
 import com.nestapp.minio.ProjectRepository
-import com.nestapp.project.rest.projectDetails
-import com.nestapp.respondFile
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
 import io.ktor.http.content.streamProvider
-import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.request.receiveMultipart
 import io.ktor.server.response.respond

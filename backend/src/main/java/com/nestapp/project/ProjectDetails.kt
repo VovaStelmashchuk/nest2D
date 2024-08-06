@@ -1,4 +1,4 @@
-package com.nestapp.project.rest
+package com.nestapp.project
 
 import com.nestapp.Configuration
 import com.nestapp.minio.ProjectRepository
