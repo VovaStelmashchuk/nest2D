@@ -73,35 +73,32 @@ const updateProgress = (completed, total) => {
 const navigateToProject = (projectSlug) => {
     router.push({ name: 'ProjectView', params: { slug: projectSlug } });
 };
-
 const submitForm = async () => {
     loading.value = true;
     progress.value = 0;
-    let projectSlug = '';
 
     try {
-        // Step 1: Create a new project
-        updateProgress(1, 4);
-        const projectResponse = await axios.post(`${API_URL}/project`, {
-            name: projectName.value,
-        });
-        projectSlug = projectResponse.data.slug;
+        updateProgress(1, 3);
 
-        // Step 2: Add preview image
-        updateProgress(2, 4);
         let formData = new FormData();
-        formData.append('file', mediaPreview.value);
-        await axios.post(`${API_URL}/project/${projectSlug}/preview`, formData);
+        formData.append('name', projectName.value);
 
-        // Step 3: Add DXF files
-        updateProgress(3, 4);
-        formData = new FormData();
-        dxfFiles.value.forEach((file) => {
-            formData.append('file', file);
+        if (mediaPreview.value) {
+            formData.append('preview', mediaPreview.value);
+        }
+
+        dxfFiles.value.forEach((file, index) => {
+            formData.append(`dxfFiles`, file);
         });
-        await axios.post(`${API_URL}/files/${projectSlug}/dxf`, formData);
 
-        updateProgress(4, 4);
+        const response = await axios.post(`${API_URL}/project`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+
+        const projectSlug = response.data.slug;
+        updateProgress(3, 3);
         navigateToProject(projectSlug);
     } catch (error) {
         console.error('Submission error:', error);

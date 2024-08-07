@@ -63,16 +63,14 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation:2.3.7")
     implementation("io.ktor:ktor-server-cors:2.3.7")
 
-    implementation("ch.qos.logback:logback-classic:1.4.14")
+    implementation("io.ktor:ktor-client-core:2.3.7")
+    implementation("io.ktor:ktor-client-cio:2.3.7")
+    implementation("io.ktor:ktor-client-json:2.3.7")
+    implementation("io.ktor:ktor-client-serialization:2.3.7")
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.7")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
-
-    implementation("com.github.jchamlin:clipper-java:b4dcd50c51")
-    implementation("org.apache.xmlgraphics:batik-svg-dom:1.17")
-    implementation("org.apache.xmlgraphics:batik-swing:1.17")
-    implementation("org.dom4j:dom4j:2.1.3")
-    implementation("io.jenetics:jenetics:5.2.0")
 
     implementation("io.minio:minio:8.5.11")
 }

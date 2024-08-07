@@ -1,10 +1,7 @@
 package com.nestapp
 
-import java.io.File
-
 class Configuration(
     val baseUrl: String,
-    val projectsFolder: File,
     val appVersion: String,
     val endpoint: String,
     val port: Int,

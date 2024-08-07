@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.geom.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.*;
@@ -116,7 +117,8 @@ public class DXFReader {
                                     case 'p':                             // Draws plus/minus tolerance symbol (±)
                                         buf.append("\u00B1");
                                         break;
-                                    case 'c':                             // Draws circle diameter dimensioning symbol (Ø)
+                                    case
+                                        'c':                             // Draws circle diameter dimensioning symbol (Ø)
                                         buf.append("\u00D8");
                                         break;
                                     case 'o':                             // Toggles overscoring on and off
@@ -153,14 +155,16 @@ public class DXFReader {
                     // 2 = Text is backward (mirrored in X)
                     // 4 = Text is upside down (mirrored in Y)
                     break;
-                case 72:                                      // Horizontal text justification type (optional, default = 0) integer codes
+                case
+                    72:                                      // Horizontal text justification type (optional, default = 0) integer codes
                     //0 = Left; 1= Center; 2 = Right
                     //3 = Aligned (if vertical alignment = 0)
                     //4 = Middle (if vertical alignment = 0)
                     //5 = Fit (if vertical alignment = 0)
                     hAdjust = Integer.parseInt(value);
                     break;
-                case 73:                                      // Vertical text justification type (optional, default = 0): integer codes
+                case
+                    73:                                      // Vertical text justification type (optional, default = 0): integer codes
                     // 0 = Baseline; 1 = Bottom; 2 = Middle; 3 = Top
                     vAdjust = Integer.parseInt(value);
                     break;
@@ -283,7 +287,8 @@ public class DXFReader {
                 case 71:                                      // Attachment point
                     attachPoint = Integer.parseInt(value);
                     break;
-                case 72:                                      // Drawing direction: 1 = Left to right; 3 = Top to bottom; 5 = By style
+                case
+                    72:                                      // Drawing direction: 1 = Left to right; 3 = Top to bottom; 5 = By style
                     break;
             }
         }
@@ -623,6 +628,17 @@ public class DXFReader {
         stack = new ArrayList<>();
         cEntity = null;
         Scanner lines = new Scanner(Files.newInputStream(file.toPath()));
+        parseFile(lines);
+    }
+
+    public void parseFile(InputStream stream) {
+        stack = new ArrayList<>();
+        cEntity = null;
+        Scanner lines = new Scanner(stream);
+        parseFile(lines);
+    }
+
+    private void parseFile(Scanner lines) {
         while (lines.hasNextLine()) {
             String line = lines.nextLine().trim();
             String value = lines.nextLine().trim();

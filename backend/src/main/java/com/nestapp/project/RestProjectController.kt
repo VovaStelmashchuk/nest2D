@@ -14,27 +14,20 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.io.File
+import java.io.InputStream
 import java.util.Locale
 
 fun Route.projectsRestController(
     configuration: Configuration,
     projectRepository: ProjectRepository,
+    projectMaker: ProjectMaker,
 ) {
-    fun createProjectSlug(inputString: String): String {
-        if (inputString.isBlank()) {
-            throw IllegalArgumentException("Project name cannot be blank")
-        }
-        val filteredString = inputString.filter { it.isLetter() || it.isWhitespace() || it.isDigit() }
-        val slug = filteredString.replace(" ", "-").lowercase(Locale.getDefault())
-        return slug
-    }
-
     post("/project") {
         val multipart = call.receiveMultipart()
         var projectName: String? = null
-        var previewFile: File? = null
-        val dxfFiles = mutableListOf<File>()
+        var previewFile: ByteArray? = null
+        var previewFileNameExtension: String? = null
+        val dxfFiles = mutableListOf<Pair<String, ByteArray>>()
 
         multipart.forEachPart { part ->
             when (part) {
@@ -46,34 +39,18 @@ fun Route.projectsRestController(
 
                 is PartData.FileItem -> {
                     val fileName = part.originalFileName ?: throw IllegalArgumentException("File name is not provided")
-                    val fileExtension = fileName.substringAfterLast(".")
-                    val slug = projectName?.let { createProjectSlug(it) }
-                        ?: throw IllegalArgumentException("Project name is required")
-
-                    val projectFolder = File(configuration.projectsFolder, slug)
-                    if (!projectFolder.exists()) {
-                        projectFolder.mkdirs()
-                    }
-
-                    when (fileExtension) {
+                    val fileBytes = part.streamProvider().readBytes()
+                    when (val fileExtension = fileName.substringAfterLast(".")) {
                         "png", "jpg", "jpeg" -> {
                             if (previewFile != null) {
                                 throw IllegalArgumentException("Multiple preview files are not allowed")
                             }
-                            previewFile = File(projectFolder, "media/preview.$fileExtension").apply {
-                                parentFile.mkdirs()
-                                createNewFile()
-                                writeBytes(part.streamProvider().readBytes())
-                            }
+                            previewFile = fileBytes
+                            previewFileNameExtension = fileExtension
                         }
 
                         "dxf" -> {
-                            val dxfFile = File(projectFolder, "files/$fileName").apply {
-                                parentFile.mkdirs()
-                                createNewFile()
-                                writeBytes(part.streamProvider().readBytes())
-                            }
-                            dxfFiles.add(dxfFile)
+                            dxfFiles.add(fileName to fileBytes)
                         }
 
                         else -> {
@@ -91,9 +68,11 @@ fun Route.projectsRestController(
             throw IllegalArgumentException("Project name and at least one DXF file are required")
         }
 
+        val slug = projectMaker.makeProject(projectName!!, previewFile, previewFileNameExtension!!, dxfFiles)
+
         val response = CreatedProjectResponse(
-            slug = createProjectSlug(projectName!!),
-            name = projectName!!,
+            slug = slug,
+            name = projectName!!
         )
 
         call.respond(HttpStatusCode.Created, response)

@@ -29,6 +29,13 @@ Fill free to create issues or pull requests. The main goal of the project is mai
 nesting problem. I try to find the way to compensate the price of cloud server. **You Star of the project can help to
 apply to some open source program.**
 
+### Big Thanks to [JeroenGar](https://github.com/JeroenGar)
+
+He is the author of [jagua-rs](https://github.com/JeroenGar/jagua-rs). I use his project as the core service for the
+service. Without his project, I can't make this project.
+
+I use slightly modified version of his project. Can be found [here](https://github.com/VovaStelmashchuk/jagua-rs)
+
 ### Credits:
 
 - [SVGNest](https://github.com/Jack000/SVGnest)
@@ -41,23 +48,22 @@ apply to some open source program.**
 - [Kendall 2000](http://www.graham-kendall.com/papers/k2001.pdf)
 - [E.K. Burke *et al.* 2006](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.440.379&rep=rep1&type=pdf)
 
-### Extended Attributes of Polygon
-
-When one polygon is constructed , its default Rotation attr is 0 , which means we will fix it during our Nest Program.
-We can set it as 4 and this polygon may rotate in 90°,180°,270°. If we set Rotation attr as N, this polygon may these
-rotation angles `(360/N) *k , k= 0,1,2,3,...N`
-
-Meanwhile you can use `bid` to help you identify the polygons. It is useful when we get nest result.
-
-``` java
-      polygon.bid = id;
-      polygon.setRotation(4);
-``` 
-
 ### Hollow Polygon
 
-For those hollow polgyons, Nest4J provides a simple way to express by 2d coordinate system. If one polygon is inside in
-another by their coordinates, the Nest4J will detact it automaticly.
+For those hollow polygons, Nest4J provides a simple way to express by 2d coordinate system. If one polygon is inside in
+another by their coordinates, the Nest4J will detect it automatically.
+
+### DXF tags support
+
+| Tag          | Support status |
+|--------------|----------------|
+| `Line`       | Supported      |
+| `Circle`     | In plan        |
+| `LwPolyline` | In plan        |
+| `Polyline`   | In plan        |
+| `Arc`        | In plan        |
+| `Spline`     | In plan        |
+| `Other`      | Not supported  |
 
 ### Backend doc
 

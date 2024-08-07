@@ -1,10 +1,10 @@
 package com.nestapp.files.svg
 
 import com.nestapp.nest.ClosePolygon
+import com.nestapp.nest.jaguar.NestResult
 import java.awt.geom.Point2D
-import java.io.File
-import java.io.FileWriter
-import java.io.Writer
+import kotlin.math.cos
+import kotlin.math.sin
 
 class SvgWriter {
 
@@ -12,10 +12,49 @@ class SvgWriter {
         val COLORS = listOf("#7bafd1", "#fc8d8d", "#a6d854", "#ffd92f", "#e78ac3", "#66c2a5")
     }
 
-    fun writePlacement(
+    fun buildNestedSvgString(
+        polygons: List<NestResult.NestedClosedPolygon>,
+    ): String {
+        var width = 0.0
+        var height = 0.0
+
+        val rawSvg = buildString {
+            polygons.forEachIndexed { partIndex, dxfPartPlacement ->
+                val transformPoints = dxfPartPlacement.closePolygon.points.map {
+                    val x = it.x
+                    val y = it.y
+                    val x1 = x * cos(dxfPartPlacement.rotation) - y * sin(dxfPartPlacement.rotation)
+                    val y1 = x * sin(dxfPartPlacement.rotation) + y * cos(dxfPartPlacement.rotation)
+
+                    val finalX = x1 + dxfPartPlacement.x
+                    val finalY = y1 + dxfPartPlacement.y
+
+                    if (finalY > height) {
+                        height = finalY
+                    }
+
+                    if (finalX > width) {
+                        width = finalX
+                    }
+
+                    Point2D.Double(finalX, finalY)
+                }
+
+                appendLine("<g>")
+
+                appendSvgPath(transformPoints, partIndex)
+
+                appendLine("</g>")
+            }
+        }
+
+        return buildFinalSvg(rawSvg, width, height)
+    }
+
+
+    fun buildSvgString(
         polygons: List<ClosePolygon>,
-        file: File,
-    ) {
+    ): String {
         val minX = polygons.flatMap { it.points }.minOf { it.x }
         val minY = polygons.flatMap { it.points }.minOf { it.y }
         val maxX = polygons.flatMap { it.points }.maxOf { it.x }
@@ -30,11 +69,7 @@ class SvgWriter {
                 val translateX = -minX
                 val translateY = -minY
 
-                /*val translateX = dxfPartPlacement.placement.translate.x
-                val translateY = dxfPartPlacement.placement.translate.y*/
-
-                val rotation = 0.0//dxfPartPlacement.placement.rotate
-                appendLine("""<g transform="translate($translateX, $translateY) rotate($rotation)">""".trimIndent())
+                appendLine("""<g transform="translate($translateX, $translateY)">""".trimIndent())
 
                 val points = dxfPartPlacement.points
 
@@ -44,7 +79,7 @@ class SvgWriter {
             }
         }
 
-        saveStringsToSvgFile(rawSvg, file, width, height)
+        return buildFinalSvg(rawSvg, width, height)
     }
 
     private fun StringBuilder.appendSvgPath(points: List<Point2D.Double>, index: Int) {
@@ -67,22 +102,15 @@ class SvgWriter {
         appendLine("""Z" fill="$color" stroke="#010101" stroke-width="0.5" /> """)
     }
 
-    @Throws(Exception::class)
-    private fun saveStringsToSvgFile(string: String, file: File, width: Double, height: Double) {
-        file.createNewFile()
-
-        val writer: Writer = FileWriter(file, false)
-        writer.write(
-            "<?xml version=\"1.0\" standalone=\"no\"?>\n" +
-                "\n" +
-                "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n" +
-                "\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n" +
-                " \n" +
-                "<svg  version=\"1.1\" viewBox=\"0 0 " + width + " " + height + "\" \n" +
-                "xmlns=\"http://www.w3.org/2000/svg\">\n"
-        )
-        writer.write(string)
-        writer.write("</svg>")
-        writer.close()
+    private fun buildFinalSvg(string: String, width: Double, height: Double): String {
+        return buildString {
+            append("<?xml version=\"1.0\" standalone=\"no\"?>")
+            append("<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"")
+            append("  \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">")
+            append("<svg  version=\"1.1\" viewBox=\"0 0 $width $height\"")
+            append("  xmlns=\"http://www.w3.org/2000/svg\">")
+            append(string)
+            append("</svg>")
+        }
     }
 }

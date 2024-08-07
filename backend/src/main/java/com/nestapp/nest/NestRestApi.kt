@@ -1,5 +1,10 @@
 package com.nestapp.nest
 
+import com.nestapp.files.dxf.reader.DXFReader
+import com.nestapp.files.svg.SvgWriter
+import com.nestapp.minio.ProjectRepository
+import com.nestapp.nest.jaguar.JaguarNestInput
+import com.nestapp.nest.jaguar.JaguarRequest
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
@@ -8,29 +13,52 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import java.io.File
 
-fun Route.nestRestApi() {
+fun Route.nestRestApi(
+    jaguarRequest: JaguarRequest,
+    polygonGenerator: PolygonGenerator,
+    projectRepository: ProjectRepository,
+) {
     post("/nest") {
         val nestInput = call.receive<NestInput>()
 
-        /*val paths: List<NestPath> = nestInput.fileCounts.map { (fileName, count) ->
-            val fileParts = partsRepository.getParts(project.slug, fileName)
-                .map {
-                    it.id.value to json.decodeFromString<List<DataBaseDxfEntity>>(it.root)
-                }
-                .map { (id, parts) ->
-                    val path = makePath2d(parts)
-                    val nestPath = makeNestPath("$id+${nestInput.spacing}", path, nestInput.tolerance)
+        println("nestInput: $nestInput")
 
-                    nestPath
-                }
-            (0 until count).map { fileParts }.flatten()
+        val closedPolygons = nestInput.fileCounts.filter { (_, count) ->
+            count > 0
         }
-            .flatten()*/
+            .flatMap { (file, count) ->
+                val dxfReader = DXFReader()
+                dxfReader.parseFile(projectRepository.getDxfFileAsStream(nestInput.projectSlug, file))
+                val entities = dxfReader.entities
+                polygonGenerator.getPolygons(entities).map {
+                    JaguarNestInput.NestInputPolygons(
+                        polygon = it,
+                        count = count,
+                    )
+                }
+            }
 
-        /*val tmpFile = File.createTempFile("input", ".svg")
+        val nested = jaguarRequest.makeNestByJaguar(
+            jaguarNestInput = JaguarNestInput(
+                polygons = closedPolygons,
+                width = nestInput.plateWidth,
+                height = nestInput.plateHeight,
+            )
+        )
 
-        svgWriter.makeSvgWithAllPaths(tmpFile, paths)*/
+        val svg = SvgWriter().buildNestedSvgString(nested.polygons)
+
+        try {
+            // write to mount/test.svg
+            File("/Users/vovastelmashchuk/Desktop/nest2d_online/backend/mount/test.svg").createNewFile()
+            File("/Users/vovastelmashchuk/Desktop/nest2d_online/backend/mount/test.svg").writeText(svg)
+
+            println("SVG written to /Users/vovastelmashchuk/Desktop/nest2d_online/backend/mount/test.svg")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
         call.respond(HttpStatusCode.OK)
     }

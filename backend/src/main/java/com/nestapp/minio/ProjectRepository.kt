@@ -1,8 +1,12 @@
 package com.nestapp.minio
 
+import io.minio.GetObjectArgs
+import io.minio.GetObjectResponse
 import io.minio.ListObjectsArgs
 import io.minio.MinioClient
+import io.minio.PutObjectArgs
 import io.minio.errors.MinioException
+import java.io.InputStream
 
 class ProjectRepository(
     private val minioClient: MinioClient
@@ -65,6 +69,40 @@ class ProjectRepository(
         }
 
         return projectFiles.toList()
+    }
+
+    fun uploadFileToMinioByteArray(bytes: ByteArray, contentType: String, objectName: String) {
+        try {
+            minioClient.putObject(
+                PutObjectArgs.builder()
+                    .bucket(BUCKET_NAME)
+                    .`object`(objectName)
+                    .stream(bytes.inputStream(), bytes.size.toLong(), -1)
+                    .contentType(contentType)
+                    .build()
+            )
+        } catch (e: MinioException) {
+            println("Error occurred: ${e.message}")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun getDxfFileAsStream(projectSlug: String, fileName: String): InputStream? {
+        return try {
+            minioClient.getObject(
+                GetObjectArgs.builder()
+                    .bucket(BUCKET_NAME)
+                    .`object`("projects/$projectSlug/files/$fileName.dxf")
+                    .build()
+            )
+        } catch (e: MinioException) {
+            println("Error occurred: ${e.message}")
+            return null
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
     }
 
     data class Project(
