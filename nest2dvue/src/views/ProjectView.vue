@@ -62,7 +62,7 @@ const project = ref({});
 const fileCounts = ref({});
 const isBuilding = ref(false);
 const downloadDisabled = ref(true);
-const nestedId = ref(null);
+const dxfUrl = ref(null);
 const errorMessage = ref("");
 const showErrorMessage = ref(false);
 
@@ -108,8 +108,8 @@ const buildButtonClickHandler = async ({width, height, spacingInput}) => {
         console.log(response.data.id);
         downloadDisabled.value = false;
         isBuilding.value = false;
-        nestedId.value = response.data.id;
-        yourSvgImageUrl.value = `${response.data.svg}`
+        yourSvgImageUrl.value = response.data.svg;
+        dxfUrl.value = response.data.dxf;
     } catch (error) {
         isBuilding.value = false;
         errorMessage.value = error.response?.data?.reason || "Something went wrong. Please try again later.";
@@ -118,10 +118,10 @@ const buildButtonClickHandler = async ({width, height, spacingInput}) => {
 };
 
 const downloadFile = async () => {
-    if (!nestedId.value) return;
+    if (!dxfUrl.value) return;
     try {
         const response = await axios({
-            url: `${API_URL}/nested/${nestedId.value}?format=dxf`,
+            url: dxfUrl.value,
             method: 'GET',
             responseType: 'blob',
         });

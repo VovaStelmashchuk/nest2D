@@ -1,5 +1,9 @@
 package com.nestapp.files.dxf.reader
 
+import com.nestapp.files.dxf.common.RealPoint
+import com.nestapp.files.dxf.writter.parts.DXFCircle
+import com.nestapp.files.dxf.writter.parts.DXFEntity
+import com.nestapp.nest.Placement
 import java.awt.geom.Ellipse2D
 import java.awt.geom.Path2D
 
@@ -30,5 +34,12 @@ internal class Circle(type: String?) : Entity(type!!), AutoPop {
 
     override fun isClose(): Boolean {
         return true
+    }
+
+    override fun toWriterEntity(placement: Placement): DXFEntity {
+        return DXFCircle(
+            RealPoint(cx, cy).transform(placement),
+            radius
+        )
     }
 }

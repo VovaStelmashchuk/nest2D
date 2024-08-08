@@ -33,8 +33,6 @@ fun Route.nestRestApi(
 
         val nestResultDatabase = nestHistoryRepository.createNestResult(nestInput.projectSlug)
 
-        println("nestInput: $nestInput")
-
         val closedPolygons = nestInput.fileCounts.filter { (_, count) ->
             count > 0
         }
@@ -112,7 +110,7 @@ private fun buildResultFiles(
     return NestedOutput(
         id = nestId.toHexString(),
         svg = "${configuration.baseUrl}files/$svgPath",
-        dxf = "",
+        dxf = "${configuration.baseUrl}files/$dxfPath",
     )
 }
 

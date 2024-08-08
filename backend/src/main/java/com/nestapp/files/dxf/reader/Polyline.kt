@@ -1,5 +1,10 @@
 package com.nestapp.files.dxf.reader
 
+import com.nestapp.files.dxf.common.LSegment
+import com.nestapp.files.dxf.common.RealPoint
+import com.nestapp.files.dxf.writter.parts.DXFEntity
+import com.nestapp.files.dxf.writter.parts.DXFLWPolyline
+import com.nestapp.nest.Placement
 import java.awt.geom.Arc2D
 import java.awt.geom.Path2D
 import java.awt.geom.Point2D
@@ -69,6 +74,16 @@ internal class Polyline(type: String?) : Entity(type!!) {
         }
     }
 
+    override fun toWriterEntity(placement: Placement): DXFEntity {
+        return DXFLWPolyline(
+            segments = points.map {
+                val segment = it.transform(placement)
+                LSegment(segment.dx, segment.dy, segment.bulge)
+            },
+            closed = true
+        )
+    }
+
     /**
      * See: http://darrenirvine.blogspot.com/2015/08/polylines-radius-bulge-turnaround.html
      *
@@ -111,5 +126,11 @@ internal class Vertex(type: String?) : Entity(type!!) {
             20 -> yy = value.toDouble()
             42 -> bulge = value.toDouble()
         }
+    }
+
+    fun transform(placement: Placement): LSegment {
+        val point = RealPoint(xx, yy)
+        val transformPoint = point.transform(placement)
+        return LSegment(transformPoint.x, transformPoint.y, bulge)
     }
 }
