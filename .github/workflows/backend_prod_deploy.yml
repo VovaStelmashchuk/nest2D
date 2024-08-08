@@ -16,7 +16,12 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      - name: Get current Git tag
+        id: get_tag
+        run: echo "TAG=$(git describe --tags)" >> $GITHUB_ENV
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
       - name: Run build with Gradle Wrapper
+        env:
+          VERSION: ${{ env.TAG }}
         run: cd backend && gradle jib --image vovochkastelmashchuk/nest2d
