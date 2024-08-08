@@ -1,61 +1,34 @@
 package com.nestapp
 
-import com.nestapp.files.PreviewGenerator
-import com.nestapp.nest.Nest
-import com.nestapp.nest.nfp.NfpCacheReader
-import com.nestapp.nest.nfp.NfpCacheRepository
-import com.nestapp.nest_api.NestApi
-import com.nestapp.nest_api.NestedRepository
-import com.nestapp.project.ProjectsRepository
-import com.nestapp.project.files.ProjectFilesRepository
-import com.nestapp.project.parts.PartsRepository
-import kotlinx.serialization.json.Json
-import org.slf4j.Logger
+import com.mongodb.kotlin.client.coroutine.MongoClient
+import com.nestapp.minio.MinioFileUpload
+import com.nestapp.minio.MinioProjectRepository
+import com.nestapp.mongo.NestHistoryRepository
+import com.nestapp.mongo.ProjectDatabase
+import com.nestapp.mongo.ProjectRepository
+import io.minio.MinioClient
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import org.bson.types.ObjectId
 
 class AppComponent(
     val configuration: Configuration,
-    logger: Logger,
 ) {
 
-    val json = Json {
-        prettyPrint = false
-        ignoreUnknownKeys = true
-    }
+    private var minioClient: MinioClient = MinioClient.builder()
+        .endpoint(configuration.endpoint, configuration.port, false)
+        .credentials(configuration.accessKey, configuration.secretKey)
+        .build()
 
-    val partsRepository: PartsRepository = PartsRepository(
-        json = json
-    )
+    val minioFileUpload = MinioFileUpload(minioClient)
 
-    val previewGenerator: PreviewGenerator = PreviewGenerator(
-        partsRepository = partsRepository
-    )
+    val minioProjectRepository: MinioProjectRepository = MinioProjectRepository(minioClient, minioFileUpload)
 
-    val projectFilesRepository: ProjectFilesRepository = ProjectFilesRepository(
-        configuration = configuration
-    )
+    private val mongoClient = MongoClient.create(connectionString = configuration.mongoUrl)
 
-    val projectsRepository = ProjectsRepository()
+    val nestHistoryRepository = NestHistoryRepository(mongoClient)
 
-    val nestedRepository = NestedRepository(
-        partsRepository = partsRepository,
-        configuration = configuration,
-        json = json,
-    )
+    val projectRepository = ProjectRepository(mongoClient)
 
-    val nestApi = NestApi(
-        nest = Nest(
-            logger = logger,
-            nfpCache = NfpCacheRepository(
-                logger = logger,
-                json = json
-            ),
-            nfpCacheReaderGetter = {
-                NfpCacheReader(
-                    json = json
-                )
-            },
-            configuration = configuration,
-        ),
-        logger = logger,
-    )
 }

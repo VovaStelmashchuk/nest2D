@@ -1,9 +1,12 @@
 package com.nestapp
 
-import com.nestapp.nest_api.UserInputExecution
-import com.nestapp.nest_api.nestRestApi
-import com.nestapp.project.files.filesRestController
+import com.nestapp.files.svg.SvgWriter
+import com.nestapp.nest.PolygonGenerator
+import com.nestapp.nest.jaguar.JaguarRequest
+import com.nestapp.nest.nestRestApi
+import com.nestapp.project.ProjectMaker
 import com.nestapp.project.projectsRestController
+import io.ktor.client.HttpClient
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
@@ -20,13 +23,25 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
+import kotlinx.serialization.json.Json
 
-fun Application.restConfig(appComponent: AppComponent) {
-    install(StatusPages) {
-        exception<UserInputExecution> { call, userInputExecution ->
-            println(userInputExecution.printStackTrace())
-            call.respond(HttpStatusCode.BadRequest, userInputExecution.getBody())
+fun createHttpClient(): HttpClient {
+    return HttpClient {
+        install(io.ktor.client.plugins.contentnegotiation.ContentNegotiation) {
+            json(
+                Json {
+                    ignoreUnknownKeys = true
+                    encodeDefaults = true
+                }
+            )
         }
+    }
+}
+
+fun Application.restConfig(
+    appComponent: AppComponent,
+) {
+    install(StatusPages) {
         exception<Throwable> { cause, throwable ->
             println(throwable.printStackTrace())
             cause.respond(HttpStatusCode.InternalServerError, "Error: $throwable")
@@ -48,32 +63,37 @@ fun Application.restConfig(appComponent: AppComponent) {
         json()
     }
 
+    val client = createHttpClient()
+
     routing {
         route("/api") {
-            setupRouter(appComponent)
+            setupRouter(appComponent, client)
         }
     }
 }
 
-fun Route.setupRouter(appComponent: AppComponent ) {
+fun Route.setupRouter(
+    appComponent: AppComponent,
+    client: HttpClient,
+) {
     projectsRestController(
-        appComponent.configuration,
-        appComponent.projectsRepository
+        configuration = appComponent.configuration,
+        projectMaker = ProjectMaker(
+            minioProjectRepository = appComponent.minioProjectRepository,
+            projectRepository = appComponent.projectRepository,
+            svgWriter = SvgWriter(),
+            polygonGenerator = PolygonGenerator(),
+        ),
+        projectRepository = appComponent.projectRepository,
     )
 
     nestRestApi(
-        projectsRepository = appComponent.projectsRepository,
-        partsRepository = appComponent.partsRepository,
-        nestedRepository = appComponent.nestedRepository,
-        nestApi = appComponent.nestApi,
-        json = appComponent.json,
-    )
-
-    filesRestController(
-        previewGenerator = appComponent.previewGenerator,
-        projectsRepository = appComponent.projectsRepository,
-        projectFilesRepository = appComponent.projectFilesRepository,
-        partsRepository = appComponent.partsRepository,
+        jaguarRequest = JaguarRequest(client),
+        polygonGenerator = PolygonGenerator(),
+        minioProjectRepository = appComponent.minioProjectRepository,
+        nestHistoryRepository = appComponent.nestHistoryRepository,
+        configuration = appComponent.configuration,
+        minioFileUpload = appComponent.minioFileUpload,
     )
 
     get("/version") {

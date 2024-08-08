@@ -1,39 +1,52 @@
 <template>
-    <div class="card-container">
-        <div class="project-card upload-project-card" @click="navigateToUpload">
-            <div class="card-content">
-                <div class="plus-sign"></div>
-                <h2>Upload Your Project</h2>
+    <h1 class="info">The project is under development. Some DXF format not supported and some geometry can be broken. In cas you upload a project and issue with preview or nesting, my recomendation come back in 1-2 weeks, may be new update will fix your project. Also you can create an issue on <a href="https://github.com/VovaStelmashchuk/nest2D/issues/new" >GitHub project</a></h1>
+
+    <div class="project">
+        <div class="project__card project-card">
+            <div class="project-card__info project-card-info">
+                <span class="project-card-info__plus"></span>
+                <h2 class="project-card-info__name">Upload Your Project</h2>
             </div>
+            <RouterLink
+                class="project-card__link"
+                to="/add-project"
+            >
+                add project
+            </RouterLink>
         </div>
-        <div v-for="project in projects" :key="project.id" class="project-card"
-             @click="navigateToProject(project.slug)">
-            <img :src="project.preview" alt="Project Image" class="project-image"/>
-            <div class="card-content">
-                <h2>{{ project.name }}</h2>
+        <div
+            v-for="project in projects"
+            :key="project.id"
+            class="project__card project-card"
+        >
+            <img
+                :src="project.preview"
+                :alt="`Project ${project.name}`"
+                class="project-card__image"
+            />
+            <div class="project-card__info project-card-info">
+                <h2 class="project-card-info__name">
+                    {{ project.name }}
+                </h2>
             </div>
+            <RouterLink
+                class="project-card__link"
+                :to="`/project/${project.slug}`"
+            >
+                add project
+            </RouterLink>
         </div>
     </div>
 </template>
 
 <script setup>
-import {onMounted, ref} from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import axios from 'axios';
-import {useRouter} from "vue-router";
-import {API_URL} from "@/constants.js";
+import { API_URL } from '@/constants.js';
 
 const projects = ref([]);
-const router = useRouter();
 
-const navigateToUpload = () => {
-    router.push({name: 'AddProjectPage'});
-};
-
-const navigateToProject = (projectSlug) => {
-    router.push({name: 'ProjectView', params: {slug: projectSlug}});
-};
-
-onMounted(async () => {
+onBeforeMount(async () => {
     try {
         const response = await axios.get(`${API_URL}/all_projects`);
         projects.value = response.data;
@@ -43,75 +56,93 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped>
-.upload-project-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    color: white;
-    cursor: pointer;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-    width: 300px;
-    margin: 8px;
-    transition: transform 0.3s, box-shadow 0.3s;
-    overflow: hidden;
+<style lang="scss" scoped>
+.info {
+    color: #ff0000;
+    font-size: 1rem;
+    padding: 1rem 2rem;
 }
 
-.plus-sign {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 6rem;
-    height: 200px;
-    width: 100%;
-}
-
-.plus-sign:before {
-    content: '+';
-    color: var(--color-text);
-}
-
-.card-container {
+.project {
     display: flex;
     flex-wrap: wrap;
-    gap: 16px;
     justify-content: center;
-}
 
+    &__card {
+        margin: 16px;
+        width: 300px;
+    }
+}
 .project-card {
-    cursor: pointer;
     border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-    width: 300px;
-    margin: 8px;
-    transition: transform 0.3s, box-shadow 0.3s;
-    display: flex;
-    flex-direction: column;
     overflow: hidden;
-}
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
 
-.project-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-}
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    }
+    &__info {
+        min-height: 140px;
+    }
+    &__image {
+        position: relative;
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
 
-.project-image {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
+        &::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: var(--color-background) url('@/img/gear.png') center /
+                auto 100% no-repeat;
+        }
+    }
+    &__link {
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        opacity: 0;
+    }
 }
-
-.card-content {
+.project-card-info {
     padding: 16px;
-}
 
-h2 {
-    margin-bottom: 20px; /* Space below paragraphs */
-    color: var(--color-text);
-    overflow-wrap: break-word;
-    white-space: normal;
+    &__plus {
+        height: 200px;
+        width: 100%;
+        display: block;
+        position: relative;
+
+        &::after,
+        &::before {
+            content: '';
+            position: absolute;
+            background-color: rgb(171 171 171);
+            transform: translate(-50%, -50%);
+            top: 50%;
+            left: 50%;
+
+            width: 44px;
+            height: 8px;
+            border-radius: 4px;
+        }
+
+        &::before {
+            transform: translate(-50%, -50%) rotate(90deg);
+        }
+    }
+    &__name {
+        color: var(--color-text);
+    }
 }
 </style>

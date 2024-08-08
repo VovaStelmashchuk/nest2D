@@ -9,13 +9,15 @@
         "preview": "vite preview"
     },
     "dependencies": {
+        "axios": "^1.6.7",
         "pinia": "^2.1.7",
         "vue": "^3.4.15",
-        "vue-router": "^4.2.5",
-        "axios": "^1.6.7"
+        "vue-router": "^4.2.5"
     },
     "devDependencies": {
         "@vitejs/plugin-vue": "^5.0.3",
+        "sass": "^1.75.0",
+        "sass-loader": "^14.2.1",
         "vite": "^5.0.11"
     }
 }

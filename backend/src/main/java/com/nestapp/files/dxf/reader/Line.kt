@@ -1,13 +1,18 @@
 package com.nestapp.files.dxf.reader
 
+import com.nestapp.files.dxf.common.RealPoint
+import com.nestapp.files.dxf.writter.parts.DXFEntity
+import com.nestapp.files.dxf.writter.parts.DXFLine
+import com.nestapp.nest.Placement
 import java.awt.geom.Path2D
+import kotlin.properties.Delegates
 
 
 class Line internal constructor(type: String) : Entity(type), AutoPop {
-    var xStart: Double = 0.0
-    var yStart: Double = 0.0
-    var xEnd: Double = 0.0
-    var yEnd: Double = 0.0
+    private var xStart by Delegates.notNull<Double>()
+    private var yStart by Delegates.notNull<Double>()
+    private var xEnd by Delegates.notNull<Double>()
+    private var yEnd by Delegates.notNull<Double>()
 
     private var line: Path2D.Double? = null
 
@@ -28,6 +33,32 @@ class Line internal constructor(type: String) : Entity(type), AutoPop {
         line = Path2D.Double().apply {
             moveTo(xStart, yStart)
             lineTo(xEnd, yEnd)
+        }
+    }
+
+    override fun isClose(): Boolean {
+        return xStart == xEnd && yStart == yEnd
+    }
+
+    override fun toWriterEntity(placement: Placement): DXFEntity {
+        val start = RealPoint(xStart, yStart)
+        val end = RealPoint(xEnd, yEnd)
+
+        return DXFLine(start.transform(placement), end.transform(placement))
+    }
+
+    override fun translate(x: Double, y: Double): Entity {
+        val originStartX = xStart
+        val originStartY = yStart
+        val originEndX = xEnd
+        val originEndY = yEnd
+
+        return Line(type).apply {
+            this.xStart = originStartX + x
+            this.yStart = originStartY + y
+            this.xEnd = originEndX + x
+            this.yEnd = originEndY + y
+            this.close()
         }
     }
 

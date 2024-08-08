@@ -1,6 +1,9 @@
 package com.nestapp.files.dxf.reader
 
 import com.nestapp.files.dxf.common.LSegment
+import com.nestapp.files.dxf.writter.parts.DXFEntity
+import com.nestapp.files.dxf.writter.parts.DXFLWPolyline
+import com.nestapp.nest.Placement
 import java.awt.geom.Arc2D
 import java.awt.geom.Path2D
 import java.awt.geom.Point2D
@@ -9,7 +12,7 @@ import kotlin.math.atan2
 import kotlin.math.sqrt
 
 class LwPolyline internal constructor(type: String) : Entity(type), AutoPop {
-    var segments: MutableList<LSegment> = ArrayList()
+    private var segments: MutableList<LSegment> = ArrayList()
 
     private var cSeg: LSegment? = null
     private var xCp = 0.0
@@ -90,6 +93,12 @@ class LwPolyline internal constructor(type: String) : Entity(type), AutoPop {
         }
     }
 
+    override fun isClose(): Boolean {
+        return segments.isNotEmpty() && segments.first().let { firstSeg ->
+            segments.last().let { lastSeg -> firstSeg.dx == lastSeg.dx && firstSeg.dy == lastSeg.dy }
+        }
+    }
+
     /**
      * See: http://darrenirvine.blogspot.com/2015/08/polylines-radius-bulge-turnaround.html
      *
@@ -118,6 +127,26 @@ class LwPolyline internal constructor(type: String) : Entity(type), AutoPop {
         val extentAngle = if (bulge >= 0) -extent else extent
         val ul = Point2D.Double(cp.x - radius, cp.y - radius)
         return Arc2D.Double(ul.x, ul.y, radius * 2, radius * 2, startAngle, extentAngle, Arc2D.OPEN)
+    }
+
+    override fun toWriterEntity(placement: Placement): DXFEntity {
+        return DXFLWPolyline(
+            segments = segments.map {
+                val segment = it.transform(placement)
+                LSegment(segment.dx, segment.dy, segment.bulge)
+            },
+            closed = true
+        )
+    }
+
+    override fun translate(x: Double, y: Double): Entity {
+        return LwPolyline(type).also {
+            it.segments =
+                segments.map { segment -> LSegment(dx = segment.dx + x, dy = segment.dy + y, bulge = segment.bulge) }
+                    .toMutableList()
+            it.close = close
+            it.close()
+        }
     }
 }
 

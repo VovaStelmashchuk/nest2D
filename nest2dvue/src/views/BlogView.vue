@@ -1,329 +1,327 @@
 <template>
-    <div class="article-container">
-        <div class="article-title">
-            <p>Project updates, #7, More DXF tag</p>
+    <div class="blog">
+
+        <div class="blog__container blog-container">
+            <h2 class="blog-container__title">
+                Big update, #8, My summer vacation
+            </h2>
+            <p class="blog-container__meta">
+                Published on
+                <time datetime="2024-05-08">Mar 30, 2024</time>
+                by nest2d
+            </p>
+            <h2>New feature</h2>
+            <ul class="blog-container__list">
+                <p>Not new features, but a lot of changes under the hood. I found a project (jaguar-rs)[https://github.com/JeroenGar/jagua-rs], make a fork and wrap the origin repo
+                as a rest api service.</p>
+            </ul>
+            <h2>Tech task</h2>
+            <ul class="blog-container__list">
+                <li>Migrate to jagua-rs</li>
+                <li>Remove postgress sql</li>
+                <li>Remove the old nest algorithm</li>
+                <li>Add mongo for nested history</li>
+                <li>Implement save dxf and svg files to minio</li>
+            </ul>
+            <h2>Next stages</h2>
+            <ul class="blog-container__list">
+                <li>Nested history page</li>
+                <li>More DXF tags supports</li>
+            </ul>
+
+            <h2>Thanks</h2>
+            <p>Thanks to JeroenGar for the great project, I hope it will be useful for me and for the community</p>
+            <p>Thanks to anyone who uses the project, and uploads the project to the platform. It helps be with development</p>
         </div>
-        <div class="article-meta">
-            <p>Published on
+
+        <div class="blog__container blog-container">
+            <h2 class="blog-container__title">
+                Project updates, #7, More DXF tag
+            </h2>
+            <p class="blog-container__meta">
+                Published on
                 <time datetime="2024-30-03">Mar 30, 2024</time>
                 by nest2d
             </p>
-        </div>
-        <div class="article-body">
             <h2>New feature</h2>
-            <ul>
+            <ul class="blog-container__list">
                 <li>Add support for more DXF tags:</li>
                 <li>- Add support for circle tag</li>
                 <li>- Add support for circle Polyline</li>
             </ul>
             <h2>Fun news</h2>
-            <p>The project has the first organic upload, thank you!!!</p><a href="https://nest2d.online/project/nome">Project
-            here</a>
-            <p>The bugs fixes for support the project. The project was fixed by my self, in future DXF will works
-                fine.</p>
+            <p>The project has the first organic upload, thank you!!!</p>
+            <a href="https://nest2d.online/project/nome">Project here</a>
+            <p>
+                The bugs fixes for support the project. The project was fixed by
+                my self, in future DXF will works fine.
+            </p>
             <h2>Tech task</h2>
-            <ul>
+            <ul class="blog-container__list">
                 <li>Implement CI for the backend project</li>
             </ul>
             <h2>Next stages</h2>
-            <ul>
+            <ul class="blog-container__list">
                 <li>Implement the nested history page</li>
                 <li>Add support for more DXF tags</li>
             </ul>
         </div>
-    </div>
-    <div class="article-container">
-        <div class="article-title">
-            <p>Project updates, #6, Uploads from the web</p>
-        </div>
-        <div class="article-meta">
-            <p>Published on
+        <div class="blog__container blog-container">
+            <h2 class="blog-container__title">
+                Project updates, #6, Uploads from the web
+            </h2>
+            <p class="blog-container__meta">
+                Published on
                 <time datetime="2024-17-03">Mar 17, 2024</time>
                 by nest2d
             </p>
-        </div>
-        <div class="article-body">
             <h2>New feature</h2>
-            <ul>
+            <ul class="blog-container__list">
                 <li>Implement creating project from webpage, user friendly</li>
             </ul>
             <h2>Tech task</h2>
-            <ul>
+            <ul class="blog-container__list">
                 <li>Try to make CI for the backend app. (in progress)</li>
             </ul>
             <h2>Next stages</h2>
-            <ul>
+            <ul class="blog-container__list">
                 <li>Implement the nested history page</li>
                 <li>Finish CI for backend app</li>
                 <li>Add support for more DXF tags</li>
             </ul>
         </div>
-    </div>
-    <div class="article-container">
-        <div class="article-title">
-            <p>Project updates, #5, I learn how to do the database, also CI</p>
-        </div>
-        <div class="article-meta">
-            <p>Published on
+        <div class="blog__container blog-container">
+            <h2 class="blog-container__title">
+                Project updates, #5, I learn how to do the database, also CI
+            </h2>
+            <p class="blog-container__meta">
+                Published on
                 <time datetime="2024-08-03">Mar 8, 2024</time>
                 by nest2d
             </p>
-        </div>
-        <div class="article-body">
             <h2>New feature</h2>
-            <ul>
+            <ul class="blog-container__list">
                 <li>Move max nesting time to config</li>
             </ul>
             <h2>Bug fix</h2>
-            <ul>
+            <ul class="blog-container__list">
                 <li>Fix the database query</li>
                 <li>Speed up the new NFP cache</li>
             </ul>
             <h2>Tech task</h2>
-            <ul>
+            <ul class="blog-container__list">
                 <li>Make the CI which build docker image of the web app</li>
             </ul>
             <h2>Next stages</h2>
-            <ul>
+            <ul class="blog-container__list">
                 <li>Add CI for backend app</li>
                 <li>Add support for more DXF tags</li>
                 <li>Make possible to and new project for end user</li>
             </ul>
         </div>
-    </div>
-    <div class="article-container">
-        <div class="article-title">
-            <p>Project updates, #4, We have the database</p>
-        </div>
-        <div class="article-meta">
-            <p>Published on
+        <div class="blog__container blog-container">
+            <h2 class="blog-container__title">
+                Project updates, #4, We have the database
+            </h2>
+            <p class="blog-container__meta">
+                Published on
                 <time datetime="2024-27-02">Feb 27, 2024</time>
                 by nest2d
             </p>
-        </div>
-        <div class="article-body">
             <h2>New features</h2>
-            <ul>
+            <ul class="blog-container__list">
                 <li>Implement data base</li>
                 <li>Move NFP pairs cache to postgres database</li>
-                <li>Move all json file base storage to postgres SQL, like a good developers in real app</li>
+                <li>
+                    Move all json file base storage to postgres SQL, like a good
+                    developers in real app
+                </li>
                 <li>Move all path to files into database</li>
-                <li>Add the progress bar to web page. I hope it's improve the user experience</li>
+                <li>
+                    Add the progress bar to web page. I hope it's improve the
+                    user experience
+                </li>
             </ul>
             <h2>Next stages</h2>
-            <ul>
-                <li>Implement CI for deploy docker container, for web and backend</li>
+            <ul class="blog-container__list">
+                <li>
+                    Implement CI for deploy docker container, for web and
+                    backend
+                </li>
                 <li>Better look for holes into preview images</li>
                 <li>Speed up the new NFP cache</li>
                 <li>Add support for more DXF tags</li>
             </ul>
-            <p></p>
         </div>
-    </div>
-    <div class="article-container">
-        <div class="article-title">
-            <p>Project updates, #3, We have the cache</p>
-        </div>
-        <div class="article-meta">
-            <p>Published on
+        <div class="blog__container blog-container">
+            <h2 class="blog-container__title">
+                Project updates, #3, We have the cache
+            </h2>
+            <p class="blog-container__meta">
+                Published on
                 <time datetime="2024-18-02">Feb 18, 2024</time>
                 by nest2d
             </p>
-        </div>
-        <div class="article-body">
             <h2>New features</h2>
-            <ul>
-                <li>Implement cache for NFP pairs, each nesting add new data to cache and improve future nest quality
+            <ul class="blog-container__list">
+                <li>
+                    Implement cache for NFP pairs, each nesting add new data to
+                    cache and improve future nest quality
                 </li>
                 <li>Added the preview photo to the project card</li>
             </ul>
             <h2>Next stages</h2>
-            <ul>
-                <li>Implement CI for deploy docker container, for web and backend</li>
+            <ul class="blog-container__list">
+                <li>
+                    Implement CI for deploy docker container, for web and
+                    backend
+                </li>
                 <li>Implement progress bar with timing or presented</li>
                 <li>Better look for holes into preview images</li>
             </ul>
-            <p></p>
         </div>
-    </div>
-    <div class="article-container">
-        <div class="article-title">
-            <p>Project updates, #2</p>
-        </div>
-        <div class="article-meta">
-            <p>Published on
+        <div class="blog__container blog-container">
+            <h2 class="blog-container__title">Project updates, #2</h2>
+            <p class="blog-container__meta">
+                Published on
                 <time datetime="2024-11-02">Feb 11, 2024</time>
                 by nest2d
             </p>
-        </div>
-        <div class="article-body">
             <h2>New features</h2>
-            <ul>
-                <li>Fully support for LwPolyline, (includes code 42 for bulge)</li>
-                <li>Implement combine paths (currently not fully tested with combine path from different DXF types)</li>
+            <ul class="blog-container__list">
+                <li>
+                    Fully support for LwPolyline, (includes code 42 for bulge)
+                </li>
+                <li>
+                    Implement combine paths (currently not fully tested with
+                    combine path from different DXF types)
+                </li>
             </ul>
-
             <h2>New projects</h2>
-            <ul>
-                <li>Laser gridfinity boxes by OpenSCAD (the project with Line)</li>
-                <li>Big box, my big box for Laser gridfinity (the project proof the curse and inner hole works fine)
+            <ul class="blog-container__list">
+                <li>
+                    Laser gridfinity boxes by OpenSCAD (the project with Line)
+                </li>
+                <li>
+                    Big box, my big box for Laser gridfinity (the project proof
+                    the curse and inner hole works fine)
                 </li>
             </ul>
             <h2>Next stages</h2>
-            <ul>
-                <li>Implement CI for deploy docker container, for web and backend</li>
+            <ul class="blog-container__list">
+                <li>
+                    Implement CI for deploy docker container, for web and
+                    backend
+                </li>
                 <li>Add the photo to the project</li>
                 <li>Better look for holes into preview images</li>
             </ul>
-            <p></p>
         </div>
-    </div>
-    <div class="article-container">
-        <div class="article-title">
-            <p>Project updates, #1</p>
-        </div>
-        <div class="article-meta">
-            <p>Published on
+        <div class="blog__container blog-container">
+            <h2 class="blog-container__title">Project updates, #1</h2>
+            <p class="blog-container__meta">
+                Published on
                 <time datetime="2024-08-02">Feb 8, 2024</time>
                 by nest2d
             </p>
-        </div>
-        <div class="article-body">
-            <p>The project migrate to vue.js for implementation navigation inside SPA</p>
+            <p>
+                The project migrate to vue.js for implementation navigation
+                inside SPA
+            </p>
             <h2>Add features</h2>
             <p>Project list at main page</p>
             <p>New UI (based on vue.js template)</p>
-            <h2>Currently the project support the following DXF entity types</h2>
+            <h2>
+                Currently the project support the following DXF entity types
+            </h2>
             <p>LwPolyline</p>
             <p>Line</p>
             <h2>Next stages</h2>
-            <p>Add project with Line (getting the laser cutting gridfinity from open scad)</p>
+            <p>
+                Add project with Line (getting the laser cutting gridfinity from
+                open scad)
+            </p>
             <p>Implement CI for deploy docker container</p>
             <p>Implement base support for shapes with holes</p>
             <p>Add the photo to the project</p>
-            <p></p>
         </div>
-    </div>
-    <div class="article-container">
-        <div class="article-title">
-            <p>The start of project</p>
-        </div>
-        <div class="article-meta">
-            <p>Published on
+        <div class="blog__container blog-container">
+            <h2 class="blog-container__title">The start of project</h2>
+            <p class="blog-container__meta">
+                Published on
                 <time datetime="2024-08-01">Feb 8, 2024</time>
                 by nest2d
             </p>
-        </div>
-        <div class="article-body">
-            <h2>The online platform for Nest algorithm. What is Nest Problem?</h2>
-            <p>Given a square piece of material and some letters to be laser-cut:
-                We want to pack all the letters into the square, using as little material as possible. If a single
-                square is not
-                enough, we also want to minimize the number of squares used.
-                In the CNC world this is called "nesting", and software that does this is typically targeted at
-                industrial
-                customers and very expensive.</p>
+            <h2>
+                The online platform for Nest algorithm. What is Nest Problem?
+            </h2>
+            <p>
+                Given a square piece of material and some letters to be
+                laser-cut: We want to pack all the letters into the square,
+                using as little material as possible. If a single square is not
+                enough, we also want to minimize the number of squares used. In
+                the CNC world this is called "nesting", and software that does
+                this is typically targeted at industrial customers and very
+                expensive.
+            </p>
             <h2>Project goal</h2>
-            <p>The project has a goal to create a fully open source software for nesting irregular shapes into
-                square</p>
-            <p>The second goal is creating a platform for maker. To share laser cutting project with community. And
-                provide the best user experience, which will achieve by features like a online nesting tool.</p>
+            <p>
+                The project has a goal to create a fully open source software
+                for nesting irregular shapes into square
+            </p>
+            <p>
+                The second goal is creating a platform for maker. To share laser
+                cutting project with community. And provide the best user
+                experience, which will achieve by features like a online nesting
+                tool.
+            </p>
             <h2>Help the project</h2>
-            <p>Visit our github repo to suggest any issue or pull request <a
-                href="https://github.com/vovastelmashchuk/nest2d">Nest2d</a></p>
+            <p>
+                Visit our github repo to suggest any issue or pull request
+                <a href="https://github.com/vovastelmashchuk/nest2d">Nest2d</a>
+            </p>
         </div>
     </div>
 </template>
 
-<style scoped>
-.article-container {
-    max-width: 800px; /* Sets a maximum width to ensure readability */
-    margin: 4px auto; /* Centers the article */
-    padding: 20px; /* Adds padding around the article */
-    background-color: var(--color-background); /* Article background color */
-    color: #333; /* Article text color */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adds subtle shadow for depth */
-    border-radius: 5px; /* Rounds the corners */
-    line-height: 1.6; /* Improves readability */
-}
-
-.article-title {
-    font-size: 2.5rem; /* Title font size */
-    margin-bottom: 20px; /* Space below the title */
-    color: var(--color-text); /* Title text color */
-    font-weight: bold; /* Makes the title bold */
-}
-
-.article-meta {
-    font-size: 0.9rem; /* Metadata font size (e.g., publication date, author) */
-    color: #666; /* Metadata text color */
-    margin-bottom: 20px; /* Space below the metadata */
-}
-
-.article-body {
-    font-size: 1rem; /* Body text font size */
-}
-
-.article-body h2,
-.article-body h3 {
-    margin-top: 20px; /* Space above headings */
-    margin-bottom: 10px; /* Space below headings */
-    color: var(--color-text); /* Title text color */
-    overflow-wrap: break-word;
-    white-space: normal;
-}
-
-.article-body p {
-    margin-bottom: 20px; /* Space below paragraphs */
+<style lang="scss" scoped>
+.blog {
     color: var(--color-text);
-    overflow-wrap: break-word;
-    white-space: normal;
-}
 
-.article-body a {
-    color: #007bff; /* Link color */
-    text-decoration: none; /* Removes underline from links */
-    overflow-wrap: break-word;
-    white-space: normal;
+    &__container {
+        max-width: 840px;
+        margin-left: auto;
+        margin-right: auto;
+    }
 }
+.blog-container {
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    line-height: 1.6;
 
-.article-body a:hover {
-    text-decoration: underline; /* Adds underline on hover for links */
-}
-
-.article-body img {
-    max-width: 100%; /* Ensures images are not wider than the article */
-    height: auto; /* Keeps the original aspect ratio */
-    display: block; /* Makes images block level to center */
-    margin: 0 auto 20px; /* Centers images and adds space below */
-}
-
-.article-footer {
-    font-size: 0.9rem; /* Footer text font size */
-    color: var(--color-text); /* Title text color */
-    border-top: 1px solid #eee; /* Adds a line above the footer */
-    padding-top: 20px; /* Space above the footer content */
-    margin-top: 20px; /* Space above the line */
-}
-
-.article-container ul {
-    margin-bottom: 20px;
-    color: var(--color-text);
-    overflow-wrap: break-word;
-    white-space: normal;
-}
-
-/* Responsive design adjustments */
-@media (max-width: 900px) {
-    .article-container {
-        padding: 10px; /* Reduces padding on smaller screens */
+    @media (max-width: 900px) {
+        padding: 10px;
     }
 
-    .article-title {
-        font-size: 2rem; /* Reduces title size on smaller screens */
+    &__title {
+        font-size: 2.5rem;
+        font-weight: bold;
+
+        @media (max-width: 900px) {
+            font-size: 2rem;
+        }
+    }
+    &__list {
+        list-style-type: disc;
+        padding-inline-start: 40px;
+    }
+    &__meta {
+        font-size: 0.9rem;
+        color: #666;
+    }
+    & > * {
+        margin-bottom: 20px;
     }
 }
 </style>
-<script setup>
-import ProgressBar from "@/views/ProgressBar.vue";
-</script>
