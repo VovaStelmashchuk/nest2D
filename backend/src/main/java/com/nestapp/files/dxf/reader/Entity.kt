@@ -26,4 +26,8 @@ open class Entity internal constructor(@JvmField var type: String) {
     open fun toWriterEntity(placement: Placement = NotMovedPlacement): DXFEntity {
         throw UnsupportedOperationException("Not implemented in ${this.javaClass.simpleName}")
     }
+
+    open fun translate(x: Double, y: Double): Entity {
+        throw UnsupportedOperationException("Not implemented in ${this.javaClass.simpleName}")
+    }
 }

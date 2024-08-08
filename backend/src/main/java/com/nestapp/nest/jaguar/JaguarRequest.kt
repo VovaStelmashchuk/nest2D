@@ -1,6 +1,7 @@
 package com.nestapp.nest.jaguar
 
 import com.nestapp.nest.ClosePolygon
+import com.nestapp.nest.polygonOffset
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post
@@ -12,7 +13,7 @@ sealed class NestResult {
 
     data object NotFit : NestResult()
 
-    data class Succes(
+    data class Success(
         val polygons: List<NestedClosedPolygon>,
     ) : NestResult()
 
@@ -29,10 +30,11 @@ data class JaguarNestInput(
     val width: Double,
     val height: Double,
     val tolerance: Double,
+    val spacing: Double,
 ) {
     data class NestInputPolygons(
         val polygon: ClosePolygon,
-        val count: Int,
+        val demand: Int,
     )
 }
 
@@ -52,7 +54,7 @@ class JaguarRequest(
 
             val firstLayout = response.solution.layouts.firstOrNull()
             firstLayout?.let {
-                NestResult.Succes(
+                NestResult.Success(
                     it.placedItems.map { placedItem ->
                         NestResult.NestedClosedPolygon(
                             closePolygon = jaguarNestInput.polygons[placedItem.index].polygon,
@@ -74,17 +76,20 @@ class JaguarRequest(
     private fun buildRequest(
         jaguarNestInput: JaguarNestInput,
     ): Request {
-        val width = jaguarNestInput.width
-        val height = jaguarNestInput.height
+        val binWidth = jaguarNestInput.width
+        val binHeight = jaguarNestInput.height
         val request = Request(
             input = Request.Input(
                 name = "input-1",
                 items = jaguarNestInput.polygons.map { polygon ->
+                    val originPoints = polygon.polygon.points
+                    val offsetPoints = polygonOffset(originPoints, jaguarNestInput.spacing, jaguarNestInput.tolerance)
+
                     Request.Input.Item(
-                        demand = polygon.count,
+                        demand = polygon.demand,
                         allowedOrientations = listOf(0, 90, 180, 270),
                         shape = Request.Input.Item.Shape(
-                            points = polygon.polygon.points.map { point ->
+                            points = offsetPoints.map { point ->
                                 listOf(point.x, point.y)
                             }
                         )
@@ -98,9 +103,9 @@ class JaguarRequest(
                             data = Request.Input.Bin.Shape.Data(
                                 outer = listOf(
                                     listOf(0.0, 0.0),
-                                    listOf(0.0, height),
-                                    listOf(width, height),
-                                    listOf(width, 0.0),
+                                    listOf(0.0, binHeight),
+                                    listOf(binWidth, binHeight),
+                                    listOf(binWidth, 0.0),
                                 )
                             )
                         )

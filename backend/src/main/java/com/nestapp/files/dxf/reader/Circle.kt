@@ -9,10 +9,11 @@ import java.awt.geom.Path2D
 
 internal class Circle(type: String?) : Entity(type!!), AutoPop {
 
-    private var circle: Ellipse2D.Double = Ellipse2D.Double()
     private var cx: Double = 0.0
     private var cy: Double = 0.0
     private var radius: Double = 0.0
+
+    private var path: Path2D.Double? = null
 
     override fun addParam(gCode: Int, value: String) {
         when (gCode) {
@@ -23,13 +24,13 @@ internal class Circle(type: String?) : Entity(type!!), AutoPop {
     }
 
     override fun close() {
-        circle.setFrame(cx - radius, cy - radius, radius * 2, radius * 2)
+        val circle = Ellipse2D.Double(cx - radius, cy - radius, radius * 2, radius * 2)
+        path = Path2D.Double()
+        path!!.append(circle, false)
     }
 
     override fun toPath2D(): Path2D.Double {
-        val path = Path2D.Double()
-        path.append(circle, false)
-        return path
+        return path!!
     }
 
     override fun isClose(): Boolean {
@@ -41,5 +42,18 @@ internal class Circle(type: String?) : Entity(type!!), AutoPop {
             RealPoint(cx, cy).transform(placement),
             radius
         )
+    }
+
+    override fun translate(x: Double, y: Double): Entity {
+        val newX = cx + x
+        val newY = cy + y
+        val originRadius = radius
+
+        return Circle(type).apply {
+            cx = newX
+            cy = newY
+            radius = originRadius
+            close()
+        }
     }
 }

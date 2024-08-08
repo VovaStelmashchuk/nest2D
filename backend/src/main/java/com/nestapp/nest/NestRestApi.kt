@@ -43,7 +43,7 @@ fun Route.nestRestApi(
                 polygonGenerator.getMergedAndCombinedPolygons(entities, nestInput.tolerance).map {
                     JaguarNestInput.NestInputPolygons(
                         polygon = it,
-                        count = count,
+                        demand = count,
                     )
                 }
             }
@@ -55,6 +55,7 @@ fun Route.nestRestApi(
                     width = nestInput.plateWidth,
                     height = nestInput.plateHeight,
                     tolerance = nestInput.tolerance,
+                    spacing = nestInput.spacing,
                 )
             )
 
@@ -63,7 +64,7 @@ fun Route.nestRestApi(
                     NestedOutputError("NotFit")
                 }
 
-                is NestResult.Succes -> {
+                is NestResult.Success -> {
                     buildResultFiles(
                         nestedResult = nestedResult,
                         nestId = nestResultDatabase.id,
@@ -81,7 +82,7 @@ fun Route.nestRestApi(
 }
 
 private fun buildResultFiles(
-    nestedResult: NestResult.Succes,
+    nestedResult: NestResult.Success,
     nestId: ObjectId,
     minioFileUpload: MinioFileUpload,
     configuration: Configuration

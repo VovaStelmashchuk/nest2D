@@ -84,6 +84,25 @@ internal class Polyline(type: String?) : Entity(type!!) {
         )
     }
 
+    override fun translate(x: Double, y: Double): Entity {
+        return Polyline(type).also {
+            it.points = points.map { vertex ->
+                val newVertex = Vertex(type)
+                newVertex.xx = vertex.xx + x
+                newVertex.yy = vertex.yy + y
+                newVertex.bulge = vertex.bulge
+                newVertex
+            }.toMutableList()
+            it.close = close
+            it.firstX = firstX + x
+            it.firstY = firstY + y
+            it.lastX = lastX + x
+            it.lastY = lastY + y
+            it.firstPoint = firstPoint
+            it.close()
+        }
+    }
+
     /**
      * See: http://darrenirvine.blogspot.com/2015/08/polylines-radius-bulge-turnaround.html
      *

@@ -76,6 +76,8 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("org.mongodb:mongodb-driver-kotlin-coroutine:4.10.1")
+
+    implementation("com.github.jchamlin:clipper-java:b4dcd50c51")
 }
 
 kotlin {

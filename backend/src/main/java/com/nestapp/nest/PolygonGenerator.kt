@@ -1,14 +1,19 @@
 package com.nestapp.nest
 
-import com.nestapp.TOLERANCE
 import com.nestapp.files.dxf.reader.Entity
 import java.awt.geom.Path2D
 import java.awt.geom.Point2D
-import kotlin.math.sqrt
 
 class PolygonGenerator {
 
-    fun getMergedAndCombinedPolygons(entities: List<Entity>, tolerance: Double): List<ClosePolygon> {
+    fun getMergedAndCombinedPolygons(rawEntities: List<Entity>, tolerance: Double): List<ClosePolygon> {
+        val paths = rawEntities.map { it.toPath2D() }
+
+        val minX = paths.minOfOrNull { it.bounds2D.minX } ?: 0.0
+        val minY = paths.minOfOrNull { it.bounds2D.minY } ?: 0.0
+
+        val entities = rawEntities.map { it.translate(-minX, -minY) }
+
         val closedPolygons = mutableListOf<MutableClosePolygon>()
 
         val closedEntities = entities.filter { it.isClose() }
@@ -31,7 +36,7 @@ class PolygonGenerator {
 
         return mergedPolygons.map { mutableClosePolygon ->
             ClosePolygon(
-                removeNearDuplicates(mutableClosePolygon.points),
+                removeNearDuplicates(mutableClosePolygon.points, tolerance),
                 mutableClosePolygon.entities
             )
         }
@@ -56,28 +61,8 @@ class PolygonGenerator {
         closedPolygons.addAll(combinedClosedPolygons)
 
         return closedPolygons.map { mutableClosePolygon ->
-            removeNearDuplicates(mutableClosePolygon.points)
+            removeNearDuplicates(mutableClosePolygon.points, tolerance)
         }
-    }
-
-    private fun removeNearDuplicates(
-        points: List<Point2D.Double>,
-        tolerance: Double = TOLERANCE
-    ): List<Point2D.Double> {
-        if (points.isEmpty()) return points
-
-        val distinctPoints = mutableListOf<Point2D.Double>()
-        var lastPoint = points.first()
-        distinctPoints.add(lastPoint)
-
-        for (point in points.drop(1)) {
-            if (pointDistance(lastPoint, point) > tolerance) {
-                distinctPoints.add(point)
-                lastPoint = point
-            }
-        }
-
-        return distinctPoints
     }
 
     private fun mergePolygons(polygons: List<MutableClosePolygon>): List<MutableClosePolygon> {
@@ -102,16 +87,6 @@ class PolygonGenerator {
         }
 
         return mergedPolygons
-    }
-
-    private fun createPathFromPoints(points: List<Point2D.Double>): Path2D.Double {
-        val path = Path2D.Double()
-        if (points.isNotEmpty()) {
-            path.moveTo(points.first().x, points.first().y)
-            points.drop(1).forEach { path.lineTo(it.x, it.y) }
-            path.closePath()
-        }
-        return path
     }
 
     private fun isPolygonInside(parentPath: Path2D.Double, childPoints: List<Point2D.Double>): Boolean {
@@ -179,7 +154,7 @@ class PolygonGenerator {
                     }
                 }
 
-                if (closestEntityIndex != -1 && closestDistance < TOLERANCE) {
+                if (closestEntityIndex != -1 && closestDistance < tolerance) {
                     val nextEntity = entityQueue.removeAt(closestEntityIndex)
                     val nextPath = Path2D.Double()
                     if (reverseEntity) {
@@ -218,10 +193,6 @@ class PolygonGenerator {
         }
 
         return closedPolygons
-    }
-
-    private fun pointDistance(a: Point2D.Double, b: Point2D.Double): Double {
-        return sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y))
     }
 
     private fun isPathClosed(path: Path2D.Double, tolerance: Double): Boolean {

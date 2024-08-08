@@ -47,6 +47,21 @@ class Line internal constructor(type: String) : Entity(type), AutoPop {
         return DXFLine(start.transform(placement), end.transform(placement))
     }
 
+    override fun translate(x: Double, y: Double): Entity {
+        val originStartX = xStart
+        val originStartY = yStart
+        val originEndX = xEnd
+        val originEndY = yEnd
+
+        return Line(type).apply {
+            this.xStart = originStartX + x
+            this.yStart = originStartY + y
+            this.xEnd = originEndX + x
+            this.yEnd = originEndY + y
+            this.close()
+        }
+    }
+
     override fun toString(): String {
         return "Line{" +
             "xStart=" + xStart +
