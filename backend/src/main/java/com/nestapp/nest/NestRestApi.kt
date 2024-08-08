@@ -40,7 +40,7 @@ fun Route.nestRestApi(
                 val dxfReader = DXFReader()
                 dxfReader.parseFile(projectRepository.getDxfFileAsStream(nestInput.projectSlug, file))
                 val entities = dxfReader.entities
-                polygonGenerator.getPolygons(entities, nestInput.tolerance).map {
+                polygonGenerator.getMergedAndCombinedPolygons(entities, nestInput.tolerance).map {
                     JaguarNestInput.NestInputPolygons(
                         polygon = it,
                         count = count,
@@ -86,7 +86,18 @@ private fun buildResultFiles(
     minioFileUpload: MinioFileUpload,
     configuration: Configuration
 ): NestedOutput {
-    val svg = SvgWriter().buildNestedSvgString(nestedResult.polygons)
+    val svgPolygons = nestedResult.polygons.flatMap { nestedPolygon ->
+        PolygonGenerator().convertEntitiesToPolygons(nestedPolygon.closePolygon.entities, 0.1).map {
+            SvgWriter.SvgPolygon(
+                points = it,
+                rotation = nestedPolygon.rotation,
+                x = nestedPolygon.x,
+                y = nestedPolygon.y,
+            )
+        }
+    }
+
+    val svg = SvgWriter().buildNestedSvgString(svgPolygons)
 
     val svgPath = "nested/${nestId.toHexString()}/preview.svg"
 

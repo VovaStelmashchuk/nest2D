@@ -8,7 +8,7 @@ import kotlin.math.sqrt
 
 class PolygonGenerator {
 
-    fun getPolygons(entities: List<Entity>, tolerance: Double): List<ClosePolygon> {
+    fun getMergedAndCombinedPolygons(entities: List<Entity>, tolerance: Double): List<ClosePolygon> {
         val closedPolygons = mutableListOf<MutableClosePolygon>()
 
         val closedEntities = entities.filter { it.isClose() }
@@ -34,6 +34,29 @@ class PolygonGenerator {
                 removeNearDuplicates(mutableClosePolygon.points),
                 mutableClosePolygon.entities
             )
+        }
+    }
+
+    fun convertEntitiesToPolygons(entities: List<Entity>, tolerance: Double): List<List<Point2D.Double>> {
+        val closedPolygons = mutableListOf<MutableClosePolygon>()
+
+        val closedEntities = entities.filter { it.isClose() }
+        val notClosedEntities = entities.filterNot { it.isClose() }
+
+        closedEntities.forEach { entity ->
+            closedPolygons.add(
+                MutableClosePolygon(
+                    entity.toPath2D().getPointsFromPath(tolerance),
+                    mutableListOf(entity)
+                )
+            )
+        }
+
+        val combinedClosedPolygons = combineNonClosedEntities(notClosedEntities, tolerance)
+        closedPolygons.addAll(combinedClosedPolygons)
+
+        return closedPolygons.map { mutableClosePolygon ->
+            removeNearDuplicates(mutableClosePolygon.points)
         }
     }
 

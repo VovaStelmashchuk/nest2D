@@ -1,7 +1,6 @@
 package com.nestapp.files.svg
 
 import com.nestapp.nest.ClosePolygon
-import com.nestapp.nest.jaguar.NestResult
 import java.awt.geom.Point2D
 import kotlin.math.cos
 import kotlin.math.sin
@@ -12,22 +11,29 @@ class SvgWriter {
         val COLORS = listOf("#7bafd1", "#fc8d8d", "#a6d854", "#ffd92f", "#e78ac3", "#66c2a5")
     }
 
+    data class SvgPolygon(
+        val points: List<Point2D.Double>,
+        val rotation: Double,
+        val x: Double,
+        val y: Double,
+    )
+
     fun buildNestedSvgString(
-        polygons: List<NestResult.NestedClosedPolygon>,
+        polygons: List<SvgPolygon>,
     ): String {
         var width = 0.0
         var height = 0.0
 
         val rawSvg = buildString {
-            polygons.forEachIndexed { partIndex, dxfPartPlacement ->
-                val transformPoints = dxfPartPlacement.closePolygon.points.map {
+            polygons.forEachIndexed { partIndex, polygon ->
+                val transformPoints = polygon.points.map {
                     val x = it.x
                     val y = it.y
-                    val x1 = x * cos(dxfPartPlacement.rotation) - y * sin(dxfPartPlacement.rotation)
-                    val y1 = x * sin(dxfPartPlacement.rotation) + y * cos(dxfPartPlacement.rotation)
+                    val x1 = x * cos(polygon.rotation) - y * sin(polygon.rotation)
+                    val y1 = x * sin(polygon.rotation) + y * cos(polygon.rotation)
 
-                    val finalX = x1 + dxfPartPlacement.x
-                    val finalY = y1 + dxfPartPlacement.y
+                    val finalX = x1 + polygon.x
+                    val finalY = y1 + polygon.y
 
                     if (finalY > height) {
                         height = finalY
@@ -99,7 +105,7 @@ class SvgWriter {
         }
 
         val color = COLORS[index % COLORS.size]
-        appendLine("""Z" fill="$color" stroke="#010101" stroke-width="0.5" /> """)
+        appendLine("""Z" fill="#00000000" fill-opacity="0.2" stroke="$color" stroke-width="1" /> """)
     }
 
     private fun buildFinalSvg(string: String, width: Double, height: Double): String {

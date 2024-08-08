@@ -39,7 +39,7 @@ class ProjectMaker(
         dxfFileBytes.forEach { (fileName, fileBytes) ->
             val dxfReader = DXFReader()
             dxfReader.parseFile(fileBytes.inputStream())
-            val polygons = polygonGenerator.getPolygons(dxfReader.entities, SVG_TOLERANCE)
+            val polygons = polygonGenerator.getMergedAndCombinedPolygons(dxfReader.entities, SVG_TOLERANCE)
 
             val fileNameWithoutExtension = fileName.substringBeforeLast(".")
             val svgString = svgWriter.buildSvgString(polygons)
