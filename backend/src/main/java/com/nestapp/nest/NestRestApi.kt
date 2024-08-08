@@ -40,7 +40,7 @@ fun Route.nestRestApi(
                 val dxfReader = DXFReader()
                 dxfReader.parseFile(projectRepository.getDxfFileAsStream(nestInput.projectSlug, file))
                 val entities = dxfReader.entities
-                polygonGenerator.getPolygons(entities).map {
+                polygonGenerator.getPolygons(entities, nestInput.tolerance).map {
                     JaguarNestInput.NestInputPolygons(
                         polygon = it,
                         count = count,
@@ -54,6 +54,7 @@ fun Route.nestRestApi(
                     polygons = closedPolygons,
                     width = nestInput.plateWidth,
                     height = nestInput.plateHeight,
+                    tolerance = nestInput.tolerance,
                 )
             )
 

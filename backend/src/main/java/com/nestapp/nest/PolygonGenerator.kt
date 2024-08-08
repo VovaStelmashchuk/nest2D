@@ -8,21 +8,26 @@ import kotlin.math.sqrt
 
 class PolygonGenerator {
 
-    fun getPolygons(entities: List<Entity>): List<ClosePolygon> {
+    fun getPolygons(entities: List<Entity>, tolerance: Double): List<ClosePolygon> {
         val closedPolygons = mutableListOf<MutableClosePolygon>()
 
         val closedEntities = entities.filter { it.isClose() }
         val notClosedEntities = entities.filterNot { it.isClose() }
 
         closedEntities.forEach { entity ->
-            closedPolygons.add(MutableClosePolygon(entity.toPath2D().getPointsFromPath(), mutableListOf(entity)))
+            closedPolygons.add(
+                MutableClosePolygon(
+                    entity.toPath2D().getPointsFromPath(tolerance),
+                    mutableListOf(entity)
+                )
+            )
         }
 
-        val combinedClosedPolygons = combineNonClosedEntities(notClosedEntities)
+        val combinedClosedPolygons = combineNonClosedEntities(notClosedEntities, tolerance)
         closedPolygons.addAll(combinedClosedPolygons)
 
         val mergedPolygons =
-            mergePolygons(closedPolygons.sortedByDescending { calculateArea(createPathFromPoints(it.points)) })
+            mergePolygons(closedPolygons.sortedByDescending { area(it.points) })
 
         return mergedPolygons.map { mutableClosePolygon ->
             ClosePolygon(
@@ -76,19 +81,6 @@ class PolygonGenerator {
         return mergedPolygons
     }
 
-    private fun calculateArea(path: Path2D.Double): Double {
-        val points = path.getPointsFromPath()
-        if (points.size < 3) return 0.0  // A polygon must have at least 3 points
-
-        var area = 0.0
-        for (i in points.indices) {
-            val j = (i + 1) % points.size
-            area += points[i].x * points[j].y
-            area -= points[j].x * points[i].y
-        }
-        return Math.abs(area) / 2.0
-    }
-
     private fun createPathFromPoints(points: List<Point2D.Double>): Path2D.Double {
         val path = Path2D.Double()
         if (points.isNotEmpty()) {
@@ -103,7 +95,7 @@ class PolygonGenerator {
         return childPoints.all { parentPath.contains(it) }
     }
 
-    private fun combineNonClosedEntities(entities: List<Entity>): List<MutableClosePolygon> {
+    private fun combineNonClosedEntities(entities: List<Entity>, tolerance: Double): List<MutableClosePolygon> {
         val closedPolygons = mutableListOf<MutableClosePolygon>()
         val entityQueue = entities.toMutableList()
 
@@ -124,11 +116,11 @@ class PolygonGenerator {
                 var addToEnd = true
                 var reverseEntity = true
                 entityQueue.forEachIndexed { index, entity ->
-                    val lastPoint = combinedPath.getPointsFromPath().last()
-                    val firstPoint = combinedPath.getPointsFromPath().first()
+                    val lastPoint = combinedPath.getPointsFromPath(tolerance).last()
+                    val firstPoint = combinedPath.getPointsFromPath(tolerance).first()
 
-                    val entityFirstPoint = entity.toPath2D().getPointsFromPath().first()
-                    val entityLastPoint = entity.toPath2D().getPointsFromPath().last()
+                    val entityFirstPoint = entity.toPath2D().getPointsFromPath(tolerance).first()
+                    val entityLastPoint = entity.toPath2D().getPointsFromPath(tolerance).last()
 
                     val distanceToEnd = pointDistance(lastPoint, entityFirstPoint)
                     val distanceToStart = pointDistance(firstPoint, entityLastPoint)
@@ -168,7 +160,7 @@ class PolygonGenerator {
                     val nextEntity = entityQueue.removeAt(closestEntityIndex)
                     val nextPath = Path2D.Double()
                     if (reverseEntity) {
-                        val points = nextEntity.toPath2D().getPointsFromPath()
+                        val points = nextEntity.toPath2D().getPointsFromPath(tolerance)
                         for (i in points.size - 1 downTo 0) {
                             if (i == points.size - 1) {
                                 nextPath.moveTo(points[i].x, points[i].y)
@@ -195,8 +187,8 @@ class PolygonGenerator {
                 }
             }
 
-            if (isPathClosed(combinedPath)) {
-                closedPolygons.add(MutableClosePolygon(combinedPath.getPointsFromPath(), combinedEntities))
+            if (isPathClosed(combinedPath, tolerance)) {
+                closedPolygons.add(MutableClosePolygon(combinedPath.getPointsFromPath(tolerance), combinedEntities))
             } else {
                 notCombinedEntity.add(currentEntity)
             }
@@ -209,9 +201,9 @@ class PolygonGenerator {
         return sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y))
     }
 
-    private fun isPathClosed(path: Path2D.Double): Boolean {
-        val points = path.getPointsFromPath()
-        return pointDistance(points.first(), points.last()) < TOLERANCE
+    private fun isPathClosed(path: Path2D.Double, tolerance: Double): Boolean {
+        val points = path.getPointsFromPath(tolerance)
+        return pointDistance(points.first(), points.last()) < tolerance
     }
 }
 

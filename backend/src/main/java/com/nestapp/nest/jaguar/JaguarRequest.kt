@@ -28,6 +28,7 @@ data class JaguarNestInput(
     val polygons: List<NestInputPolygons>,
     val width: Double,
     val height: Double,
+    val tolerance: Double,
 ) {
     data class NestInputPolygons(
         val polygon: ClosePolygon,
@@ -109,7 +110,8 @@ class JaguarRequest(
             config = Request.Config(
                 cdeConfig = Request.Config.CdeConfig(
                     itemSurrogateConfig = Request.Config.CdeConfig.ItemSurrogateConfig()
-                )
+                ),
+                polySimplTolerance = jaguarNestInput.tolerance / 10,
             )
         )
         return request

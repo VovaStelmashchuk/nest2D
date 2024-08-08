@@ -3,9 +3,7 @@ package com.nestapp.project
 import com.nestapp.files.dxf.reader.DXFReader
 import com.nestapp.files.svg.SvgWriter
 import com.nestapp.minio.ProjectRepository
-import com.nestapp.nest.ClosePolygon
 import com.nestapp.nest.PolygonGenerator
-import com.nestapp.nest.getPointsFromPath
 import java.util.Locale
 
 class ProjectMaker(
@@ -41,7 +39,7 @@ class ProjectMaker(
         dxfFileBytes.forEach { (fileName, fileBytes) ->
             val dxfReader = DXFReader()
             dxfReader.parseFile(fileBytes.inputStream())
-            val polygons = polygonGenerator.getPolygons(dxfReader.entities)
+            val polygons = polygonGenerator.getPolygons(dxfReader.entities, SVG_TOLERANCE)
 
             val fileNameWithoutExtension = fileName.substringBeforeLast(".")
             val svgString = svgWriter.buildSvgString(polygons)
@@ -62,5 +60,9 @@ class ProjectMaker(
         val filteredString = inputString.filter { it.isLetter() || it.isWhitespace() || it.isDigit() }
         val slug = filteredString.replace(" ", "-").lowercase(Locale.getDefault())
         return slug
+    }
+
+    companion object {
+        private const val SVG_TOLERANCE = 0.1
     }
 }
