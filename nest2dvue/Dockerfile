@@ -1,14 +1,12 @@
-
 # build stage
 FROM node:lts-alpine as build-stage
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-
-# Pass build-time variables
-ARG VITE_API_URL
-ENV VITE_API_URL=${VITE_API_URL}
+## Copy the .env and .env.production files
+COPY .env .env
+COPY .env.production .env.production
 
 RUN npm run build
 
