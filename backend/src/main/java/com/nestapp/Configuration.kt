@@ -6,7 +6,8 @@ class Configuration(
     val endpoint: String,
     val port: Int,
     val accessKey: String,
-    val secretKey: String
+    val secretKey: String,
+    val mongoUrl: String,
 )
 
 const val TOLERANCE = 1e-2

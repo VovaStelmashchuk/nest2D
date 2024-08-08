@@ -8,9 +8,14 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
-data class NestResult(
-    val polygons: List<NestedClosedPolygon>,
-) {
+sealed class NestResult {
+
+    data object NotFit : NestResult()
+
+    data class Succes(
+        val polygons: List<NestedClosedPolygon>,
+    ) : NestResult()
+
     data class NestedClosedPolygon(
         val closePolygon: ClosePolygon,
         val rotation: Double,
@@ -44,18 +49,21 @@ class JaguarRequest(
                 setBody(request)
             }.body<Response>()
 
-            val nestedPolygons = response.solution.layouts.first().placedItems.map { placedItem ->
-                NestResult.NestedClosedPolygon(
-                    closePolygon = jaguarNestInput.polygons[placedItem.index].polygon,
-                    rotation = placedItem.transformation.rotation,
-                    x = placedItem.transformation.translation[0],
-                    y = placedItem.transformation.translation[1],
+            val firstLayout = response.solution.layouts.firstOrNull()
+            firstLayout?.let {
+                NestResult.Succes(
+                    it.placedItems.map { placedItem ->
+                        NestResult.NestedClosedPolygon(
+                            closePolygon = jaguarNestInput.polygons[placedItem.index].polygon,
+                            rotation = placedItem.transformation.rotation,
+                            x = placedItem.transformation.translation[0],
+                            y = placedItem.transformation.translation[1],
+                        )
+                    }
                 )
+            } ?: let {
+                NestResult.NotFit
             }
-
-            NestResult(
-                polygons = nestedPolygons,
-            )
         } catch (e: Exception) {
             e.printStackTrace()
             throw e

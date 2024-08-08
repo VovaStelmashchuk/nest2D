@@ -1,10 +1,9 @@
 package com.nestapp.nest
 
-import java.awt.geom.Point2D
-
 data class Placement(
-    val translate: Point2D.Double,
-    val rotate: Double,
+    val rotation: Double,
+    val x: Double,
+    val y: Double,
 )
 
-val NotMovedPlacement = Placement(Point2D.Double(0.0, 0.0), 0.0)
+val NotMovedPlacement = Placement(0.0, 0.0, 0.0)

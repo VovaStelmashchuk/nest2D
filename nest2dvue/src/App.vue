@@ -28,7 +28,7 @@ import Footer from '@/components/Footer.vue';
     }
     &__main {
         flex-grow: 1;
-        margin-top: 100px;
+        margin-top: 160px;
     }
 }
 </style>

@@ -1,6 +1,7 @@
 package com.nestapp
 
 import com.nestapp.files.svg.SvgWriter
+import com.nestapp.minio.MinioFileUpload
 import com.nestapp.nest.PolygonGenerator
 import com.nestapp.nest.jaguar.JaguarRequest
 import com.nestapp.nest.nestRestApi
@@ -80,6 +81,9 @@ fun Route.setupRouter(
         jaguarRequest = JaguarRequest(client),
         polygonGenerator = PolygonGenerator(),
         projectRepository = appComponent.projectRepository,
+        nestHistoryRepository = appComponent.nestHistoryRepository,
+        configuration = appComponent.configuration,
+        minioFileUpload = appComponent.minioFileUpload,
     )
 
     get("/version") {

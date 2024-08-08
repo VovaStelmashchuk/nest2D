@@ -1,7 +1,6 @@
 package com.nestapp.minio
 
 import io.minio.GetObjectArgs
-import io.minio.GetObjectResponse
 import io.minio.ListObjectsArgs
 import io.minio.MinioClient
 import io.minio.PutObjectArgs
@@ -9,7 +8,8 @@ import io.minio.errors.MinioException
 import java.io.InputStream
 
 class ProjectRepository(
-    private val minioClient: MinioClient
+    private val minioClient: MinioClient,
+    private val minioFileUpload: MinioFileUpload,
 ) {
 
     companion object {
@@ -72,20 +72,7 @@ class ProjectRepository(
     }
 
     fun uploadFileToMinioByteArray(bytes: ByteArray, contentType: String, objectName: String) {
-        try {
-            minioClient.putObject(
-                PutObjectArgs.builder()
-                    .bucket(BUCKET_NAME)
-                    .`object`(objectName)
-                    .stream(bytes.inputStream(), bytes.size.toLong(), -1)
-                    .contentType(contentType)
-                    .build()
-            )
-        } catch (e: MinioException) {
-            println("Error occurred: ${e.message}")
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        minioFileUpload.uploadFileToMinioByteArray(bytes, contentType, objectName)
     }
 
     fun getDxfFileAsStream(projectSlug: String, fileName: String): InputStream? {

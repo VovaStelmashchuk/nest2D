@@ -1,4 +1,6 @@
 <template>
+    <h1 class="info">The project is under development. Some DXF format not supported and some geometry can be broken. In cas you upload a project and issue with preview or nesting, my recomendation come back in 1-2 weeks, may be new update will fix your project. Also you can create an issue on <a href="https://github.com/VovaStelmashchuk/nest2D/issues/new" >GitHub project</a></h1>
+
     <div class="project">
         <div class="project__card project-card">
             <div class="project-card__info project-card-info">
@@ -55,6 +57,12 @@ onBeforeMount(async () => {
 </script>
 
 <style lang="scss" scoped>
+.info {
+    color: #ff0000;
+    font-size: 1rem;
+    padding: 1rem 2rem;
+}
+
 .project {
     display: flex;
     flex-wrap: wrap;

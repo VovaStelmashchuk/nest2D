@@ -1,5 +1,39 @@
 <template>
     <div class="blog">
+
+        <div class="blog__container blog-container">
+            <h2 class="blog-container__title">
+                Big update, #8, My summer vacation
+            </h2>
+            <p class="blog-container__meta">
+                Published on
+                <time datetime="2024-05-08">Mar 30, 2024</time>
+                by nest2d
+            </p>
+            <h2>New feature</h2>
+            <ul class="blog-container__list">
+                <p>Not new features, but a lot of changes under the hood. I found a project (jaguar-rs)[https://github.com/JeroenGar/jagua-rs], make a fork and wrap the origin repo
+                as a rest api service.</p>
+            </ul>
+            <h2>Tech task</h2>
+            <ul class="blog-container__list">
+                <li>Migrate to jagua-rs</li>
+                <li>Remove postgress sql</li>
+                <li>Remove the old nest algorithm</li>
+                <li>Add mongo for nested history</li>
+                <li>Implement save dxf and svg files to minio</li>
+            </ul>
+            <h2>Next stages</h2>
+            <ul class="blog-container__list">
+                <li>Nested history page</li>
+                <li>More DXF tags supports</li>
+            </ul>
+
+            <h2>Thanks</h2>
+            <p>Thanks to JeroenGar for the great project, I hope it will be useful for me and for the community</p>
+            <p>Thanks to anyone who uses the project, and uploads the project to the platform. It helps be with development</p>
+        </div>
+
         <div class="blog__container blog-container">
             <h2 class="blog-container__title">
                 Project updates, #7, More DXF tag

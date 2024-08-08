@@ -1,30 +1,29 @@
 package com.nestapp.files.dxf
 
 import com.nestapp.files.dxf.writter.DXFDocument
-import com.nestapp.nest.ClosePolygon
-import java.io.File
-import java.io.FileWriter
-import java.io.IOException
+import com.nestapp.nest.Placement
+import com.nestapp.nest.jaguar.NestResult
 
 class DxfWriter {
 
-
-    @Throws(IOException::class)
-    fun writeFile(
-        polygons: List<ClosePolygon>,
-        file: File,
-    ) {
+    fun buildDxfString(
+        polygons: List<NestResult.NestedClosedPolygon>,
+    ): String {
         val document = DXFDocument()
         document.setUnits(4)
 
-        polygons.flatMap { it.entities }.forEach { entity ->
-            document.addEntity(entity.toWriterEntity())
+        polygons.forEach { nestedPolygon ->
+            val placement = Placement(
+                rotation = nestedPolygon.rotation,
+                x = nestedPolygon.x,
+                y = nestedPolygon.y,
+            )
+
+            nestedPolygon.closePolygon.entities.forEach { entity ->
+                document.addEntity(entity.toWriterEntity(placement))
+            }
         }
 
-        val dxfText = document.toDXFString()
-        val fileWriter = FileWriter(file)
-        fileWriter.write(dxfText)
-        fileWriter.flush()
-        fileWriter.close()
+        return document.toDXFString()
     }
 }

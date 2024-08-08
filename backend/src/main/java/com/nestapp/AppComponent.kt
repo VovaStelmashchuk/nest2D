@@ -1,6 +1,9 @@
 package com.nestapp
 
+import com.mongodb.kotlin.client.coroutine.MongoClient
+import com.nestapp.minio.MinioFileUpload
 import com.nestapp.minio.ProjectRepository
+import com.nestapp.mongo.NestHistoryRepository
 import io.minio.MinioClient
 
 class AppComponent(
@@ -12,6 +15,12 @@ class AppComponent(
         .credentials(configuration.accessKey, configuration.secretKey)
         .build()
 
-    val projectRepository: ProjectRepository = ProjectRepository(minioClient)
+    val minioFileUpload = MinioFileUpload(minioClient)
+
+    val projectRepository: ProjectRepository = ProjectRepository(minioClient, minioFileUpload)
+
+    private val mongoClient = MongoClient.create(connectionString = configuration.mongoUrl)
+
+    val nestHistoryRepository = NestHistoryRepository(mongoClient)
 
 }

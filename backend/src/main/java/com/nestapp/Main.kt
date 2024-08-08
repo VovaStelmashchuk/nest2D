@@ -25,6 +25,7 @@ internal object Main {
                     port = config.property("ktor.minio.port").getString().toInt(),
                     accessKey = config.property("ktor.minio.access_key").getString(),
                     secretKey = config.property("ktor.minio.secret_key").getString(),
+                    mongoUrl = config.property("ktor.mongo.url").getString(),
                 )
 
                 val appComponent = AppComponent(

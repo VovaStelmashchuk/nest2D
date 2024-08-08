@@ -23,21 +23,13 @@ open class RealPoint : Serializable {
     }
 
     fun transform(placement: Placement): RealPoint {
-        val angle = if (placement.rotate != 0.0) {
-            placement.rotate * Math.PI / 180
-        } else {
-            0.0
-        }
-        val translateX = placement.translate.x
-        val translateY = placement.translate.y
+        val x1 = x * cos(placement.rotation) - y * sin(placement.rotation)
+        val y1 = x * sin(placement.rotation) + y * cos(placement.rotation)
 
-        val rotatedX = x * cos(angle) - y * sin(angle)
-        val rotatedY = y * cos(angle) + x * sin(angle)
+        val finalX = x1 + placement.x
+        val finalY = y1 + placement.y
 
-        val translatedX = rotatedX + translateX
-        val translatedY = rotatedY + translateY
-
-        return RealPoint(translatedX, translatedY)
+        return RealPoint(finalX, finalY)
     }
 
     override fun equals(other: Any?): Boolean {

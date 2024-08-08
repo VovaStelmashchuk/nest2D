@@ -109,7 +109,7 @@ const buildButtonClickHandler = async ({width, height, spacingInput}) => {
         downloadDisabled.value = false;
         isBuilding.value = false;
         nestedId.value = response.data.id;
-        yourSvgImageUrl.value = `${API_URL}/nested/${response.data.id}?format=svg`
+        yourSvgImageUrl.value = `${response.data.svg}`
     } catch (error) {
         isBuilding.value = false;
         errorMessage.value = error.response?.data?.reason || "Something went wrong. Please try again later.";
