@@ -1,7 +1,6 @@
 package com.nestapp
 
 import com.nestapp.files.svg.SvgWriter
-import com.nestapp.minio.MinioFileUpload
 import com.nestapp.nest.PolygonGenerator
 import com.nestapp.nest.jaguar.JaguarRequest
 import com.nestapp.nest.nestRestApi
@@ -9,6 +8,7 @@ import com.nestapp.project.ProjectMaker
 import com.nestapp.project.projectsRestController
 import io.ktor.client.HttpClient
 import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
@@ -16,6 +16,8 @@ import io.ktor.server.application.install
 import io.ktor.server.plugins.autohead.AutoHeadResponse
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
+import io.ktor.server.plugins.statuspages.StatusPages
+import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
@@ -39,6 +41,13 @@ fun createHttpClient(): HttpClient {
 fun Application.restConfig(
     appComponent: AppComponent,
 ) {
+    install(StatusPages) {
+        exception<Throwable> { cause, throwable ->
+            println(throwable.printStackTrace())
+            cause.respond(HttpStatusCode.InternalServerError, "Error: $throwable")
+        }
+    }
+
     install(AutoHeadResponse)
 
     install(CORS) {
@@ -69,18 +78,19 @@ fun Route.setupRouter(
 ) {
     projectsRestController(
         configuration = appComponent.configuration,
-        projectRepository = appComponent.projectRepository,
         projectMaker = ProjectMaker(
+            minioProjectRepository = appComponent.minioProjectRepository,
             projectRepository = appComponent.projectRepository,
             svgWriter = SvgWriter(),
             polygonGenerator = PolygonGenerator(),
         ),
+        projectRepository = appComponent.projectRepository,
     )
 
     nestRestApi(
         jaguarRequest = JaguarRequest(client),
         polygonGenerator = PolygonGenerator(),
-        projectRepository = appComponent.projectRepository,
+        minioProjectRepository = appComponent.minioProjectRepository,
         nestHistoryRepository = appComponent.nestHistoryRepository,
         configuration = appComponent.configuration,
         minioFileUpload = appComponent.minioFileUpload,

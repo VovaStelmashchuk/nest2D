@@ -5,7 +5,7 @@ import com.nestapp.files.dxf.DxfWriter
 import com.nestapp.files.dxf.reader.DXFReader
 import com.nestapp.files.svg.SvgWriter
 import com.nestapp.minio.MinioFileUpload
-import com.nestapp.minio.ProjectRepository
+import com.nestapp.minio.MinioProjectRepository
 import com.nestapp.mongo.NestHistoryRepository
 import com.nestapp.nest.jaguar.JaguarNestInput
 import com.nestapp.nest.jaguar.JaguarRequest
@@ -23,7 +23,7 @@ import org.bson.types.ObjectId
 fun Route.nestRestApi(
     jaguarRequest: JaguarRequest,
     polygonGenerator: PolygonGenerator,
-    projectRepository: ProjectRepository,
+    minioProjectRepository: MinioProjectRepository,
     nestHistoryRepository: NestHistoryRepository,
     configuration: Configuration,
     minioFileUpload: MinioFileUpload,
@@ -38,7 +38,7 @@ fun Route.nestRestApi(
         }
             .flatMap { (file, count) ->
                 val dxfReader = DXFReader()
-                dxfReader.parseFile(projectRepository.getDxfFileAsStream(nestInput.projectSlug, file))
+                dxfReader.parseFile(minioProjectRepository.getDxfFileAsStream(nestInput.projectSlug, file))
                 val entities = dxfReader.entities
                 polygonGenerator.getMergedAndCombinedPolygons(entities, nestInput.tolerance).map {
                     JaguarNestInput.NestInputPolygons(

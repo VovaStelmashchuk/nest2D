@@ -2,17 +2,21 @@ package com.nestapp.project
 
 import com.nestapp.files.dxf.reader.DXFReader
 import com.nestapp.files.svg.SvgWriter
-import com.nestapp.minio.ProjectRepository
+import com.nestapp.minio.MinioProjectRepository
+import com.nestapp.mongo.ProjectDatabase
+import com.nestapp.mongo.ProjectRepository
 import com.nestapp.nest.PolygonGenerator
+import org.bson.types.ObjectId
 import java.util.Locale
 
 class ProjectMaker(
+    private val minioProjectRepository: MinioProjectRepository,
     private val projectRepository: ProjectRepository,
     private val svgWriter: SvgWriter,
     private val polygonGenerator: PolygonGenerator,
 ) {
 
-    fun makeProject(
+    suspend fun makeProject(
         projectName: String,
         previewFile: ByteArray?,
         previewFileNameExtension: String,
@@ -21,7 +25,7 @@ class ProjectMaker(
         val slug = createProjectSlug(projectName)
 
         previewFile?.let {
-            projectRepository.uploadFileToMinioByteArray(
+            minioProjectRepository.uploadFileToMinioByteArray(
                 it,
                 "image/png",
                 "projects/$slug/media/preview.$previewFileNameExtension"
@@ -29,7 +33,7 @@ class ProjectMaker(
         }
 
         dxfFileBytes.forEach { (fileName, fileStream) ->
-            projectRepository.uploadFileToMinioByteArray(
+            minioProjectRepository.uploadFileToMinioByteArray(
                 fileStream,
                 "application/dxf",
                 "projects/$slug/files/$fileName"
@@ -43,12 +47,22 @@ class ProjectMaker(
 
             val fileNameWithoutExtension = fileName.substringBeforeLast(".")
             val svgString = svgWriter.buildSvgString(polygons)
-            projectRepository.uploadFileToMinioByteArray(
+            minioProjectRepository.uploadFileToMinioByteArray(
                 bytes = svgString.toByteArray(),
                 contentType = "image/svg+xml",
                 objectName = "projects/$slug/files/$fileNameWithoutExtension.svg"
             )
         }
+
+        projectRepository.insertProject(
+            ProjectDatabase(
+                id = ObjectId(),
+                name = projectName,
+                projectSlug = slug,
+                preview = previewFile?.let { "files/projects/$slug/media/preview.png" },
+                files = dxfFileBytes.map { (fileName, _) -> fileName },
+            )
+        )
 
         return slug
     }

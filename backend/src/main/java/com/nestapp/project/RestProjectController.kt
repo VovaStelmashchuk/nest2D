@@ -1,7 +1,7 @@
 package com.nestapp.project
 
 import com.nestapp.Configuration
-import com.nestapp.minio.ProjectRepository
+import com.nestapp.mongo.ProjectRepository
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
@@ -14,8 +14,6 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.io.InputStream
-import java.util.Locale
 
 fun Route.projectsRestController(
     configuration: Configuration,
@@ -79,14 +77,15 @@ fun Route.projectsRestController(
     }
 
     get("/all_projects") {
-        val result = projectRepository.getProjectList()
+        val result = projectRepository.getProjects()
             .map { project ->
                 AllProjectsResponse.Project(
-                    slug = project.name,
+                    slug = project.projectSlug,
                     name = project.name,
                     preview = configuration.baseUrl + project.preview,
                 )
             }
+
         call.respond(HttpStatusCode.OK, result)
     }
 

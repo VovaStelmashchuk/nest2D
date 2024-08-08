@@ -1,7 +1,7 @@
 package com.nestapp.project
 
 import com.nestapp.Configuration
-import com.nestapp.minio.ProjectRepository
+import com.nestapp.mongo.ProjectRepository
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.plugins.NotFoundException
@@ -18,22 +18,25 @@ fun Route.projectDetails(
     get("/project/{project_slug}") {
         val slug = call.parameters["project_slug"] ?: throw NotFoundException("Project not found")
 
-        val projectFiles = projectRepository.getProjectSvgFiles(slug)
-            .distinct()
+        try {
+            val projectFiles = projectRepository.getProject(slug)
 
-        val response = ProjectDetailsResponse(
-            slug = slug,
-            name = slug,
-            files = projectFiles
-                .map { fileName ->
-                    ProjectDetailsResponse.ProjectFile(
-                        name = fileName,
-                        preview = "${configuration.baseUrl}/files/projects/${slug}/files/$fileName.svg",
-                    )
-                }
-        )
+            val response = ProjectDetailsResponse(
+                slug = slug,
+                name = slug,
+                files = projectFiles.files
+                    .map { fileName ->
+                        ProjectDetailsResponse.ProjectFile(
+                            name = fileName,
+                            preview = "${configuration.baseUrl}/files/projects/${slug}/files/$fileName.svg",
+                        )
+                    }
+            )
 
-        call.respond(HttpStatusCode.OK, response)
+            call.respond(HttpStatusCode.OK, response)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }
 
