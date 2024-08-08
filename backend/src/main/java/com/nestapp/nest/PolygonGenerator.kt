@@ -7,12 +7,7 @@ import java.awt.geom.Point2D
 class PolygonGenerator {
 
     fun getMergedAndCombinedPolygons(rawEntities: List<Entity>, tolerance: Double): List<ClosePolygon> {
-        val paths = rawEntities.map { it.toPath2D() }
-
-        val minX = paths.minOfOrNull { it.bounds2D.minX } ?: 0.0
-        val minY = paths.minOfOrNull { it.bounds2D.minY } ?: 0.0
-
-        val entities = rawEntities.map { it.translate(-minX, -minY) }
+        val entities = moveAllEntityToPositiveCoordinates(rawEntities)
 
         val closedPolygons = mutableListOf<MutableClosePolygon>()
 
@@ -40,6 +35,15 @@ class PolygonGenerator {
                 mutableClosePolygon.entities
             )
         }
+    }
+
+    private fun moveAllEntityToPositiveCoordinates(rawEntities: List<Entity>): List<Entity> {
+        val paths = rawEntities.map { it.toPath2D() }
+
+        val minX = paths.minOfOrNull { it.bounds2D.minX } ?: 0.0
+        val minY = paths.minOfOrNull { it.bounds2D.minY } ?: 0.0
+        val entities = rawEntities.map { it.translate(-minX, -minY) }
+        return entities
     }
 
     fun convertEntitiesToPolygons(entities: List<Entity>, tolerance: Double): List<List<Point2D.Double>> {
