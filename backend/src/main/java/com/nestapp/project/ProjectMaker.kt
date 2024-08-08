@@ -60,7 +60,7 @@ class ProjectMaker(
                 name = projectName,
                 projectSlug = slug,
                 preview = previewFile?.let { "files/projects/$slug/media/preview.png" },
-                files = dxfFileBytes.map { (fileName, _) -> fileName },
+                files = dxfFileBytes.map { (fileName, _) -> fileName.substringBeforeLast(".") },
             )
         )
 
