@@ -38,17 +38,6 @@ internal class Arc(type: String?) : Entity(type!!), AutoPop {
         path.append(arc, true)
     }
 
-    override fun translate(x: Double, y: Double): Entity {
-        val translatedArc = Arc(type)
-        translatedArc.cx = this.cx + x
-        translatedArc.cy = this.cy + y
-        translatedArc.radius = this.radius
-        translatedArc.startAngle = this.startAngle
-        translatedArc.endAngle = this.endAngle
-        translatedArc.close()
-        return translatedArc
-    }
-
     override fun toWriterEntity(placement: Placement): DXFEntity {
         val center = RealPoint(cx, cy)
 

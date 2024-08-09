@@ -7,6 +7,7 @@ import com.nestapp.nest.nestRestApi
 import com.nestapp.project.ProjectMaker
 import com.nestapp.project.projectsRestController
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
@@ -24,6 +25,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import kotlinx.serialization.json.Json
+import java.util.concurrent.TimeUnit
 
 fun createHttpClient(): HttpClient {
     return HttpClient {
@@ -34,6 +36,11 @@ fun createHttpClient(): HttpClient {
                     encodeDefaults = true
                 }
             )
+        }
+        install(HttpTimeout) {
+            requestTimeoutMillis = TimeUnit.MINUTES.toMillis(3)
+            connectTimeoutMillis = TimeUnit.MINUTES.toMillis(1)
+            socketTimeoutMillis = TimeUnit.MINUTES.toMillis(3)
         }
     }
 }

@@ -7,6 +7,7 @@ import com.nestapp.mongo.ProjectDatabase
 import com.nestapp.mongo.ProjectRepository
 import com.nestapp.nest.PolygonGenerator
 import org.bson.types.ObjectId
+import java.util.Date
 import java.util.Locale
 
 class ProjectMaker(
@@ -61,6 +62,7 @@ class ProjectMaker(
                 projectSlug = slug,
                 preview = previewFile?.let { "files/projects/$slug/media/preview.png" },
                 files = dxfFileBytes.map { (fileName, _) -> fileName.substringBeforeLast(".") },
+                createdAt = Date(),
             )
         )
 

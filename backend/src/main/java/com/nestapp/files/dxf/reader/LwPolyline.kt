@@ -138,16 +138,6 @@ class LwPolyline internal constructor(type: String) : Entity(type), AutoPop {
             closed = true
         )
     }
-
-    override fun translate(x: Double, y: Double): Entity {
-        return LwPolyline(type).also {
-            it.segments =
-                segments.map { segment -> LSegment(dx = segment.dx + x, dy = segment.dy + y, bulge = segment.bulge) }
-                    .toMutableList()
-            it.close = close
-            it.close()
-        }
-    }
 }
 
 

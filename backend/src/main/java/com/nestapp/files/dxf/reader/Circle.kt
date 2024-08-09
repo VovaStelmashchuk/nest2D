@@ -43,17 +43,4 @@ internal class Circle(type: String?) : Entity(type!!), AutoPop {
             radius
         )
     }
-
-    override fun translate(x: Double, y: Double): Entity {
-        val newX = cx + x
-        val newY = cy + y
-        val originRadius = radius
-
-        return Circle(type).apply {
-            cx = newX
-            cy = newY
-            radius = originRadius
-            close()
-        }
-    }
 }

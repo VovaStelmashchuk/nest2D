@@ -335,45 +335,6 @@ public class DXFReader {
         }
     }
 
-    class Insert extends Entity implements AutoPop {
-        private String blockHandle, blockName;
-        private double ix, iy, xScale = 1.0, yScale = 1.0, zScale = 1.0, rotation;
-
-        Insert(String type) {
-            super(type);
-        }
-
-        @Override
-        public void addParam(int gCode, String value) {
-            switch (gCode) {
-                case 2:                                     // Name of Block to insert
-                    blockName = value;
-                    break;
-                case 5:                                     // Handle of Block to insert
-                    blockHandle = value;
-                    break;
-                case 10:                                    // Insertion X
-                    ix = Double.parseDouble(value);
-                    break;
-                case 20:                                    // Insertion Y
-                    iy = Double.parseDouble(value);
-                    break;
-                case 41:                                    // X scaling
-                    xScale = Double.parseDouble(value);
-                    break;
-                case 42:                                    // Y scaling
-                    yScale = Double.parseDouble(value);
-                    break;
-                case 43:                                    // Z Scaling (affects x coord and rotation)
-                    zScale = Double.parseDouble(value);
-                    break;
-                case 50:                                    // Rotation angle (degrees)
-                    rotation = Double.parseDouble(value);
-                    break;
-            }
-        }
-    }
-
     /*
      * Note: code for "DIMENSION" is incomplete
      */
@@ -478,66 +439,6 @@ public class DXFReader {
         }
     }
 
-    class Spline extends Entity implements AutoPop {
-        Path2D.Double path = new Path2D.Double();
-        List<Point2D.Double> cPoints = new ArrayList<>();
-        private double xCp, yCp;
-        private boolean hasXcp, hasYcp;
-        private boolean closed;
-        private int numCPs;
-        private int degree;
-
-        Spline(String type) {
-            super(type);
-        }
-
-        @Override
-        public void addParam(int gCode, String value) {
-            switch (gCode) {
-                case 10:                                    // Control Point X
-                    xCp = Double.parseDouble(value);
-                    hasXcp = true;
-                    break;
-                case 20:                                    // Control Point Y
-                    yCp = Double.parseDouble(value);
-                    hasYcp = true;
-                    break;
-                case 70:                                    // Flags (bitfield)
-                    // bit 0: Closed spline, bit 1:  Periodic spline, bit 2: Rational spline, bit 3: Planar, bit 4: Linear (planar bit is also set)
-                    // Examples:
-                    //    10 = Closed, Periodic, Planar Spline
-                    //
-                    int flags = Integer.parseInt(value);
-                    closed = (flags & 0x01) != 0;
-                    break;
-                case 71:                                    // Degree of the spline curve
-                    degree = Integer.parseInt(value);
-                    break;
-                case 73:                                    // Number of Control Points
-                    numCPs = Integer.parseInt(value);
-                    break;
-            }
-            if (hasXcp && hasYcp) {
-                cPoints.add(new Point2D.Double(xCp, yCp));
-                hasXcp = hasYcp = false;
-                if (cPoints.size() == numCPs) {
-                    if (degree == 3) {
-                        Point2D.Double[] points = cPoints.toArray(new Point2D.Double[0]);
-                        path.moveTo(points[0].x, points[0].y);
-                        for (int ii = 1; ii < points.length; ii += 3) {
-                            path.curveTo(points[ii].x, points[ii].y, points[ii + 1].x, points[ii + 1].y, points[ii + 2].x, points[ii + 2].y);
-                        }
-                    }
-                } else if (degree == 2) {
-                    Point2D.Double[] points = cPoints.toArray(new Point2D.Double[0]);
-                    path.moveTo(points[0].x, points[0].y);
-                    for (int ii = 1; ii < points.length; ii += 2) {
-                        path.quadTo(points[ii].x, points[ii].y, points[ii + 1].x, points[ii + 1].y);
-                    }
-                }
-            }
-        }
-    }
 
     private void push() {
         stack.add(cEntity);
@@ -583,13 +484,6 @@ public class DXFReader {
             System.out.print("  ");
         }
         System.out.println(value);
-    }
-
-    public void parseFile(File file) throws IOException {
-        stack = new ArrayList<>();
-        cEntity = null;
-        Scanner lines = new Scanner(Files.newInputStream(file.toPath()));
-        parseFile(lines);
     }
 
     public void parseFile(InputStream stream) {

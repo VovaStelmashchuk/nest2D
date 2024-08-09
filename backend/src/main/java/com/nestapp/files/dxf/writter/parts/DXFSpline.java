@@ -31,55 +31,44 @@ import java.awt.*;
 import java.util.Vector;
 
 
-
 /**
  * Class representing a general B-spline
  *
  * @author jsevy
- *
  */
-public class DXFSpline extends DXFEntity
-{
+public class DXFSpline extends DXFEntity {
     private int degree;
     private Vector<RealPoint> expandedControlPoints;
     private double[] knots;
     private boolean closed;
-    private Color color;
-    private BasicStroke stroke;
 
 
     /**
      * Create a spline of specified degree for the specified control points, using uniform knot vector.
      *
-     * @param degree		Degree of the piecewise-polynomial spline segments
-     * @param controlPoints	Locations and weights of the control points for the spline
-     * @param throughEndpoints		If true, the spline will be forced to pass through the endpoints by setting the end
-     * 						control point multiplicities to degree + 1
-     * @param graphics      The graphics object specifying parameters for this entity (color, thickness)
+     * @param degree           Degree of the piecewise-polynomial spline segments
+     * @param controlPoints    Locations and weights of the control points for the spline
+     * @param throughEndpoints If true, the spline will be forced to pass through the endpoints by setting the end
+     *                         control point multiplicities to degree + 1
      */
-    public DXFSpline(int degree, Vector<SplineControlPoint> controlPoints, boolean throughEndpoints, Graphics2D graphics)
-    {
+    /*public DXFSpline(int degree, Vector<SplineControlPoint> controlPoints, boolean throughEndpoints) {
 
         // if pass through endpoints, set multiplicities of first and last control points to degree + 1
-        if (throughEndpoints)
-        {
-        	controlPoints.elementAt(0).multiplicity = degree + 1;
-        	controlPoints.elementAt(controlPoints.size()-1).multiplicity = degree + 1;
+        if (throughEndpoints) {
+            controlPoints.elementAt(0).multiplicity = degree + 1;
+            controlPoints.elementAt(controlPoints.size() - 1).multiplicity = degree + 1;
         }
 
-    	this.degree = degree;
+        this.degree = degree;
         createExpandedPointVector(controlPoints);
         this.closed = false;
-        this.color = graphics.getColor();
-        this.stroke = (BasicStroke)graphics.getStroke();
 
         // here we use evenly spaced knots, one per expanded control point; have extras at end to keep AutoCAD happy...
         knots = new double[expandedControlPoints.size() + degree + 1];
-        for (int i = 0; i < knots.length; i++)
-        {
+        for (int i = 0; i < knots.length; i++) {
             knots[i] = i;
         }
-    }
+    }*/
 
 
     /**
@@ -88,21 +77,16 @@ public class DXFSpline extends DXFEntity
      * @param degree        Degree of the piecewise-polynomial spline segments
      * @param controlPoints Locations of the control points for the spline
      * @param knots         The knot sequence; length must be controlPoints.size() + degree + 1
-     * @param graphics      The graphics object specifying parameters for this entity (color, thickness)
      */
-    public DXFSpline(int degree, double[] controlPoints, double[] knots, Graphics2D graphics)
-    {
+    public DXFSpline(int degree, double[] controlPoints, double[] knots) {
 
         this.degree = degree;
-        this.closed = false;
-        this.color = graphics.getColor();
-        this.stroke = (BasicStroke)graphics.getStroke();
+        this.closed = true;
 
         // populate expanded control point vector
-        expandedControlPoints = new Vector<RealPoint>();
-        for (int i = 0; i < controlPoints.length/2; i++)
-        {
-            RealPoint controlPoint = new RealPoint(controlPoints[2*i], controlPoints[2*i+1]);
+        expandedControlPoints = new Vector<>();
+        for (int i = 0; i < controlPoints.length / 2; i++) {
+            RealPoint controlPoint = new RealPoint(controlPoints[2 * i], controlPoints[2 * i + 1]);
             expandedControlPoints.add(controlPoint);
         }
 
@@ -112,12 +96,10 @@ public class DXFSpline extends DXFEntity
     }
 
 
-
     /**
      * Implementation of DXFObject interface method; creates DXF text representing the spline.
      */
-    public String toDXFString()
-    {
+    public String toDXFString() {
         String result = "0\nSPLINE\n";
 
         // print out handle and superclass marker(s)
@@ -136,8 +118,7 @@ public class DXFSpline extends DXFEntity
         result += "73\n" + expandedControlPoints.size() + "\n";
 
         // indicate if closed
-        if (closed)
-        {
+        if (closed) {
             result += "70\n1\n";
         }
 
@@ -145,32 +126,23 @@ public class DXFSpline extends DXFEntity
         // knots are augmented at end with n+1 points to make AutoCAD happy
 
         // knots first (since there are more of them than control points)
-        for (int i = 0; i < expandedControlPoints.size() + degree + 1; i++)
-        {
-        	result += "40\n" + setPrecision(knots[i]) + "\n";
+        for (int i = 0; i < expandedControlPoints.size() + degree + 1; i++) {
+            result += "40\n" + setPrecision(knots[i]) + "\n";
         }
 
         // now control points and weights
-        for (int i = 0; i < expandedControlPoints.size(); i++)
-        {
+        for (int i = 0; i < expandedControlPoints.size(); i++) {
             RealPoint point = expandedControlPoints.elementAt(i);
             result += "10\n" + setPrecision(point.x) + "\n";
             result += "20\n" + setPrecision(point.y) + "\n";
             result += "41\n1\n";                // all weights 1; multiplicities already accounted for
         }
 
-        // add thickness; specified in Java in pixels at 72 pixels/inch; needs to be in 1/100 of mm for DXF, and restricted range of values
-        result += "370\n" + getDXFLineWeight(stroke.getLineWidth()) + "\n";
-
-        // add color number
-        result += "62\n" + DXFColor.getClosestDXFColor(color.getRGB()) + "\n";
-
         return result;
     }
 
 
-    public String getDXFHatchInfo()
-    {
+    public String getDXFHatchInfo() {
         // spline
         String result = "72\n" + "4" + "\n";
 
@@ -190,14 +162,12 @@ public class DXFSpline extends DXFEntity
         result += "96\n" + expandedControlPoints.size() + "\n";
 
         // knots first (since there are more of them than control points)
-        for (int i = 0; i < expandedControlPoints.size() + degree + 1; i++)
-        {
+        for (int i = 0; i < expandedControlPoints.size() + degree + 1; i++) {
             result += "40\n" + setPrecision(knots[i]) + "\n";
         }
 
         // now control points and weights
-        for (int i = 0; i < expandedControlPoints.size(); i++)
-        {
+        for (int i = 0; i < expandedControlPoints.size(); i++) {
             RealPoint point = expandedControlPoints.elementAt(i);
             result += "10\n" + setPrecision(point.x) + "\n";
             result += "20\n" + setPrecision(point.y) + "\n";
@@ -213,27 +183,23 @@ public class DXFSpline extends DXFEntity
      * Create vector of control points with points multiply represented according to their multiplicities,
      * and appropriate multiplicity at endpoints to pass through these.
      */
-    private void createExpandedPointVector(Vector<SplineControlPoint> controlPoints)
-    {
+    private void createExpandedPointVector(Vector<SplineControlPoint> controlPoints) {
 
-    	int index = 0;
+        int index = 0;
 
         expandedControlPoints = new Vector<RealPoint>();
 
-        if (controlPoints.size() != 0)
-        {
+        if (controlPoints.size() != 0) {
 
-	        for (int j = 0; j < controlPoints.size(); j++)
-	        {
-	            SplineControlPoint controlPoint = controlPoints.elementAt(j);
-	            controlPoint.expandedIndex = index;
+            for (int j = 0; j < controlPoints.size(); j++) {
+                SplineControlPoint controlPoint = controlPoints.elementAt(j);
+                controlPoint.expandedIndex = index;
 
-	            for (int i = 0; i < controlPoint.multiplicity; i++)
-	            {
-	                expandedControlPoints.add(new RealPoint(controlPoint.x, controlPoint.y));
-	                index++;
-	            }
-	        }
+                for (int i = 0; i < controlPoint.multiplicity; i++) {
+                    expandedControlPoints.add(new RealPoint(controlPoint.x, controlPoint.y));
+                    index++;
+                }
+            }
         }
     }
 }

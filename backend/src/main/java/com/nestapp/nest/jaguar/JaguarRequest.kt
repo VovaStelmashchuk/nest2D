@@ -4,10 +4,12 @@ import com.nestapp.nest.ClosePolygon
 import com.nestapp.nest.polygonOffset
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.timeout
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import java.util.concurrent.TimeUnit
 
 sealed class NestResult {
 
@@ -121,5 +123,4 @@ class JaguarRequest(
         )
         return request
     }
-
 }

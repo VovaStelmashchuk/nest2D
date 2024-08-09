@@ -69,9 +69,7 @@ internal class Polyline(type: String?) : Entity(type!!) {
     }
 
     override fun isClose(): Boolean {
-        return points.isNotEmpty() && points.first().let { firstPoint ->
-            points.last().let { lastPoint -> firstPoint.xx == lastPoint.xx && firstPoint.yy == lastPoint.yy }
-        }
+        return close
     }
 
     override fun toWriterEntity(placement: Placement): DXFEntity {
@@ -82,25 +80,6 @@ internal class Polyline(type: String?) : Entity(type!!) {
             },
             closed = true
         )
-    }
-
-    override fun translate(x: Double, y: Double): Entity {
-        return Polyline(type).also {
-            it.points = points.map { vertex ->
-                val newVertex = Vertex(type)
-                newVertex.xx = vertex.xx + x
-                newVertex.yy = vertex.yy + y
-                newVertex.bulge = vertex.bulge
-                newVertex
-            }.toMutableList()
-            it.close = close
-            it.firstX = firstX + x
-            it.firstY = firstY + y
-            it.lastX = lastX + x
-            it.lastY = lastY + y
-            it.firstPoint = firstPoint
-            it.close()
-        }
     }
 
     /**
