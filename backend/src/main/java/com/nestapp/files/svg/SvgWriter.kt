@@ -18,40 +18,6 @@ class SvgWriter {
         val y: Double,
     )
 
-    fun buildSvgStringOnPoints(points: List<Point2D.Double>): String {
-        val minX = points.minOf { it.x }
-        val minY = points.minOf { it.y }
-        val maxX = points.maxOf { it.x }
-        val maxY = points.maxOf { it.y }
-
-        val width = maxX - minX
-        val height = maxY - minY
-
-        val rawSvg = buildString {
-            appendLine("""<g transform="translate(${-minX}, ${-minY})">""".trimIndent())
-
-            appendLine("""<path d="""".trimIndent())
-
-            points.forEachIndexed { segmentIndex, segment ->
-                if (segmentIndex == 0) {
-                    append("M")
-                } else {
-                    append("L")
-                }
-
-                append(segment.x)
-                append(" ")
-                append(segment.y)
-                append(" ")
-            }
-
-            appendLine("""Z" fill="#00000000" fill-opacity="0.2" stroke="#000000" stroke-width="1" /> """)
-            appendLine("</g>")
-        }
-
-        return buildFinalSvg(rawSvg, width, height)
-    }
-
     fun buildNestedSvgString(
         polygons: List<SvgPolygon>,
     ): String {
@@ -139,7 +105,7 @@ class SvgWriter {
         }
 
         val color = COLORS[index % COLORS.size]
-        appendLine("""Z" fill="#32000000" fill-opacity="0.1" stroke="$color" stroke-width="1" /> """)
+        appendLine("""Z" fill="#64$color" fill-opacity="0.5" stroke="$color" stroke-width="1" /> """)
     }
 
     private fun buildFinalSvg(string: String, width: Double, height: Double): String {

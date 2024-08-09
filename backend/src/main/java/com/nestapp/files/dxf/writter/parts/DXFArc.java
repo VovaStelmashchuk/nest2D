@@ -27,51 +27,39 @@ package com.nestapp.files.dxf.writter.parts;
 
 import com.nestapp.files.dxf.common.RealPoint;
 
-import java.awt.*;
-
 
 /**
- * Graphical entity representing a circular arc.
- *
  * @author jsevy
- *
  */
-public class DXFArc extends DXFEntity
-{
+public class DXFArc extends DXFEntity {
     protected RealPoint center;
     protected double radius;
-    private double startAngleRadians;
-    private double endAngleRadians;
-    private boolean isCounterclockwise;
-    protected Color color;
-    protected BasicStroke stroke;
+    private final double startAngleRadians;
+    private final double endAngleRadians;
+    private final boolean isCounterclockwise;
 
 
     /**
      * Create a circular arc from the specified parameters.
-     * @param center		Center of the circle, as a RealPoint
-     * @param radius		Radius of the circle
-     * @param startAngleRadians	Starting angle of the circle, in radians, counterclockwise from the positive x axis
-     * @param endAngleRadians		Starting angle of the circle, in radians, counterclockwise from the positive x axis
-     * @param isCounterclockwise    Indicate direction of arc, clockwise or counterclockwise
-     * @param graphics			The graphics object specifying parameters for the arc (color, thickness)
+     *
+     * @param center             Center of the circle, as a RealPoint
+     * @param radius             Radius of the circle
+     * @param startAngleRadians  Starting angle of the circle, in radians, counterclockwise from the positive x axis
+     * @param endAngleRadians    Starting angle of the circle, in radians, counterclockwise from the positive x axis
+     * @param isCounterclockwise Indicate direction of arc, clockwise or counterclockwise
      */
-    public DXFArc(RealPoint center, double radius, double startAngleRadians, double endAngleRadians, boolean isCounterclockwise, Graphics2D graphics)
-    {
+    public DXFArc(RealPoint center, double radius, double startAngleRadians, double endAngleRadians, boolean isCounterclockwise) {
         this.startAngleRadians = startAngleRadians;
         this.endAngleRadians = endAngleRadians;
         this.isCounterclockwise = isCounterclockwise;
         this.center = new RealPoint(center);
         this.radius = radius;
-        this.color = graphics.getColor();
-        this.stroke = (BasicStroke)graphics.getStroke();
     }
 
     /**
      * Implementation of DXFObject interface method; creates DXF text representing the circular arc.
      */
-    public String toDXFString()
-    {
+    public String toDXFString() {
         String result = "0\nARC\n";
 
         // print out handle and superclass marker(s) and data
@@ -91,23 +79,16 @@ public class DXFArc extends DXFEntity
         result += "100\nAcDbArc\n";
 
         // angles - which are in degrees for circular arcs
-        double startAngleDegrees = (startAngleRadians * 180/Math.PI);
-        double endAngleDegrees = (endAngleRadians * 180/Math.PI);
+        double startAngleDegrees = (startAngleRadians * 180 / Math.PI);
+        double endAngleDegrees = (endAngleRadians * 180 / Math.PI);
         result += "50\n" + setPrecision(startAngleDegrees) + "\n";
         result += "51\n" + setPrecision(endAngleDegrees) + "\n";
-
-        // add thickness; specified in Java in pixels at 72 pixels/inch; needs to be in 1/100 of mm for DXF, and restricted range of values
-        result += "370\n" + getDXFLineWeight(stroke.getLineWidth()) + "\n";
-
-        // add color number
-        result += "62\n" + DXFColor.getClosestDXFColor(color.getRGB()) + "\n";
 
         return result;
     }
 
 
-    public String getDXFHatchInfo()
-    {
+    public String getDXFHatchInfo() {
         // circular arc
         String result = "72\n" + "2" + "\n";
 
@@ -119,8 +100,8 @@ public class DXFArc extends DXFEntity
         result += "40\n" + setPrecision(radius) + "\n";
 
         // start/end angles - IN DEGREES FOR HATCH!
-        double startAngleDegrees = (startAngleRadians * 180/Math.PI);
-        double endAngleDegrees = (endAngleRadians * 180/Math.PI);
+        double startAngleDegrees = (startAngleRadians * 180 / Math.PI);
+        double endAngleDegrees = (endAngleRadians * 180 / Math.PI);
 
         // do some stuff to accommodate LibreCAD, which ignores counterclockwise flag and doesn't like negative angles or those
         // outside the range 0-360 - not sure how much to try to accommodate...
@@ -132,19 +113,17 @@ public class DXFArc extends DXFEntity
 
         // stupid stuff for float/double rounding
         if (startAngleDegrees >= 360)
-                startAngleDegrees -= 360;
+            startAngleDegrees -= 360;
         if (endAngleDegrees >= 360)
             endAngleDegrees -= 360;
 
         // LibreCAD draws counterclockwise if start < end, clockwise if end < start
-        if (isCounterclockwise)
-        {
+        if (isCounterclockwise) {
             if (endAngleDegrees < startAngleDegrees)
                 endAngleDegrees += 360;
         }
 
-        if (!isCounterclockwise)
-        {
+        if (!isCounterclockwise) {
             // need to reverse start and end angles
             double temp = startAngleDegrees;
             startAngleDegrees = endAngleDegrees;

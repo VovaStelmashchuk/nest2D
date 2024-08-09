@@ -478,45 +478,6 @@ public class DXFReader {
         }
     }
 
-    class Arc extends Entity implements AutoPop {
-        Arc2D.Double arc = new Arc2D.Double(Arc2D.OPEN);
-        private double cx, cy, startAngle, endAngle, radius;
-
-        Arc(String type) {
-            super(type);
-        }
-
-        @Override
-        public void addParam(int gCode, String value) {
-            switch (gCode) {
-                case 10:                                  // Center Point X1
-                    cx = Double.parseDouble(value);
-                    break;
-                case 20:                                  // Center Point Y2
-                    cy = Double.parseDouble(value);
-                    break;
-                case 40:                                  // Radius
-                    radius = Double.parseDouble(value);
-                    break;
-                case 50:                                  // Start Angle
-                    startAngle = Double.parseDouble(value);
-                    break;
-                case 51:                                  // End Angle
-                    endAngle = Double.parseDouble(value);
-                    break;
-            }
-        }
-
-        @Override
-        public void close() {
-            arc.setFrame(cx - radius, cy - radius, radius * 2, radius * 2);
-            // Make angle negative so it runs clockwise when using Arc2D.Double
-            arc.setAngleStart(-startAngle);
-            double extent = startAngle - (endAngle < startAngle ? endAngle + 360 : endAngle);
-            arc.setAngleExtent(extent);
-        }
-    }
-
     class Spline extends Entity implements AutoPop {
         Path2D.Double path = new Path2D.Double();
         List<Point2D.Double> cPoints = new ArrayList<>();
