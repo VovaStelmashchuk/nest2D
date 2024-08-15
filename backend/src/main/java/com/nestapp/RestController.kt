@@ -95,7 +95,7 @@ fun Route.setupRouter(
     )
 
     nestRestApi(
-        jaguarRequest = JaguarRequest(client),
+        jaguarRequest = JaguarRequest(client, appComponent.configuration),
         polygonGenerator = PolygonGenerator(),
         minioProjectRepository = appComponent.minioProjectRepository,
         nestHistoryRepository = appComponent.nestHistoryRepository,

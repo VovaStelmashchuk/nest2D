@@ -26,6 +26,7 @@ internal object Main {
                     accessKey = config.property("ktor.minio.access_key").getString(),
                     secretKey = config.property("ktor.minio.secret_key").getString(),
                     mongoUrl = config.property("ktor.mongo.url").getString(),
+                    jaguarUrl = config.property("ktor.jaguar.url").getString(),
                 )
 
                 val appComponent = AppComponent(

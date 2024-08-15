@@ -1,15 +1,14 @@
 package com.nestapp.nest.jaguar
 
+import com.nestapp.Configuration
 import com.nestapp.nest.ClosePolygon
 import com.nestapp.nest.polygonOffset
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.timeout
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import java.util.concurrent.TimeUnit
 
 sealed class NestResult {
 
@@ -42,6 +41,7 @@ data class JaguarNestInput(
 
 class JaguarRequest(
     private val client: HttpClient,
+    private val configuration: Configuration,
 ) {
     suspend fun makeNestByJaguar(
         jaguarNestInput: JaguarNestInput,
@@ -49,7 +49,8 @@ class JaguarRequest(
         val request = buildRequest(jaguarNestInput)
 
         return try {
-            val response = client.post("https://jagua.nest2d.online/run/") {
+            println("JaguarRequest request $jaguarNestInput")
+            val response = client.post("${configuration.jaguarUrl}run/") {
                 contentType(ContentType.Application.Json)
                 setBody(request)
             }.body<Response>()
@@ -70,7 +71,7 @@ class JaguarRequest(
                 NestResult.NotFit
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            System.err.println("JaguarRequest error: $e")
             throw e
         }
     }

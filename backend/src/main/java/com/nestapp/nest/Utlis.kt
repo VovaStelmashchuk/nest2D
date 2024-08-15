@@ -1,6 +1,5 @@
 package com.nestapp.nest
 
-import com.nestapp.TOLERANCE
 import com.nestapp.nest.config.Config
 import de.lighti.clipper.Clipper
 import de.lighti.clipper.ClipperOffset

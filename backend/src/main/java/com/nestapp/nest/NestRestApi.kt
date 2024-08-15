@@ -65,11 +65,22 @@ fun Route.nestRestApi(
                 }
 
                 is NestResult.Success -> {
-                    buildResultFiles(
+                    val result = buildResultFiles(
                         nestedResult = nestedResult,
                         nestId = nestResultDatabase.id,
                         minioFileUpload = minioFileUpload,
-                        configuration = configuration,
+                    )
+
+                    nestHistoryRepository.makeNestFinish(
+                        id = nestResultDatabase.id,
+                        svgPath = result.svg,
+                        dxfPath = result.dxf,
+                    )
+
+                    NestedOutput(
+                        id = nestResultDatabase.id.toHexString(),
+                        svg = "${configuration.baseUrl}files/${result.svg}",
+                        dxf = "${configuration.baseUrl}files/${result.dxf}",
                     )
                 }
             }
@@ -84,8 +95,7 @@ fun Route.nestRestApi(
 private fun buildResultFiles(
     nestedResult: NestResult.Success,
     nestId: ObjectId,
-    minioFileUpload: MinioFileUpload,
-    configuration: Configuration
+    minioFileUpload: MinioFileUpload
 ): NestedOutput {
     val svgPolygons = nestedResult.polygons.flatMap { nestedPolygon ->
         PolygonGenerator().convertEntitiesToPolygons(nestedPolygon.closePolygon.entities, 0.1).map {
@@ -122,8 +132,8 @@ private fun buildResultFiles(
 
     return NestedOutput(
         id = nestId.toHexString(),
-        svg = "${configuration.baseUrl}files/$svgPath",
-        dxf = "${configuration.baseUrl}files/$dxfPath",
+        svg = svgPath,
+        dxf = dxfPath,
     )
 }
 

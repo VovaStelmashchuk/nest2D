@@ -35,6 +35,8 @@ class NestHistoryRepository(
                 .append("svgPreviewUrl", svgPath)
                 .append("dxfFileUrl", dxfPath)
         )
+
+        collection.updateOne(query, update)
     }
 }
 
