@@ -13,7 +13,7 @@ class NestHistoryRepository(
     private val database by lazy { client.getDatabase("nest2d") }
 
     suspend fun createNestResult(projectSlug: String): NestResultDatabase {
-        val collection = database.getCollection<NestResultDatabase>(collectionName = "nest-history")
+        val collection = database.getCollection<NestResultDatabase>(collectionName = COLLECTION_NAME)
         val nestResult = NestResultDatabase(
             id = ObjectId(),
             projectSlug = projectSlug,
@@ -26,7 +26,7 @@ class NestHistoryRepository(
     }
 
     suspend fun makeNestFinish(id: ObjectId, svgPath: String, dxfPath: String) {
-        val collection = database.getCollection<NestResultDatabase>(collectionName = "nest-history")
+        val collection = database.getCollection<NestResultDatabase>(collectionName = COLLECTION_NAME)
         val query = Filters.eq("_id", id)
 
         val update = org.bson.Document(
@@ -37,6 +37,10 @@ class NestHistoryRepository(
         )
 
         collection.updateOne(query, update)
+    }
+
+    companion object {
+        private const val COLLECTION_NAME = "nestHistory"
     }
 }
 
