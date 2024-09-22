@@ -28,7 +28,7 @@ fun Route.projectDetails(
                     .map { fileName ->
                         ProjectDetailsResponse.ProjectFile(
                             name = fileName,
-                            preview = "${configuration.baseUrl}/files/projects/${slug}/files/$fileName.svg",
+                            preview = "${configuration.s3Config.publicUrlStart}/projects/${slug}/files/$fileName.svg",
                         )
                     }
             )

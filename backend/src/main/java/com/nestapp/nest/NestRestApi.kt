@@ -4,8 +4,8 @@ import com.nestapp.Configuration
 import com.nestapp.files.dxf.DxfWriter
 import com.nestapp.files.dxf.reader.DXFReader
 import com.nestapp.files.svg.SvgWriter
-import com.nestapp.minio.MinioFileUpload
-import com.nestapp.minio.MinioProjectRepository
+import com.nestapp.s3.S3FileUpload
+import com.nestapp.s3.S3ProjectRepository
 import com.nestapp.mongo.NestHistoryRepository
 import com.nestapp.nest.jaguar.JaguarNestInput
 import com.nestapp.nest.jaguar.JaguarRequest
@@ -23,10 +23,10 @@ import org.bson.types.ObjectId
 fun Route.nestRestApi(
     jaguarRequest: JaguarRequest,
     polygonGenerator: PolygonGenerator,
-    minioProjectRepository: MinioProjectRepository,
+    s3ProjectRepository: S3ProjectRepository,
     nestHistoryRepository: NestHistoryRepository,
     configuration: Configuration,
-    minioFileUpload: MinioFileUpload,
+    s3FileUpload: S3FileUpload,
 ) {
     post("/nest") {
         val nestInput = call.receive<NestInput>()
@@ -38,7 +38,7 @@ fun Route.nestRestApi(
         }
             .flatMap { (file, count) ->
                 val dxfReader = DXFReader()
-                dxfReader.parseFile(minioProjectRepository.getDxfFileAsStream(nestInput.projectSlug, file))
+                dxfReader.parseFile(s3ProjectRepository.getDxfFileAsStream(nestInput.projectSlug, file))
                 val entities = dxfReader.entities
                 polygonGenerator.getMergedAndCombinedPolygons(entities, nestInput.tolerance).map {
                     JaguarNestInput.NestInputPolygons(
@@ -68,7 +68,7 @@ fun Route.nestRestApi(
                     val result = buildResultFiles(
                         nestedResult = nestedResult,
                         nestId = nestResultDatabase.id,
-                        minioFileUpload = minioFileUpload,
+                        s3FileUpload = s3FileUpload,
                     )
 
                     nestHistoryRepository.makeNestFinish(
@@ -79,8 +79,8 @@ fun Route.nestRestApi(
 
                     NestedOutput(
                         id = nestResultDatabase.id.toHexString(),
-                        svg = "${configuration.baseUrl}files/${result.svg}",
-                        dxf = "${configuration.baseUrl}files/${result.dxf}",
+                        svg = "${configuration.s3Config.publicUrlStart}/${result.svg}",
+                        dxf = "${configuration.s3Config.publicUrlStart}/${result.dxf}",
                     )
                 }
             }
@@ -95,7 +95,7 @@ fun Route.nestRestApi(
 private fun buildResultFiles(
     nestedResult: NestResult.Success,
     nestId: ObjectId,
-    minioFileUpload: MinioFileUpload
+    s3FileUpload: S3FileUpload
 ): NestedOutput {
     val svgPolygons = nestedResult.polygons.flatMap { nestedPolygon ->
         PolygonGenerator().convertEntitiesToPolygons(nestedPolygon.closePolygon.entities, 0.1).map {
@@ -112,7 +112,7 @@ private fun buildResultFiles(
 
     val svgPath = "nested/${nestId.toHexString()}/preview.svg"
 
-    minioFileUpload.uploadFileToMinioByteArray(
+    s3FileUpload.uploadFileToS3ByteArray(
         bytes = svg.toByteArray(),
         contentType = "image/svg+xml",
         objectName = svgPath,
@@ -124,7 +124,7 @@ private fun buildResultFiles(
 
     val dxfPath = "nested/${nestId.toHexString()}/cad_file.dxf"
 
-    minioFileUpload.uploadFileToMinioByteArray(
+    s3FileUpload.uploadFileToS3ByteArray(
         bytes = dxfString.toByteArray(),
         contentType = "application/dxf",
         objectName = dxfPath,

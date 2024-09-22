@@ -72,7 +72,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
 
-    implementation("io.minio:minio:8.5.11")
+
+    implementation("com.amazonaws:aws-java-sdk-s3:1.12.772")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("org.mongodb:mongodb-driver-kotlin-coroutine:4.10.1")

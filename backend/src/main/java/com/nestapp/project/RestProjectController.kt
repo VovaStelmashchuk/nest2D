@@ -82,7 +82,7 @@ fun Route.projectsRestController(
                 AllProjectsResponse.Project(
                     slug = project.projectSlug,
                     name = project.name,
-                    preview = configuration.baseUrl + project.preview,
+                    preview = configuration.s3Config.publicUrlStart + project.preview,
                 )
             }
 

@@ -86,7 +86,7 @@ fun Route.setupRouter(
     projectsRestController(
         configuration = appComponent.configuration,
         projectMaker = ProjectMaker(
-            minioProjectRepository = appComponent.minioProjectRepository,
+            s3ProjectRepository = appComponent.s3ProjectRepository,
             projectRepository = appComponent.projectRepository,
             svgWriter = SvgWriter(),
             polygonGenerator = PolygonGenerator(),
@@ -97,10 +97,10 @@ fun Route.setupRouter(
     nestRestApi(
         jaguarRequest = JaguarRequest(client, appComponent.configuration),
         polygonGenerator = PolygonGenerator(),
-        minioProjectRepository = appComponent.minioProjectRepository,
+        s3ProjectRepository = appComponent.s3ProjectRepository,
         nestHistoryRepository = appComponent.nestHistoryRepository,
         configuration = appComponent.configuration,
-        minioFileUpload = appComponent.minioFileUpload,
+        s3FileUpload = appComponent.s3FileUpload,
     )
 
     get("/version") {

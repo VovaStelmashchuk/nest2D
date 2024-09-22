@@ -18,15 +18,21 @@ internal object Main {
             module {
                 val appVersion = config.property("ktor.app.version").getString()
 
+                val s3Config = Configuration.S3Config(
+                    endpoint = config.property("ktor.s3.endpoint").getString(),
+                    accessKey = config.property("ktor.s3.access_key").getString(),
+                    secretKey = config.property("ktor.s3.secret_key").getString(),
+                    region = config.property("ktor.s3.region").getString(),
+                    bucketName = config.property("ktor.s3.bucket").getString(),
+                    publicUrlStart = config.property("ktor.s3.public_url").getString()
+                )
+
                 val configuration = Configuration(
                     baseUrl = config.property("ktor.app.base_url").getString(),
                     appVersion = appVersion,
-                    endpoint = config.property("ktor.minio.endpoint").getString(),
-                    port = config.property("ktor.minio.port").getString().toInt(),
-                    accessKey = config.property("ktor.minio.access_key").getString(),
-                    secretKey = config.property("ktor.minio.secret_key").getString(),
                     mongoUrl = config.property("ktor.mongo.url").getString(),
                     jaguarUrl = config.property("ktor.jaguar.url").getString(),
+                    s3Config = s3Config,
                 )
 
                 val appComponent = AppComponent(

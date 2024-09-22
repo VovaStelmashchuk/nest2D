@@ -2,7 +2,7 @@ package com.nestapp.project
 
 import com.nestapp.files.dxf.reader.DXFReader
 import com.nestapp.files.svg.SvgWriter
-import com.nestapp.minio.MinioProjectRepository
+import com.nestapp.s3.S3ProjectRepository
 import com.nestapp.mongo.ProjectDatabase
 import com.nestapp.mongo.ProjectRepository
 import com.nestapp.nest.PolygonGenerator
@@ -11,7 +11,7 @@ import java.util.Date
 import java.util.Locale
 
 class ProjectMaker(
-    private val minioProjectRepository: MinioProjectRepository,
+    private val s3ProjectRepository: S3ProjectRepository,
     private val projectRepository: ProjectRepository,
     private val svgWriter: SvgWriter,
     private val polygonGenerator: PolygonGenerator,
@@ -26,7 +26,7 @@ class ProjectMaker(
         val slug = createProjectSlug(projectName)
 
         previewFile?.let {
-            minioProjectRepository.uploadFileToMinioByteArray(
+            s3ProjectRepository.uploadFileToS3ByteArray(
                 it,
                 "image/png",
                 "projects/$slug/media/preview.$previewFileNameExtension"
@@ -34,7 +34,7 @@ class ProjectMaker(
         }
 
         dxfFileBytes.forEach { (fileName, fileStream) ->
-            minioProjectRepository.uploadFileToMinioByteArray(
+            s3ProjectRepository.uploadFileToS3ByteArray(
                 fileStream,
                 "application/dxf",
                 "projects/$slug/files/$fileName"
@@ -48,7 +48,7 @@ class ProjectMaker(
 
             val fileNameWithoutExtension = fileName.substringBeforeLast(".")
             val svgString = svgWriter.buildSvgString(polygons)
-            minioProjectRepository.uploadFileToMinioByteArray(
+            s3ProjectRepository.uploadFileToS3ByteArray(
                 bytes = svgString.toByteArray(),
                 contentType = "image/svg+xml",
                 objectName = "projects/$slug/files/$fileNameWithoutExtension.svg"
